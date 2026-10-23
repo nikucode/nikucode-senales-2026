@@ -1,14 +1,14 @@
 # Checkpoint 1 y nombre de trabajo
 
-23-10-2026. El equipo comunica que ya está en el evento. Checkpoint 1: 12:00, «Qué problema decidieron atacar y por qué ese». Repo, marca y dispositivos no se dan por elegidos en esta sesión. No es necesario resolver la marca definitiva para explicar el problema.
+Registro preparado el 23-10-2026. El repositorio público se creó como `nikucode/nikucode-senales-2026`; no se ha adoptado una marca definitiva para la aplicación. El guion del checkpoint conserva valor como argumento del problema, mientras que las recomendaciones históricas de repositorio, dispositivos y stack quedan reemplazadas por [el estado compartido](ESTADO_COMPARTIDO.md) y la [guía técnica](GUIA_COLABORACION_TECNICA.md).
 
 ## 1. Guion breve para las 12:00
 
 > Somos nikucode y elegimos la dificultad de iniciar pausas durante el estudio y el trabajo frente al computador. En nuestro caso, incluso cuando notamos que necesitamos movernos, seguimos hasta que el sueño, el dolor o una necesidad externa nos hace parar. Los recordatorios y registros que hemos intentado a veces terminan como otra obligación.
 >
-> Elegimos este problema porque lo vivimos directamente y podemos describir esa secuencia concreta. La investigación nos ayudó a entender que saber qué conviene no garantiza actuar y que también importan la carga y la oportunidad real de interrumpir.
+> Elegimos este problema porque lo vivimos directamente y podemos describir esa secuencia concreta. Nuestra lectura es que no basta con recordar que conviene moverse: interrumpir una tarea cuesta, y un recordatorio puede convertirse en otra tarea pendiente. La investigación nos ayudó a formular esa hipótesis, no a darla por demostrada.
 >
-> Queremos explorar cómo facilitar una pausa viable con poca preparación y control de la persona, en computador y celular. Nuestro criterio de éxito va más allá de abrir la app: nos interesa que pueda iniciarse una pausa en un momento adecuado. Todavía debemos comprobar qué parte resuelve la herramienta y con qué carga; la demo no demostrará hábito ni prevención del dolor.
+> Por eso queremos investigar cómo facilitar el paso entre seguir trabajando y empezar una pausa viable, conservando el control de la persona. Elegimos un problema específico que conocemos de primera mano y que podemos traducir en una pregunta comprobable: ¿la solución ayudaría a empezar una pausa que hoy seguimos postergando? Todavía debemos probarlo; no afirmamos que el prototipo forme hábitos ni prevenga dolor.
 
 Apoyo si preguntan por el recorte: tarea individual donde exista posibilidad real de pausar; propuesta breve/modificable, posponer/rechazar/detener y salida hacia fuera de pantalla. La app es una hipótesis de solución, no la causa ya resuelta. Si hubo avances reales desde la preparación, añadir exactamente cuáles se observaron.
 
