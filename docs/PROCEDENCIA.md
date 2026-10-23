@@ -12,4 +12,4 @@ MANIFIESTO_IMPORTACION.json registra hashes del contenido original y su copia in
 
 Ampliación: se incorporaron 21 respaldos de investigación y ensayos, sin ejecutar otra investigación ni reproducir pruebas. `MANIFIESTO_AMPLIACION.json` registra esa selección y las nuevas adaptaciones de enlaces. El resumen de la aclaración Makana excluye la transcripción literal. Los informes de ensayos no incluyen todos sus logs/binarios; no suponer acceso a artefactos que solo se mencionan.
 
-Los respaldos contienen avisos históricos; no reemplazan el programa vigente o contratos actuales ni deben activarse como siguientes tareas. [Índice y orden de lectura](INDICE_DOCUMENTACION.md).
+Los respaldos contienen avisos históricos; no reemplazan el programa vigente o contratos actuales ni deben activarse como siguientes tareas. Consulta el [mapa documental](MAPA_DOCUMENTAL.md) para encontrar el documento pertinente.

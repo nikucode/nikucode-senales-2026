@@ -2,7 +2,7 @@
 
 ## Ejecución integral y preparación de llegada — 23-10-2026
 
-Entrada operativa: [Empezar aquí](ESTADO_COMPARTIDO.md). El [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md) integra A–N, búsquedas/acceso, fuentes y decisiones INT23-D01…D14. La [guía](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md) concreta propuestas adicionales: C1/C2, guía sin cronómetro obligatorio, programación puntual sin recurrencia inicial y contratos de invitación/avisos. Propuestas, no selección definitiva del equipo ni resultados propios. Pruebas AC pendientes. La [preparación técnica](PREPARACION_TECNICA_DESTINOS_2026-10-23.md) usa IDs locales T23-01…11; no duplicar esas referencias como ensayos científicos.
+Entrada operativa: [estado compartido](ESTADO_COMPARTIDO.md). El [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md) integra A–N, búsquedas, fuentes y decisiones INT23-D01…D14. La [guía](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md) especifica propuestas C1/C2, guía sin cronómetro obligatorio, programación puntual sin recurrencia inicial y contratos de invitación/avisos. Son propuestas de implementación, no resultados propios ni decisiones definitivas fuera de lo registrado en el estado compartido. Las pruebas de aceptación permanecen pendientes. La [preparación técnica](PREPARACION_TECNICA_DESTINOS_2026-10-23.md) usa IDs locales T23-01…11, que no representan ensayos científicos.
 
 | ID | Afirmación acotada | Fuente/acceso | Decisión o límite |
 |---|---|---|---|

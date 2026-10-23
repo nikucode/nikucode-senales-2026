@@ -1,8 +1,8 @@
-# Aportes de Javi
+# Registro de contribuciones · Javier González
 
-Sin resultados nuevos registrados aquí al preparar el repositorio. La investigación previa está en los documentos importados.
+No se registraron contribuciones en este archivo al preparar el repositorio. La investigación y los acuerdos previos constan en los documentos de referencia; registrar aquí los avances futuros de este integrante.
 
-Por bloque: fecha/hora, pregunta/tarea, fuentes o archivos, resultado observado, límite, decisión propuesta y siguiente paso. Coordinar archivos antes de editar; el integrador actualiza registros comunes.
+Para cada contribución, registrar pregunta/tarea, fuentes o archivos, resultado observado, límite y siguiente paso. Coordinar archivos antes de editarlos; el registro común de estado lo actualiza quien integra.
 
 ## 2026-10-23 10:42 -03 · Arranque y lectura mínima
 

@@ -18,7 +18,7 @@ Cambios de esta integración:
 - La estética se convierte en una dirección lista para aplicar y comprobar, evitando otra ronda de elección visual antes del recorrido funcional.
 - La revisión cruzada R05 detectó dos huecos de contrato: entrega del SO durante una propuesta y confusión entre hora programada/caducidad. Se corrigieron guía, ficha y documento técnico: abrir consume/cancela la invitación; validez por identificador/generación, sin TTL adicional inicial. No se garantiza impedir un banner ya entregado. Son correcciones de diseño, no bugs observados.
 
-Detalles para ejecutar: [guía de implementación y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md). Resumen de arranque: [Empezar aquí](ESTADO_COMPARTIDO.md).
+Detalles para ejecutar: [guía de implementación y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md). Estado operativo: [estado compartido](ESTADO_COMPARTIDO.md).
 
 ## 2. Método, alcance y cola de decisiones
 

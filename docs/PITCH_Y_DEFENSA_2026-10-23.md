@@ -2,7 +2,7 @@
 
 Preparado el 23-10-2026. Borrador escrito antes de desarrollar el artefacto. La versión para presentar debe actualizarse con resultados reales; ningún marcador pendiente es un logro. Formato vigente aportado durante el evento: cinco minutos con demo y tres de preguntas. El programa actual reemplaza los cinco minutos de preguntas de la preparación anterior.
 
-Fundamento: [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md). Funcionamiento esperado: [guía y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md). Entrada: [Empezar aquí](ESTADO_COMPARTIDO.md).
+Fundamento: [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md). Funcionamiento esperado: [guía y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md). Estado vigente: [estado compartido](ESTADO_COMPARTIDO.md).
 
 **Presentación preparada:** [PDF de cinco diapositivas](PITCH_BORRADOR_2026-10-23.pdf) y [editable ODP con notas](PITCH_BORRADOR_2026-10-23.odp). Es un borrador de preparación; reemplazar esquema de recorrido y texto de evaluación con artefacto/resultados reales. PDF renderizado y revisado visualmente en las cinco páginas; ODP comprobado como ZIP/XML con cinco páginas/notas, sin apertura en Impress verificada. La exportación headless de LibreOffice devolvió exit 1 sin diagnóstico; el PDF se generó de forma independiente desde el mismo contenido. El PDF no está etiquetado para lectura asistiva: este guion en texto ofrece la alternativa de contenido. No se declara accesibilidad completa de la presentación.
 

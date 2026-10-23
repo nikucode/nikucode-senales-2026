@@ -1,20 +1,21 @@
 # Estado compartido · nikucode
 
-Actualización23-10-2026. Entrada común para Codex/OpenCode; no supone memoria compartida entre sesiones.
+Actualización: 23 de octubre de 2026. Registro compartido para integrantes y asistentes; las sesiones de trabajo no comparten memoria automáticamente.
 
 ## Estado observado
 
 - Repo público creado por el equipo: https://github.com/nikucode/nikucode-senales-2026 (enlace y pantalla aportados por Alex).
-- Primer commit `ff5ef84` publicado según confirmación de Alex; `origin/main` local apunta al mismo commit. API de esta sesión sigue sin conexión DNS. No se afirma una lectura remota nueva de GitHub.
-- Ampliación actual: respaldo de investigación, fichas/ensayos y arranque/índice. Su commit/publicación se verifican por separado; no confundir con el primer bloque ya publicado.
-- Fase «A construir» ya confirmada desde09:45. No falta autorización temporal para desarrollo del evento.
-- No hay app/scaffold/pruebas de app en este bloque. Plataforma del computador/teléfono de demo y stack aún por acordar.
-- Preparados: investigación A–N, especificación, fuentes, aceptación, rutas técnicas, checkpoint12:00, guion/defensa y borrador de cinco diapositivas.
+- Al iniciar esta revisión, `main` y `origin/main` apuntaban a `b6c3318`, que incluye la primera app y la actualización visual. La iteración de interfaz descrita abajo está en cambios locales aún no publicados.
+- La fase «A construir» comenzó a las 09:45, una vez terminada la bienvenida, según el programa compartido por el equipo.
+- Primera app nueva en `app/`, con Flutter 3.47.7/Dart 3.13.5 como base inicial de implementación. Compilaron Linux debug y web. Android tiene scaffold, sin APK/canal nativo probado; dispositivos físicos aún por confirmar.
+- Recorrido/estado/render comprobados con motor Flutter headless: 20 checks, ocho capturas, cero errores Flutter y canal simulado. `flutter analyze --no-pub` y builds Linux debug/web release pasaron. La ventana Linux no pudo abrirse en esta sesión porque no hay display disponible. Gestos, lector de pantalla, avisos del SO y teléfono real siguen sin verificar. Ver [evidencia](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
+- En propuesta, guía y cierre se quitó la introducción repetida; además, el encabezado interno se compacta y el adorno se reduce con el recorrido abierto. A 200 % la acción principal aparece al borde inferior y los demás controles requieren desplazamiento. Las capturas actuales están en `docs/evidencia/`; esto no es una evaluación de interacción ni certificación de accesibilidad.
+- Preparados: investigación, especificación, fuentes, aceptación, rutas técnicas, guion de checkpoint, defensa y borrador de cinco diapositivas.
 
 ## Decisiones y propuestas
 
 Confirmado: computador y celular; caso del propio equipo; un repo público para código/documentación/entrega.
-Propuesto: recorrido breve, C1/C2, programación puntual sin recurrencia inicial, controles para cambiar/posponer/rechazar/detener; sin cuentas/sync/rachas/IA/cámara en núcleo. Revisar recorte brevemente antes de construir, sin reiniciar investigación general.
+Propuesto: recorrido breve, C1/C2, programación puntual sin recurrencia inicial, controles para cambiar/posponer/rechazar/detener; sin cuentas, sincronización, rachas, IA o cámara en el núcleo. La expansión comercial y el diseño visual se mantienen como hipótesis descritas en [la investigación de experiencia y acceso](INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
 
 Contratos: abrir propuesta consume/invalida invitación y cancela programación propia; hora programada no es caducidad; validez por generación. No garantizar impedir banner ya entregado por el SO. No contar guía como movimiento.
 
@@ -22,15 +23,15 @@ Contratos: abrir propuesta consume/invalida invitación y cancela programación 
 
 | Tarea | Responsable | Estado | Cierre esperado |
 |---|---|---|---|
-| Publicar documentación inicial | Alex | Publicado según confirmación y ref local ff5ef84 | Primer bloque disponible; no repetir inicialización |
-| Completar respaldo y arranque para Javi | Sesión Alex | Preparado; commit/push de ampliación pendientes | Índice/arranque y respaldos disponibles tras publicación |
-| Confirmar stack y destinos reales | Equipo | Pendiente | Registrar sistemas/versiones sin identificadores personales |
-| Prueba de canal y recorrido | Por asignar | Pendiente | Comprobación real temprano; límite/fallback si falla |
-| Checkpoint1 de12:00 | Ambos | Guion preparado | Explicar problema, intentos previos y elección |
-| Checkpoint2 de17:15 | Ambos | Implementación pendiente | Algo central funcionando, aunque incompleto |
+| Repositorio y documentación inicial | Equipo | Commits `ff5ef84` y `351c267` integrados en la historia de `main` | Mantener documentación pública coherente con la implementación vigente |
+| Primera implementación e iteración de interfaz | Equipo | App en `main`; ajuste compacto local probado con 19 checks y ocho capturas | Recompilar Linux/web y revisar interacción/asistencia en equipos reales |
+| Confirmar destinos reales | Equipo | Pendiente | Stack inicial Flutter; registrar computador/teléfono sin identificadores personales |
+| Prueba de canal real | Equipo, por repartir | Pendiente | Comprobar permiso/entrega/toque/cancelación; el fake no lo sustituye |
+| Checkpoint 1 · 12:00 | Equipo | Realizado; Alex informa que el checkpoint salió bien y recomienda investigar cómo acercar la propuesta a la persona | Integrar el aprendizaje sobre autocompasión sin inducir culpa ni exagerar el efecto |
+| Checkpoint 2 · 17:15 | Equipo | Base implementada, comprobación en destino pendiente | Demostrar una función central en un destino real |
 
-## Cómo empezar
+## Continuidad del trabajo
 
 Lee la guía para la tarea acordada. Reparte archivos y ramas con el otro integrante. Registra tus hallazgos en tu archivo de aportes; un integrador actualiza matriz/decisiones/estado. Sincroniza y relee antes de tareas dependientes. No asumir que los archivos de otra rama ya están integrados.
 
-Próximo paso: publicar la ampliación y usar [arranque para Javi](ARRANQUE_JAVI.md); escoger destinos/stack y ejecutar primera prueba vertical. No hace falta esperar a leer todo el respaldo para comenzar. Javi necesitará acceso de colaborador para publicar directamente; clonar el repo público permite leer sin esa invitación.
+Siguiente paso: comprobar el recorrido y el canal en dispositivos reales del equipo, registrar los destinos disponibles y repartir los archivos antes de modificar módulos compartidos. El motor Flutter headless confirmó estados y capturas con un canal simulado; no sustituye una prueba de avisos ni una evaluación con usuarios. Consulta la [evidencia del primer recorrido](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md) y la [guía técnica](GUIA_COLABORACION_TECNICA.md).

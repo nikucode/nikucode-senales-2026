@@ -2,7 +2,7 @@
 
 Preparada el 23-10-2026 antes de la bienvenida. Especificación candidata del asistente: no código, implementación ni aprobación de todas sus decisiones. Computador/celular sí son alcance confirmado. Si las pruebas reales cambian la viabilidad, actualizar el contrato y el pitch juntos.
 
-Entrada rápida: [Empezar aquí](ESTADO_COMPARTIDO.md). Fundamento y estado: [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md). Contratos anteriores compatibles: [ficha V0](FICHA_MVP_PROPUESTA_2026-10-23.md). Canal por sistema: [preparación técnica](PREPARACION_TECNICA_DESTINOS_2026-10-23.md).
+Entrada rápida: [estado compartido](ESTADO_COMPARTIDO.md). Fundamento y decisiones: [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md). Contratos anteriores compatibles: [ficha V0](FICHA_MVP_PROPUESTA_2026-10-23.md). Canal por sistema: [preparación técnica](PREPARACION_TECNICA_DESTINOS_2026-10-23.md).
 
 ## 1. Qué construir primero
 
@@ -133,7 +133,7 @@ Si el canal falla en el primer bloque, consultar [ruta técnica](PREPARACION_TEC
 
 ## 9. Encargos de agentes para copiar tras la bienvenida
 
-**Principal/integrador:** «Lee Empezar aquí y el estado real del repo. La fase de construcción ya consta; confirma destinos y repo real. Trabaja en la primera tarea pendiente, asigna rutas exclusivas y verifica resultados. No reconstruyas la investigación ni incorpores expansiones sin necesidad.»
+**Integración:** «Lee el estado compartido y revisa el estado real del repositorio. La fase de construcción está autorizada. Confirma los destinos disponibles y coordina archivos de trabajo. Prioriza la tarea pendiente con mayor valor; verifica los resultados y no reconstruyas la investigación ni incorpores expansiones sin necesidad demostrada.»
 
 **Implementador de núcleo:** «Responsable de reglas de interacción/canal en rutas que indique el principal. No estás solo: no reviertas cambios ajenos. Implementa el contrato acordado de un pendiente, reemplazo/cancelación, permiso real y señales durante guía. Sin backend/rachas/IA. Entrega cambios, pruebas observadas y límites por destino. No delegues.»
 

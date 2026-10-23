@@ -2,6 +2,8 @@
 
 **Auditoría 23-10:** ver [correcciones científicas y de producto](AUDITORIA_CIENTIFICA_MVP_2026-10-23.md). Apariencia cálida, control visible y contraste son decisiones/requisitos, no demostración de baja carga, ausencia de culpa, funcionamiento asistivo o eficacia conductual. La entrada desde una señal debe poder ir directamente a la propuesta sin recorrer Inicio. Computador/celular mantienen recorridos autónomos; todavía no hay accesibilidad o rendimiento comprobados de una app competitiva.
 
+**Actualización de producto, 23-10-2026:** la app del evento ya tiene un primer recorrido Flutter y capturas documentadas en [evidencia de implementación](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md). Esta investigación es anterior a esa implementación; sus propuestas no equivalen a una auditoría de la app actual. La dirección orgánica/editorial, el contraste entre variantes y el análisis del acceso gratuito se sintetizan en [diseño de experiencia y modelo de acceso](INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
+
 **Alcance confirmado por Alex:** mantener computador y celular para el contexto de estudio/trabajo con poco movimiento. Adaptar disposición y controles a cada pantalla conservando estados y lenguaje coherentes. No requerir cambio de dispositivo durante la pausa. Sistemas operativos y sincronización siguen por definir; esta decisión no selecciona framework.
 
 **Continuidad de producto y pitch:** [síntesis del mecanismo conductual y MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md). El acabado visual queda subordinado a una conducta, barrera y mecanismo explícitos; la nueva lectura de Baughan se limita al resumen en el sitio de la autora, no a un PDF completo.

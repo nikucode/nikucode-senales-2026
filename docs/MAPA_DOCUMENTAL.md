@@ -1,9 +1,11 @@
-# Índice: decisiones vigentes y respaldo consultable
+# Mapa documental del proyecto
 
-## Empezar
+## Documentos de referencia inmediata
 
-- [Arranque para Javi](ARRANQUE_JAVI.md).
+- [Primera app: ejecutar, evidencia y guion de checkpoint](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
+- [Guía de incorporación técnica](GUIA_COLABORACION_TECNICA.md).
 - [Estado compartido](ESTADO_COMPARTIDO.md): entrada viva y tareas.
+- [Autocompasión y acercamiento](INVESTIGACION_AUTOCOMPASION_Y_ACERCAMIENTO.md): evidencia, límites y propuesta de prueba de mensajes.
 - [Guía de implementación y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md).
 - [Preparación técnica por destinos](PREPARACION_TECNICA_DESTINOS_2026-10-23.md).
 
@@ -16,6 +18,7 @@
 | Fuente → afirmación → límite | [Matriz de evidencia](MATRIZ_EVIDENCIA_Y_VALIDACION.md) |
 | Propuesta de vistas/estados y sus antecedentes | [Ficha de MVP](FICHA_MVP_PROPUESTA_2026-10-23.md) |
 | Estilo, estructura y accesibilidad | [Investigación de interfaz](INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md) |
+| Diferenciación, experiencia, acceso y sostenibilidad | [Investigación de experiencia y modelo de acceso](INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md) |
 | Mecanismos y límites de las hipótesis | [Mecanismo y MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md) |
 | Checkpoint y candidatos de marca | [Checkpoint/naming](CHECKPOINT_1_Y_NOMBRE_2026-10-23.md) |
 | Horarios, entrega y rúbrica | [Programa vigente](PROGRAMA_VIGENTE_2026-10-23.md) |
@@ -36,8 +39,8 @@ Se conserva historia y alcance de acceso. El informe actual, estado y programa p
 | Evaluación y alternativas | [Validaciones de avisos/estética](investigacion/INVESTIGACION_VALIDACIONES_NOTIFICACIONES_Y_ESTETICA.md), [alternativas](investigacion/MATRIZ_ALTERNATIVAS_Y_PRUEBA_MINIMA.md), [experimentos de flujo](investigacion/EVIDENCIA_Y_EXPERIMENTOS_FLUJO_NIKUCODE.md) |
 | Base metodológica/casos | [Research and cases](investigacion/RESEARCH_AND_CASES.md), [prompt V2 ejecutado](investigacion/PROMPT_MAESTRO_INVESTIGACION_INTEGRAL_2026-10-23.md) |
 | Continuidad entre sesiones | [Integración OpenCode](investigacion/INTEGRACION_OPENCODE_A_CODEX_2026-10-22.md), [síntesis de sesión completa](investigacion/INTEGRACION_SESION_OPENCODE_COMPLETA_2026-10-22.md) — síntesis, no conversaciones originales |
-| Herramientas y agentes | [Flujo de herramientas](investigacion/FLUJO_AGENTES_HERRAMIENTAS_APP_Y_PITCH_2026-10-22.md) — versiones/configuración del equipo original, no instalación en el de Javi |
-| Reglas aclaradas | [Resumen de la aclaración Makana](investigacion/ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md) — sin transcripción literal ni audio |
+| Herramientas y agentes | [Flujo de herramientas](investigacion/FLUJO_AGENTES_HERRAMIENTAS_APP_Y_PITCH_2026-10-22.md) — registro histórico de versiones y configuración; no instala herramientas en otros equipos |
+| Reglas aclaradas | [Resumen de la aclaración de Makana](investigacion/ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md) — sin transcripción literal ni audio |
 | Ensayos documentados de competidores | [Stretchly](investigacion/ENSAYO_STRETCHLY.md), [Wakeout Chrome](investigacion/ENSAYO_WAKEOUT_CHROME.md), [análisis estático OpalHelper](investigacion/ANALISIS_OPAL_HELPER.md) |
 
 ## Qué se excluyó y por qué
