@@ -8,14 +8,23 @@ class AppPreferencesController extends ChangeNotifier {
     required int avatarIndex,
     required bool highContrast,
     required bool reduceMotion,
+    required double textScale,
     SharedPreferencesAsync? storage,
-  }) : this._values(nickname, avatarIndex, highContrast, reduceMotion, storage);
+  }) : this._values(
+         nickname,
+         avatarIndex,
+         highContrast,
+         reduceMotion,
+         textScale,
+         storage,
+       );
 
   AppPreferencesController._values(
     this._nickname,
     this._avatarIndex,
     this._highContrast,
     this._reduceMotion,
+    this._textScale,
     this._storage,
   );
 
@@ -24,12 +33,14 @@ class AppPreferencesController extends ChangeNotifier {
     avatarIndex: 0,
     highContrast: false,
     reduceMotion: false,
+    textScale: 1,
   );
 
   static const _nicknameKey = 'profile.nickname';
   static const _avatarKey = 'profile.avatar';
   static const _contrastKey = 'accessibility.highContrast';
   static const _motionKey = 'accessibility.reduceMotion';
+  static const _textScaleKey = 'accessibility.textScale';
 
   static Future<AppPreferencesController> load() async {
     final storage = SharedPreferencesAsync();
@@ -38,6 +49,7 @@ class AppPreferencesController extends ChangeNotifier {
       avatarIndex: await storage.getInt(_avatarKey) ?? 0,
       highContrast: await storage.getBool(_contrastKey) ?? false,
       reduceMotion: await storage.getBool(_motionKey) ?? false,
+      textScale: await storage.getDouble(_textScaleKey) ?? 1,
       storage: storage,
     );
   }
@@ -47,12 +59,14 @@ class AppPreferencesController extends ChangeNotifier {
   int _avatarIndex;
   bool _highContrast;
   bool _reduceMotion;
+  double _textScale;
 
   String get nickname => _nickname;
   String get displayName => _nickname.trim().isEmpty ? 'Mi espacio' : _nickname;
   int get avatarIndex => _avatarIndex;
   bool get highContrast => _highContrast;
   bool get reduceMotion => _reduceMotion;
+  double get textScale => _textScale;
 
   Future<void> setNickname(String value) async {
     final normalized = value.trim();
@@ -86,6 +100,14 @@ class AppPreferencesController extends ChangeNotifier {
     _reduceMotion = value;
     notifyListeners();
     await _storage?.setBool(_motionKey, value);
+  }
+
+  Future<void> setTextScale(double value) async {
+    final normalized = (value * 10).round().clamp(10, 16) / 10;
+    if (_textScale == normalized) return;
+    _textScale = normalized;
+    notifyListeners();
+    await _storage?.setDouble(_textScaleKey, normalized);
   }
 
   Future<void> clearProfile() async {

@@ -74,10 +74,14 @@ ThemeData _mareaTheme({required bool highContrast}) => ThemeData(
     onPrimary: seaGlassInk,
     contrastLevel: highContrast ? 1 : 0,
   ),
-  scaffoldBackgroundColor: deepWater,
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(fontSize: 18, height: 1.45, color: foam),
-    bodyMedium: TextStyle(fontSize: 16, height: 1.45, color: mist),
+  scaffoldBackgroundColor: highContrast ? Colors.black : deepWater,
+  textTheme: TextTheme(
+    bodyLarge: const TextStyle(fontSize: 18, height: 1.45, color: foam),
+    bodyMedium: TextStyle(
+      fontSize: 16,
+      height: 1.45,
+      color: highContrast ? foam : mist,
+    ),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
@@ -144,13 +148,25 @@ class PauseHome extends StatelessWidget {
             disableAnimations:
                 MediaQuery.disableAnimationsOf(context) ||
                 preferences.reduceMotion,
+            textScaler: TextScaler.linear(
+              math
+                  .max(
+                    MediaQuery.textScalerOf(context).scale(1),
+                    preferences.textScale,
+                  )
+                  .toDouble(),
+            ),
           ),
           child: Scaffold(
             body: Stack(
               fit: StackFit.expand,
               children: [
-                const ExcludeSemantics(
-                  child: CustomPaint(painter: _MareaAtmosphere()),
+                ExcludeSemantics(
+                  child: CustomPaint(
+                    painter: _MareaAtmosphere(
+                      highContrast: preferences.highContrast,
+                    ),
+                  ),
                 ),
                 SafeArea(
                   child: LayoutBuilder(
@@ -319,7 +335,7 @@ class _PausePanel extends StatelessWidget {
           runSpacing: 4,
           children: [
             TextButton.icon(
-              onPressed: () => showMareaPanorama(context, vm),
+              onPressed: () => showMareaPanorama(context, vm, preferences),
               icon: const Icon(Icons.waterfall_chart_rounded),
               label: const Text('Mi panorama'),
             ),
@@ -549,7 +565,8 @@ Future<void> _showReminders(
 );
 
 class _MareaAtmosphere extends CustomPainter {
-  const _MareaAtmosphere();
+  const _MareaAtmosphere({required this.highContrast});
+  final bool highContrast;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -557,10 +574,14 @@ class _MareaAtmosphere extends CustomPainter {
     canvas.drawRect(
       bounds,
       Paint()
-        ..shader = const LinearGradient(
+        ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [deepWaterLight, deepWater, Color(0xFF07171F)],
+          colors: [
+            highContrast ? Colors.black : deepWaterLight,
+            Colors.black,
+            highContrast ? Colors.black : Color(0xFF07171F),
+          ],
         ).createShader(bounds),
     );
 
@@ -573,7 +594,10 @@ class _MareaAtmosphere extends CustomPainter {
       upperGlow.width / 2,
       Paint()
         ..shader = RadialGradient(
-          colors: [seaGlass.withValues(alpha: .12), Colors.transparent],
+          colors: [
+            seaGlass.withValues(alpha: highContrast ? 0 : .12),
+            Colors.transparent,
+          ],
         ).createShader(upperGlow),
     );
 
@@ -586,7 +610,10 @@ class _MareaAtmosphere extends CustomPainter {
       lowerGlow.width / 2,
       Paint()
         ..shader = RadialGradient(
-          colors: [softLilac.withValues(alpha: .09), Colors.transparent],
+          colors: [
+            softLilac.withValues(alpha: highContrast ? 0 : .09),
+            Colors.transparent,
+          ],
         ).createShader(lowerGlow),
     );
 
@@ -605,7 +632,9 @@ class _MareaAtmosphere extends CustomPainter {
       ..close();
     canvas.drawPath(
       tide,
-      Paint()..color = const Color(0xFF4C9E9A).withValues(alpha: .035),
+      Paint()
+        ..color = const Color(0xFF4C9E9A)
+            .withValues(alpha: highContrast ? 0 : .035),
     );
 
     for (final point in [
@@ -616,13 +645,14 @@ class _MareaAtmosphere extends CustomPainter {
       canvas.drawCircle(
         point,
         2.2,
-        Paint()..color = foam.withValues(alpha: .20),
+        Paint()..color = foam.withValues(alpha: highContrast ? .42 : .20),
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _MareaAtmosphere oldDelegate) => false;
+  bool shouldRepaint(covariant _MareaAtmosphere oldDelegate) =>
+      oldDelegate.highContrast != highContrast;
 }
 
 class _MareaOrb extends StatefulWidget {
@@ -699,12 +729,9 @@ class _MareaOrbState extends State<_MareaOrb>
                     fit: BoxFit.contain,
                     filterQuality: FilterQuality.high,
                   )
-                : CustomPaint(
-                    painter: _MareaCellsPainter(
-                      stage: widget.stage,
-                      proposalIndex: widget.proposalIndex,
-                      phase: phase,
-                    ),
+                : _MareaGlassScene(
+                    stage: widget.stage,
+                    proposalIndex: widget.proposalIndex,
                   ),
           ),
         ),
@@ -713,141 +740,86 @@ class _MareaOrbState extends State<_MareaOrb>
   );
 }
 
-class _CellShape {
-  const _CellShape(this.x, this.y, this.radius, this.tint);
-  final double x;
-  final double y;
-  final double radius;
-  final Color tint;
+class _GlassSprite {
+  const _GlassSprite(
+    this.asset,
+    this.left,
+    this.top,
+    this.width,
+    this.height,
+    this.angle,
+  );
+  final String asset;
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+  final double angle;
 }
 
-class _MareaCellsPainter extends CustomPainter {
-  const _MareaCellsPainter({
-    required this.stage,
-    required this.proposalIndex,
-    required this.phase,
-  });
-
+class _MareaGlassScene extends StatelessWidget {
+  const _MareaGlassScene({required this.stage, required this.proposalIndex});
   final PauseStage stage;
   final int proposalIndex;
-  final double phase;
+
+  static const _pink = 'assets/glass_cells/proposal.webp';
+  static const _blue = 'assets/glass_cells/guide.webp';
+  static const _mint = 'assets/glass_cells/finish.webp';
+  static const _violet = 'assets/glass_cells/stopped.webp';
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final unit = math.min(size.width, size.height);
-    final palette = proposalIndex.isEven
-        ? [seaGlass, softLilac, softCoral]
-        : [softLilac, softCoral, seaGlass];
-    final cells = switch (stage) {
-      PauseStage.proposal => <_CellShape>[
-        _CellShape(.48, .53, .34, palette[0]),
-        _CellShape(.78, .30, .13, palette[1]),
-        _CellShape(.20, .72, .10, palette[2]),
-      ],
-      PauseStage.guide => <_CellShape>[
-        _CellShape(.50, .51, .37, palette[0]),
-        _CellShape(.19, .68, .09, palette[1]),
-        _CellShape(.82, .29, .08, palette[2]),
-      ],
-      PauseStage.finished => <_CellShape>[
-        _CellShape(.34, .52, .25, palette[0]),
-        _CellShape(.67, .35, .17, palette[1]),
-        _CellShape(.68, .72, .13, palette[2]),
-      ],
-      PauseStage.stopped => <_CellShape>[
-        _CellShape(.41, .50, .25, mist),
-        _CellShape(.67, .38, .15, softLilac),
-        _CellShape(.64, .70, .12, glassEdge),
-      ],
-      PauseStage.home => const <_CellShape>[],
-    };
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final sprites = switch (stage) {
+        PauseStage.proposal when proposalIndex.isEven => <_GlassSprite>[
+          const _GlassSprite(_pink, .18, .06, .58, .91, -.035),
+          const _GlassSprite(_blue, .60, .00, .28, .43, .08),
+          const _GlassSprite(_mint, .02, .57, .25, .38, -.10),
+        ],
+        PauseStage.proposal => <_GlassSprite>[
+          const _GlassSprite(_blue, .20, .04, .58, .91, .035),
+          const _GlassSprite(_violet, .02, .05, .26, .40, -.10),
+          const _GlassSprite(_mint, .66, .52, .27, .40, .08),
+        ],
+        PauseStage.guide => <_GlassSprite>[
+          const _GlassSprite(_blue, .20, .04, .60, .92, 0),
+          const _GlassSprite(_pink, .00, .47, .28, .46, -.10),
+          const _GlassSprite(_mint, .68, .04, .26, .40, .08),
+        ],
+        PauseStage.finished => <_GlassSprite>[
+          const _GlassSprite(_mint, .20, .04, .60, .92, -.025),
+          const _GlassSprite(_blue, .00, .05, .28, .42, -.08),
+          const _GlassSprite(_pink, .66, .48, .28, .46, .10),
+        ],
+        PauseStage.stopped => <_GlassSprite>[
+          const _GlassSprite(_violet, .18, .05, .62, .92, .02),
+          const _GlassSprite(_blue, .64, .02, .25, .39, .08),
+        ],
+        PauseStage.home => const <_GlassSprite>[],
+      };
 
-    for (var index = cells.length - 1; index >= 0; index--) {
-      final cell = cells[index];
-      final center = Offset(size.width * cell.x, size.height * cell.y);
-      final pulse = stage == PauseStage.guide && index == 0
-          ? 1 + math.sin(phase) * .025
-          : 1.0;
-      _drawCell(canvas, center, unit * cell.radius * pulse, cell.tint);
-    }
-  }
-
-  void _drawCell(Canvas canvas, Offset center, double radius, Color tint) {
-    final bounds = Rect.fromCircle(center: center, radius: radius);
-    canvas.drawCircle(
-      center,
-      radius,
-      Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(-.35, -.42),
-          radius: 1.15,
-          colors: [
-            Colors.white.withValues(alpha: .68),
-            tint.withValues(alpha: .42),
-            tint.withValues(alpha: .20),
-            deepWaterLight.withValues(alpha: .22),
-          ],
-          stops: const [0, .28, .70, 1],
-        ).createShader(bounds),
-    );
-    canvas.drawCircle(
-      center,
-      radius * .98,
-      Paint()
-        ..color = Colors.white.withValues(alpha: .58)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.0, radius * .018),
-    );
-    canvas.drawCircle(
-      center + Offset(-radius * .08, radius * .05),
-      radius * .17,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Colors.white.withValues(alpha: .9),
-            tint.withValues(alpha: .60),
-            tint.withValues(alpha: .28),
-          ],
-        ).createShader(bounds),
-    );
-
-    const organelles = <Offset>[
-      Offset(-.42, -.08),
-      Offset(.34, -.27),
-      Offset(.39, .17),
-      Offset(-.23, .38),
-    ];
-    for (var index = 0; index < organelles.length; index++) {
-      final point = center + organelles[index] * radius;
-      final size = radius * (index.isEven ? .065 : .09);
-      canvas.drawCircle(
-        point,
-        size,
-        Paint()..color = tint.withValues(alpha: .62),
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (final sprite in sprites)
+            Positioned(
+              left: constraints.maxWidth * sprite.left,
+              top: constraints.maxHeight * sprite.top,
+              width: constraints.maxWidth * sprite.width,
+              height: constraints.maxHeight * sprite.height,
+              child: Transform.rotate(
+                angle: sprite.angle,
+                child: Image.asset(
+                  sprite.asset,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                ),
+              ),
+            ),
+        ],
       );
-      canvas.drawCircle(
-        point.translate(-size * .25, -size * .3),
-        size * .35,
-        Paint()..color = Colors.white.withValues(alpha: .75),
-      );
-    }
-
-    final glint = Rect.fromCenter(
-      center: center + Offset(-radius * .28, -radius * .58),
-      width: radius * .40,
-      height: radius * .075,
-    );
-    canvas.drawOval(
-      glint,
-      Paint()..color = Colors.white.withValues(alpha: .72),
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _MareaCellsPainter oldDelegate) =>
-      oldDelegate.stage != stage ||
-      oldDelegate.proposalIndex != proposalIndex ||
-      oldDelegate.phase != phase;
+    },
+  );
 }
 
 class _PauseMark extends CustomPainter {

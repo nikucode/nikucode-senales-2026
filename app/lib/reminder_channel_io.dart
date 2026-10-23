@@ -7,8 +7,65 @@ import 'package:flutter/services.dart';
 import 'reminder_channel.dart';
 import 'reminder_channel_stub.dart';
 
-ReminderChannel createReminderChannel() =>
-    Platform.isLinux ? LinuxReminderChannel() : UnavailableReminderChannel();
+ReminderChannel createReminderChannel() => switch (Platform.operatingSystem) {
+  'android' => AndroidReminderChannel(),
+  'linux' => LinuxReminderChannel(),
+  _ => UnavailableReminderChannel(),
+};
+
+/// Android notifications while the app session is active.
+class AndroidReminderChannel extends ReminderChannel {
+  static const _methodChannel = MethodChannel('cl.nikucode/reminders');
+  void Function(int)? _onOpen;
+
+  AndroidReminderChannel() {
+    _methodChannel.setMethodCallHandler(_handleNativeCall);
+  }
+
+  Future<Object?> _handleNativeCall(MethodCall call) async {
+    if (call.method == 'reminderOpened') {
+      final id = call.arguments;
+      if (id is int) _onOpen?.call(id);
+    }
+    return null;
+  }
+
+  @override
+  bool get supported => true;
+
+  @override
+  String get scopeLabel =>
+      'Android: las invitaciones requieren permiso y que esta sesión siga '
+      'abierta. Android puede pausar temporizadores en segundo plano.';
+
+  @override
+  set onOpen(void Function(int)? callback) => _onOpen = callback;
+
+  @override
+  Future<bool> requestPermission() async {
+    try {
+      return await _methodChannel.invokeMethod<bool>('requestPermission') ??
+          false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> show(int invitationId) =>
+      _methodChannel.invokeMethod<void>('showReminder', invitationId);
+
+  @override
+  Future<void> cancel() => _methodChannel.invokeMethod<void>('cancelReminders');
+
+  @override
+  void dispose() {
+    _onOpen = null;
+    _methodChannel.setMethodCallHandler(null);
+  }
+}
 
 /// Desktop notifications while this process is alive. No background daemon,
 /// persistence, exact alarm, or focus change is implied.
