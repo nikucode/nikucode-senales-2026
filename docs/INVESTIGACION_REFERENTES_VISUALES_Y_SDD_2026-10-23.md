@@ -58,6 +58,16 @@ Los nombres de estilo no constituyen evidencia de usabilidad. La accesibilidad d
 
 La iteración implementada el 23-10 usa la variante oscura: composición central, base azul tinta, reflejos acuáticos, forma líquida propia, botones ovalados sólidos y una transición breve del estado completo que respeta movimiento reducido. `flutter analyze --no-pub` pasó; el render headless pasó 20 comprobaciones y generó ocho capturas. La ventana Linux no se pudo abrir en esta sesión por falta de display. Quedan pendientes comparación con el tratamiento claro, contraste sobre las superficies renderizadas en varios dispositivos, teclado/lector y observación de comprensión con personas. Las capturas y sus límites están en [evidencia del prototipo](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
 
+### Compatibilidad con Flutter y decisión de implementación
+
+Los videos aportados por el equipo se usaron como referencias visuales: uno muestra controles tipo vidrio esmerilado en una composición clara; el otro, una esfera acuática de vidrio que flota/gira. Son referencias de estilo, no evidencia de usabilidad ni especificaciones de una app particular.
+
+**Flutter sí es compatible con esta dirección.** Permite animaciones por frame, `CustomPainter`, transparencias, máscaras y shaders de fragmento; sus backends Skia e Impeller soportan shaders personalizados. Los filtros de shader aplicados a contenido ya renderizado tienen una limitación adicional: Flutter los documenta para Impeller. `BackdropFilter` funciona en varias plataformas, pero puede ser costoso; hay que recortar exactamente el área filtrada y medir en dispositivos modestos. [Flutter: shaders](https://docs.flutter.dev/ui/design/graphics/fragment-shaders) · [Flutter API: BackdropFilter](https://api.flutter.dev/flutter/widgets/BackdropFilter-class.html) · [Flutter: rendimiento de renderizado](https://docs.flutter.dev/perf/rendering-performance).
+
+Para llegar a la demo de hoy con bajo riesgo técnico, el pretotipo usa una ilustración 3D propia generada para este proyecto, exportada como WebP transparente de 768×768 (72 KB), una flotación de amplitud pequeña y transiciones entre estados. Las superficies de acciones tienen relleno translúcido, borde y brillo; no se aplica desenfoque de pantalla en cada botón. La imagen ya trae la refracción y no distorsiona el fondo de la interfaz en tiempo real. Esto es una decisión de rendimiento/alcance, no un límite de Flutter.
+
+Una siguiente etapa podría sustituir o complementar el arte prerenderizado con un shader de distorsión local y movimiento de reflejos. Antes de adoptarlo: comprobar plataforma/backend (especialmente si se usa `ImageFilter.shader`), precalentar/reutilizar el programa y medir fluidez/batería en los equipos reales. No hace falta cambiar de framework para lograr la hipótesis visual; solo reconsiderarlo si pruebas comparables muestran un límite concreto de rendimiento o portabilidad.
+
 ## Experimento visual pequeño
 
 Comparar 2×2 solo si hay tiempo y personas suficientes: claro/oscuro × orgánico sobrio/líquido más expresivo. Mantener contenido, posición de botones, flujo y tipografía iguales. Si son pocas personas, comparar primero claro frente a oscuro con la misma ilustración, para no confundir variables.

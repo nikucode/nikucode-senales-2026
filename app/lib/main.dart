@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'pause_view_model.dart';
@@ -53,11 +55,14 @@ class _PauseAppState extends State<PauseApp> {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: seaGlass,
+            backgroundColor: const Color(0xB8B9F4EA),
             foregroundColor: seaGlassInk,
             minimumSize: const Size(56, 58),
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
             shape: const StadiumBorder(),
+            side: BorderSide(color: foam.withValues(alpha: .88), width: 1.2),
+            elevation: 5,
+            shadowColor: seaGlass.withValues(alpha: .28),
             textStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -68,7 +73,8 @@ class _PauseAppState extends State<PauseApp> {
           style: OutlinedButton.styleFrom(
             foregroundColor: foam,
             minimumSize: const Size(56, 54),
-            side: const BorderSide(color: glassEdge),
+            backgroundColor: foam.withValues(alpha: .055),
+            side: BorderSide(color: foam.withValues(alpha: .44)),
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
           ),
@@ -77,6 +83,10 @@ class _PauseAppState extends State<PauseApp> {
           style: TextButton.styleFrom(
             foregroundColor: mist,
             minimumSize: const Size(56, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            backgroundColor: foam.withValues(alpha: .055),
+            side: BorderSide(color: foam.withValues(alpha: .22)),
+            shape: const StadiumBorder(),
           ),
         ),
       ),
@@ -102,45 +112,49 @@ class PauseHome extends StatelessWidget {
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: 760,
-                        minHeight: (constraints.maxHeight - 32).clamp(0, 2000),
-                      ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            _TopLine(viewModel: viewModel),
-                            Expanded(
-                              child: Center(child: _PausePanel(vm: viewModel)),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      _TopLine(viewModel: viewModel),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: (constraints.maxHeight - 76).clamp(
+                                0,
+                                2000,
+                              ),
                             ),
-                            if (viewModel.hasPendingReminder)
-                              TextButton(
-                                onPressed: viewModel.cancelReminder,
-                                child: Text(
-                                  'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 760,
                                 ),
+                                child: _PausePanel(vm: viewModel),
                               ),
-                            if (viewModel.message != null)
-                              Semantics(
-                                liveRegion: true,
-                                child: Text(
-                                  viewModel.message!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: mist),
-                                ),
-                              ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      if (viewModel.hasPendingReminder)
+                        TextButton(
+                          onPressed: viewModel.cancelReminder,
+                          child: Text(
+                            'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
+                          ),
+                        ),
+                      if (viewModel.message != null)
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            viewModel.message!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: mist),
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
@@ -212,6 +226,7 @@ class _PausePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     final compact = media.size.width < 600 || media.textScaler.scale(1) > 1.3;
+    final largeText = media.textScaler.scale(1) > 1.3;
     final children = switch (vm.stage) {
       PauseStage.home => <Widget>[
         const _Eyebrow('UN INTERVALO EN TU JORNADA'),
@@ -298,9 +313,17 @@ class _PausePanel extends StatelessWidget {
         children: [
           ExcludeSemantics(
             child: SizedBox(
-              width: compact ? 230 : 310,
-              height: compact ? 190 : 250,
-              child: CustomPaint(painter: _PauseMark(vm.stage)),
+              width: largeText
+                  ? 160
+                  : compact
+                  ? 230
+                  : 310,
+              height: largeText
+                  ? 124
+                  : compact
+                  ? 190
+                  : 250,
+              child: _MareaOrb(stage: vm.stage),
             ),
           ),
           SizedBox(height: compact ? 12 : 18),
@@ -513,148 +536,151 @@ class _MareaAtmosphere extends CustomPainter {
   bool shouldRepaint(covariant _MareaAtmosphere oldDelegate) => false;
 }
 
+class _MareaOrb extends StatefulWidget {
+  const _MareaOrb({required this.stage});
+  final PauseStage stage;
+
+  @override
+  State<_MareaOrb> createState() => _MareaOrbState();
+}
+
+class _MareaOrbState extends State<_MareaOrb>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _float;
+  bool? _reduceMotion;
+
+  @override
+  void initState() {
+    super.initState();
+    _float = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 5200),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (_reduceMotion == reduce) return;
+    _reduceMotion = reduce;
+    if (reduce) {
+      _float
+        ..stop()
+        ..value = 0;
+    } else {
+      _float.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _float.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _float,
+    builder: (context, _) {
+      final phase = _float.value * math.pi;
+      final travel = _reduceMotion == true ? 0.0 : math.sin(phase) * 6;
+      final rotation = _reduceMotion == true ? 0.0 : math.sin(phase * 2) * .012;
+      final stageScale = switch (widget.stage) {
+        PauseStage.guide => 1.035,
+        PauseStage.finished => .96,
+        PauseStage.stopped => .98,
+        _ => 1.0,
+      };
+
+      return Transform.translate(
+        offset: Offset(0, travel),
+        child: Transform.rotate(
+          angle: rotation,
+          child: AnimatedScale(
+            scale: stageScale,
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 520),
+            curve: Curves.easeInOutCubic,
+            child: Image.asset(
+              'assets/marea_orb.webp',
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class _PauseMark extends CustomPainter {
   const _PauseMark(this.stage);
   final PauseStage stage;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final sx = size.width;
-    final sy = size.height;
-    final center = Offset(sx * .5, sy * .5);
-    final scale = size.shortestSide;
-    final drift = switch (stage) {
-      PauseStage.home || PauseStage.proposal => 0.0,
-      PauseStage.guide => .07,
-      PauseStage.finished => .14,
-      PauseStage.stopped => -.08,
-    };
-
-    final halo = Rect.fromCircle(center: center, radius: scale * .48);
-    canvas.drawCircle(
-      center,
-      scale * .47,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [seaGlass.withValues(alpha: .20), Colors.transparent],
-        ).createShader(halo),
-    );
-
-    final water = Path()
-      ..moveTo(sx * .08, sy * (.53 + drift))
-      ..cubicTo(sx * .02, sy * .26, sx * .23, sy * .08, sx * .43, sy * .19)
-      ..cubicTo(sx * .58, sy * .27, sx * .64, sy * .40, sx * .81, sy * .34)
-      ..cubicTo(sx * 1.01, sy * .29, sx * .99, sy * .62, sx * .84, sy * .77)
-      ..cubicTo(sx * .68, sy * .94, sx * .45, sy * .88, sx * .30, sy * .83)
+    final bounds = Offset.zero & size;
+    final path = Path()
+      ..moveTo(size.width * .08, size.height * .54)
       ..cubicTo(
-        sx * .15,
-        sy * .77,
-        sx * .10,
-        sy * .69,
-        sx * .08,
-        sy * (.53 + drift),
+        size.width * .06,
+        size.height * .28,
+        size.width * .32,
+        size.height * .08,
+        size.width * .54,
+        size.height * .21,
+      )
+      ..cubicTo(
+        size.width * .73,
+        size.height * .33,
+        size.width * .97,
+        size.height * .30,
+        size.width * .92,
+        size.height * .60,
+      )
+      ..cubicTo(
+        size.width * .89,
+        size.height * .88,
+        size.width * .63,
+        size.height * .92,
+        size.width * .40,
+        size.height * .82,
+      )
+      ..cubicTo(
+        size.width * .22,
+        size.height * .75,
+        size.width * .07,
+        size.height * .82,
+        size.width * .08,
+        size.height * .54,
       )
       ..close();
-
     canvas.drawPath(
-      water,
+      path,
       Paint()
         ..shader = const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFB9FFF0),
-            Color(0xFF64D9CF),
-            Color(0xFF4F9CB5),
-            Color(0xFF9183C7),
-          ],
-          stops: [0, .34, .70, 1],
-        ).createShader(Offset.zero & size)
-        ..style = PaintingStyle.fill,
-    );
-
-    canvas.drawPath(
-      water,
-      Paint()
-        ..color = foam.withValues(alpha: .62)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = (scale * .012).clamp(1.2, 3.2)
-        ..strokeJoin = StrokeJoin.round,
-    );
-
-    final innerCurrent = Path()
-      ..moveTo(sx * .18, sy * .62)
-      ..cubicTo(sx * .30, sy * .47, sx * .42, sy * .75, sx * .57, sy * .55)
-      ..cubicTo(sx * .67, sy * .42, sx * .73, sy * .49, sx * .82, sy * .43);
-    canvas.drawPath(
-      innerCurrent,
-      Paint()
-        ..color = const Color(0xFF174952).withValues(alpha: .78)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = (scale * .035).clamp(3.5, 9.0)
-        ..strokeCap = StrokeCap.round,
+          colors: [Color(0xFFB9FFF0), Color(0xFF4F9CB5), Color(0xFF9183C7)],
+        ).createShader(bounds),
     );
     canvas.drawPath(
-      innerCurrent,
+      path,
       Paint()
-        ..color = foam.withValues(alpha: .82)
+        ..color = foam.withValues(alpha: .8)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = (scale * .008).clamp(.9, 2.2)
-        ..strokeCap = StrokeCap.round,
+        ..strokeWidth = 1.2,
     );
-
-    final lensCenter = Offset(sx * .70, sy * .27);
-    canvas.drawCircle(
-      lensCenter,
-      scale * .095,
-      Paint()
-        ..shader =
-            RadialGradient(
-              center: const Alignment(-.35, -.45),
-              colors: [
-                foam.withValues(alpha: .72),
-                softLilac.withValues(alpha: .36),
-                seaGlass.withValues(alpha: .06),
-              ],
-            ).createShader(
-              Rect.fromCircle(center: lensCenter, radius: scale * .095),
-            ),
-    );
-    canvas.drawCircle(
-      lensCenter,
-      scale * .095,
-      Paint()
-        ..color = foam.withValues(alpha: .68)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = (scale * .009).clamp(1, 2),
-    );
-
-    final reflection = Path()
-      ..moveTo(sx * .19, sy * .38)
-      ..cubicTo(sx * .27, sy * .20, sx * .39, sy * .20, sx * .47, sy * .25);
-    canvas.drawPath(
-      reflection,
-      Paint()
-        ..color = foam.withValues(alpha: .82)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = (scale * .014).clamp(1.4, 3.4)
-        ..strokeCap = StrokeCap.round,
-    );
-
-    final dot = switch (stage) {
-      PauseStage.home || PauseStage.proposal => Offset(sx * .49, sy * .50),
-      PauseStage.guide => Offset(sx * .67, sy * .49),
-      PauseStage.finished => Offset(sx * .82, sy * .44),
-      PauseStage.stopped => Offset(sx * .35, sy * .64),
+    final point = switch (stage) {
+      PauseStage.home || PauseStage.proposal => .50,
+      PauseStage.guide => .66,
+      PauseStage.finished => .82,
+      PauseStage.stopped => .32,
     };
-    canvas.drawCircle(dot, scale * .027, Paint()..color = softCoral);
     canvas.drawCircle(
-      dot,
-      scale * .045,
-      Paint()
-        ..color = softCoral.withValues(alpha: .28)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = scale * .008,
+      Offset(size.width * point, size.height * .52),
+      2.3,
+      Paint()..color = softCoral,
     );
   }
 
