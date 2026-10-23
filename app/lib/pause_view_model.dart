@@ -29,15 +29,15 @@ class PauseViewModel extends ChangeNotifier {
     MovementProposal(
       title: 'Caminar un momento',
       instruction:
-          'Si caminar te resulta adecuado, deja la tarea y camina un momento '
-          'a tu ritmo. Puedes dejar la pantalla.',
+          'Camina a tu ritmo, si te resulta adecuado. Puedes apartar la '
+          'mirada de la pantalla.',
       contextLabel: 'Si tienes espacio y puedes caminar',
     ),
     MovementProposal(
       title: 'Tu movimiento habitual',
       instruction:
-          'Haz un movimiento que ya conozcas y te resulte adecuado, en la '
-          'posición que prefieras. Puedes dejar la pantalla.',
+          'Haz un movimiento cómodo, en la posición que prefieras. Puedes '
+          'apartar la mirada de la pantalla.',
       contextLabel: 'En la posición que prefieras',
     ),
   ];

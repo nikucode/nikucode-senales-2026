@@ -12,6 +12,7 @@ const ink = Color(0xFF26322B);
 const moss = Color(0xFF315B4E);
 const sage = Color(0xFFE3EBE0);
 const clay = Color(0xFFF2E7DC);
+const lilac = Color(0xFFEAE5F1);
 const terracotta = Color(0xFF9E402B);
 const muted = Color(0xFF5A625C);
 
@@ -82,147 +83,40 @@ class PauseHome extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final wide = constraints.maxWidth >= 900;
-            final onHome = viewModel.stage == PauseStage.home;
             return SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: wide ? 48 : 24,
-                vertical: 24,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1120),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        spacing: 20,
-                        runSpacing: 12,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ExcludeSemantics(
-                                child: SizedBox(
-                                  width: 42,
-                                  height: 42,
-                                  child: CustomPaint(painter: _PauseMark()),
-                                ),
-                              ),
-                              SizedBox(width: 12),
-                              Flexible(
-                                child: Text(
-                                  onHome ? 'nikucode · pausa' : 'Pausa',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (viewModel.stage != PauseStage.home)
-                            TextButton.icon(
-                              onPressed: viewModel.stage == PauseStage.guide
-                                  ? viewModel.stopGuide
-                                  : viewModel.goHome,
-                              icon: const Icon(Icons.arrow_back_rounded),
-                              label: Text(
-                                viewModel.stage == PauseStage.guide
-                                    ? 'Detener y volver'
-                                    : 'Inicio',
-                              ),
-                            )
-                          else
-                            const Text(
-                              'A TU PROPIO RITMO',
-                              style: TextStyle(
-                                fontSize: 12,
-                                letterSpacing: 1.2,
-                                color: moss,
-                                fontWeight: FontWeight.w600,
-                              ),
+                  constraints: BoxConstraints(
+                    maxWidth: 760,
+                    minHeight: (constraints.maxHeight - 32).clamp(0, 2000),
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _TopLine(viewModel: viewModel),
+                        Expanded(
+                          child: Center(child: _PausePanel(vm: viewModel)),
+                        ),
+                        if (viewModel.hasPendingReminder)
+                          TextButton(
+                            onPressed: viewModel.cancelReminder,
+                            child: Text(
+                              'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
                             ),
-                        ],
-                      ),
-                      SizedBox(height: wide ? 64 : 32),
-                      if (wide && onHome)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: _Introduction(wide: wide)),
-                            const SizedBox(width: 56),
-                            Expanded(child: _PausePanel(vm: viewModel)),
-                          ],
-                        )
-                      else if (wide)
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 720),
-                            child: _PausePanel(vm: viewModel),
                           ),
-                        )
-                      else if (onHome) ...[
-                        _Introduction(wide: wide),
-                        const SizedBox(height: 28),
-                        _PausePanel(vm: viewModel),
-                      ] else
-                        _PausePanel(vm: viewModel),
-                      if (viewModel.hasPendingReminder) ...[
-                        const SizedBox(height: 24),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: sage,
-                            borderRadius: BorderRadius.circular(16),
+                        if (viewModel.message != null)
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              viewModel.message!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: muted),
+                            ),
                           ),
-                          child: Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 16,
-                            children: [
-                              Text(
-                                'Aviso previsto para ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)} · en esta sesión',
-                              ),
-                              TextButton(
-                                onPressed: viewModel.cancelReminder,
-                                child: const Text('Cancelar aviso'),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
-                      if (viewModel.message != null) ...[
-                        const SizedBox(height: 16),
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            viewModel.message!,
-                            style: const TextStyle(color: moss),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 36),
-                      const Divider(color: Color(0xFFD8DED7)),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        spacing: 20,
-                        runSpacing: 8,
-                        children: [
-                          const Text(
-                            'Puedes elegir, cambiar o dejarlo para después.',
-                          ),
-                          TextButton.icon(
-                            onPressed: () => _showReminders(context, viewModel),
-                            icon: const Icon(Icons.notifications_none_rounded),
-                            label: const Text('Avisos de este dispositivo'),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -234,51 +128,39 @@ class PauseHome extends StatelessWidget {
   );
 }
 
-class _Introduction extends StatelessWidget {
-  const _Introduction({required this.wide});
-  final bool wide;
+class _TopLine extends StatelessWidget {
+  const _TopLine({required this.viewModel});
+  final PauseViewModel viewModel;
+
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      const Text(
-        'UN ESPACIO EN TU JORNADA',
-        style: TextStyle(
-          color: terracotta,
-          letterSpacing: 1.5,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      const SizedBox(height: 18),
       Semantics(
-        header: true,
-        child: Text(
-          'Un momento\nfuera de la tarea.',
-          style: TextStyle(
-            fontSize: wide ? 52 : 35,
-            height: 1.12,
-            letterSpacing: -1.3,
-            fontWeight: FontWeight.w500,
-            color: ink,
+        label: 'nikucode pausa',
+        child: ExcludeSemantics(
+          child: SizedBox(
+            width: 52,
+            height: 40,
+            child: CustomPaint(painter: _PauseMark(viewModel.stage)),
           ),
         ),
       ),
-      const SizedBox(height: 24),
-      const Text(
-        'Una invitación breve para salir un momento de la pantalla y moverte como te resulte adecuado.',
-        style: TextStyle(fontSize: 18, height: 1.6),
-      ),
-      if (wide) ...[
-        const SizedBox(height: 38),
-        const SizedBox(
-          width: 360,
-          child: Text(
-            'Cambia la propuesta, elige cuándo empezar o vuelve a tu tarea.',
-            style: TextStyle(color: moss, fontSize: 16, height: 1.5),
-          ),
-        ),
-      ],
+      if (viewModel.stage != PauseStage.home)
+        TextButton(
+          onPressed: switch (viewModel.stage) {
+            PauseStage.proposal => viewModel.dismissProposal,
+            PauseStage.guide => viewModel.stopGuide,
+            _ => viewModel.goHome,
+          },
+          child: Text(switch (viewModel.stage) {
+            PauseStage.proposal => 'Ahora no',
+            PauseStage.guide => 'Detener',
+            _ => 'Inicio',
+          }),
+        )
+      else
+        const SizedBox(height: 48),
     ],
   );
 }
@@ -286,120 +168,107 @@ class _Introduction extends StatelessWidget {
 class _PausePanel extends StatelessWidget {
   const _PausePanel({required this.vm});
   final PauseViewModel vm;
+
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final compact = media.size.width < 600 || media.textScaler.scale(1) > 1.3;
     final children = switch (vm.stage) {
       PauseStage.home => <Widget>[
-        const _Title('Una pausa, a tu manera'),
-        const SizedBox(height: 12),
-        const Text(
-          'Explora una propuesta o prepara una invitación para después.',
-        ),
+        const _Title('Una pausa, si te sirve'),
         const SizedBox(height: 28),
         FilledButton.icon(
           onPressed: vm.openProposal,
           icon: const Icon(Icons.arrow_forward_rounded),
           label: const Text('Ver una pausa'),
         ),
-        const SizedBox(height: 12),
-        OutlinedButton(
+        const SizedBox(height: 8),
+        TextButton.icon(
           onPressed: () => _showReminders(context, vm),
-          child: const Text('Preparar un aviso'),
+          icon: const Icon(Icons.notifications_none_rounded),
+          label: const Text('Avisos, si los quieres'),
         ),
       ],
       PauseStage.proposal => <Widget>[
-        Text(
-          vm.proposal.contextLabel,
-          style: const TextStyle(
-            color: terracotta,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
         _Title(vm.proposal.title),
-        const SizedBox(height: 14),
-        Text(vm.proposal.instruction),
-        const SizedBox(height: 24),
-        FilledButton(
-          onPressed: vm.startGuide,
-          child: const Text('Empezar guía'),
-        ),
         const SizedBox(height: 12),
-        OutlinedButton(
-          onPressed: vm.changeProposal,
-          child: const Text('Cambiar propuesta'),
-        ),
+        Text(vm.proposal.instruction, textAlign: TextAlign.center),
+        const SizedBox(height: 28),
+        FilledButton(onPressed: vm.startGuide, child: const Text('Empezar')),
         const SizedBox(height: 8),
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () => _showReminders(context, vm),
-              child: const Text('Más tarde'),
-            ),
-            TextButton(
-              onPressed: vm.dismissProposal,
-              child: const Text('Ahora no'),
-            ),
-          ],
+        TextButton.icon(
+          onPressed: vm.changeProposal,
+          icon: const Icon(Icons.shuffle_rounded),
+          label: const Text('Otra idea'),
+        ),
+        TextButton(
+          onPressed: () => _showReminders(context, vm),
+          child: const Text('Más tarde'),
         ),
       ],
       PauseStage.guide => <Widget>[
-        const _Title('Puedes dejar la pantalla'),
-        const SizedBox(height: 14),
-        Text(vm.proposal.instruction),
+        const _Title('A tu ritmo'),
         const SizedBox(height: 12),
-        const Text(
-          'Vuelve cuando quieras cerrar la guía. No hay un tiempo que cumplir.',
-        ),
+        Text(vm.proposal.instruction, textAlign: TextAlign.center),
         const SizedBox(height: 28),
         FilledButton(
           onPressed: vm.finishGuide,
-          child: const Text('Terminar guía'),
+          child: const Text('Cerrar guía'),
         ),
-        const SizedBox(height: 10),
-        OutlinedButton(
+        const SizedBox(height: 8),
+        TextButton(
           onPressed: vm.stopGuide,
-          child: const Text('Detener guía'),
+          child: const Text('Detener y volver'),
         ),
       ],
       PauseStage.finished || PauseStage.stopped => <Widget>[
         _Title(
-          vm.stage == PauseStage.stopped ? 'Guía detenida' : 'Guía terminada',
+          vm.stage == PauseStage.stopped ? 'Guía cerrada' : 'Espacio hecho',
         ),
-        const SizedBox(height: 14),
-        const Text('Puedes volver a tu tarea o quedarte un momento más.'),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
         FilledButton(
           onPressed: vm.goHome,
-          child: const Text('Volver al inicio'),
+          child: const Text('Volver a mi tarea'),
         ),
       ],
     };
-    return Container(
-      padding: EdgeInsets.all(vm.stage == PauseStage.home ? 28 : 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF0EEE7),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(44),
-          topRight: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(44),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ExcludeSemantics(
-            child: SizedBox(
-              height: vm.stage == PauseStage.home ? 112 : 56,
-              child: CustomPaint(painter: _PauseMark()),
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AnimatedSwitcher(
+          duration: media.disableAnimations
+              ? Duration.zero
+              : const Duration(milliseconds: 280),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: .96, end: 1).animate(animation),
+              child: child,
             ),
           ),
-          SizedBox(height: vm.stage == PauseStage.home ? 20 : 12),
-          ...children,
-        ],
-      ),
+          child: ExcludeSemantics(
+            key: ValueKey(vm.stage),
+            child: SizedBox(
+              width: compact ? 200 : 280,
+              height: compact ? 158 : 220,
+              child: CustomPaint(painter: _PauseMark(vm.stage)),
+            ),
+          ),
+        ),
+        SizedBox(height: compact ? 14 : 24),
+        ...children.map(
+          (child) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: child is Text || child is _Title
+                ? SizedBox(width: double.infinity, child: child)
+                : child,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -412,10 +281,12 @@ class _Title extends StatelessWidget {
     header: true,
     child: Text(
       text,
+      textAlign: TextAlign.center,
       style: const TextStyle(
-        fontSize: 25,
-        height: 1.25,
-        fontWeight: FontWeight.w500,
+        fontFamily: 'serif',
+        fontSize: 29,
+        height: 1.18,
+        fontWeight: FontWeight.w400,
       ),
     ),
   );
@@ -503,7 +374,9 @@ Future<void> _showReminders(
 );
 
 class _PauseMark extends CustomPainter {
-  const _PauseMark();
+  const _PauseMark(this.stage);
+  final PauseStage stage;
+
   @override
   void paint(Canvas canvas, Size size) {
     final sx = size.width;
@@ -525,6 +398,14 @@ class _PauseMark extends CustomPainter {
       ..cubicTo(sx * .59, sy * .33, sx * .56, sy * .19, sx * .63, sy * .12)
       ..close();
     canvas.drawPath(warmPatch, Paint()..color = clay);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(sx * .20, sy * .28),
+        width: sx * .13,
+        height: sy * .12,
+      ),
+      Paint()..color = lilac,
+    );
 
     final thread = Paint()
       ..color = moss
@@ -537,16 +418,35 @@ class _PauseMark extends CustomPainter {
     final secondSegment = Path()
       ..moveTo(sx * .58, sy * .52)
       ..cubicTo(sx * .71, sy * .58, sx * .77, sy * .71, sx * .89, sy * .64);
-    canvas
-      ..drawPath(firstSegment, thread)
-      ..drawPath(secondSegment, thread)
-      ..drawCircle(
-        Offset(sx * .50, sy * .50),
-        (size.shortestSide * .065).clamp(2.0, 6.0),
-        Paint()..color = terracotta,
-      );
+    final joinedPath = Path()
+      ..moveTo(sx * .13, sy * .66)
+      ..cubicTo(sx * .25, sy * .67, sx * .27, sy * .43, sx * .41, sy * .48)
+      ..cubicTo(sx * .52, sy * .50, sx * .52, sy * .50, sx * .58, sy * .52)
+      ..cubicTo(sx * .71, sy * .58, sx * .77, sy * .71, sx * .89, sy * .64);
+    final route = switch (stage) {
+      PauseStage.guide || PauseStage.finished => joinedPath,
+      _ => null,
+    };
+    if (route != null) {
+      canvas.drawPath(route, thread);
+    } else {
+      canvas
+        ..drawPath(firstSegment, thread)
+        ..drawPath(secondSegment, thread);
+    }
+    final marker = switch (stage) {
+      PauseStage.guide => Offset(sx * .73, sy * .60),
+      PauseStage.finished => Offset(sx * .89, sy * .64),
+      _ => Offset(sx * .50, sy * .50),
+    };
+    canvas.drawCircle(
+      marker,
+      (size.shortestSide * .065).clamp(2.0, 6.0),
+      Paint()..color = terracotta,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _PauseMark oldDelegate) =>
+      stage != oldDelegate.stage;
 }

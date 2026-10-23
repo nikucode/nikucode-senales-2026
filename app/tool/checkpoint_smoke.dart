@@ -89,6 +89,7 @@ Future<void> main() async {
   Future<void> capture(String name, Size size) async {
     binding.viewport = size;
     binding.handleMetricsChanged();
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     await frame();
     final boundary =
         boundaryKey.currentContext!.findRenderObject()!
@@ -156,11 +157,12 @@ Future<void> main() async {
       model.stage == PauseStage.proposal,
       'valid delivered action opens proposal',
     );
-    check(renderedText().contains('Empezar guía'), 'proposal action rendered');
+    check(renderedText().contains('Empezar'), 'proposal action rendered');
     check(
-      renderedText().contains('Pausa') &&
+      renderedText().contains('Caminar un momento') &&
+          renderedText().contains('Ahora no') &&
           !renderedText().contains('nikucode · pausa'),
-      'active flow uses compact brand header',
+      'proposal keeps a clear way to decline',
     );
     textScale.value = TextScaler.linear(2);
     await capture('mobile_proposal_200_percent', const Size(390, 844));
@@ -175,12 +177,12 @@ Future<void> main() async {
     );
     model.startGuide();
     await frame();
-    check(renderedText().contains('Terminar guía'), 'guide controls rendered');
+    check(renderedText().contains('Cerrar guía'), 'guide controls rendered');
     await capture('desktop_guide', const Size(1200, 900));
     model.finishGuide();
     await frame();
     check(
-      renderedText().contains('Guía terminada'),
+      renderedText().contains('Espacio hecho'),
       'guide closure distinguished',
     );
     await capture('desktop_finished', const Size(1200, 900));
