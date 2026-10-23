@@ -6,6 +6,8 @@
 
 Inicio → propuesta → cambiar → guía → terminar/detener → volver; rechazo sin reprogramación. Dos propuestas: caminar si resulta adecuado y movimiento habitual elegido. Vistas adaptables a ancho disponible, controles etiquetados y sin animación o seguimiento obligatorio.
 
+**Actualización visual posterior:** la pantalla usa ahora fondo marfil, acentos verde musgo/terracota y una forma original de trazo interrumpido; el panel principal reemplaza la tarjeta blanca uniforme. Se mantuvo el recorrido y la jerarquía de controles. El título y la frase descriptiva se ajustaron para que la propuesta se entienda sin depender de la metáfora visual. Esta iteración pasó análisis estático de Flutter; aún falta observar el render actualizado y probar teclado, ampliación y lector de pantalla.
+
 Avisos habilitados explícitamente, programación puntual en memoria, reemplazo/cancelación y generación vigente. Adaptadores Linux y navegador separados. Al toque se solicita activar ventana/pestaña y abrir propuesta; llegada sola no toma foco. Sin servicio Android nativo implementado, persistencia, background independiente del proceso, recurrencia o sincronización.
 
 ## Evidencia observada
@@ -30,7 +32,7 @@ Se corrigieron dos riesgos de revisión estática: activación solicitada solo t
 - [Propuesta en tamaño móvil](evidencia/mobile_proposal.png).
 - [Vista390×844 con texto al200%](evidencia/mobile_home_200_percent.png): escala2.0 comprobada en RenderParagraph; requiere desplazamiento para llegar a acciones. No es una prueba de gesto/lector.
 
-Son capturas reales de render headless, no mockups ni fotografías del teléfono. El resultado JSON identifica canal simulado y transiciones dirigidas por el modelo. No se anuncian como tests de gestos/lector/avisos SO.
+Estas capturas pertenecen a la primera versión visual, anterior a la actualización descrita arriba; no representan la interfaz actual. Son capturas reales de render headless, no mockups ni fotografías del teléfono. El resultado JSON identifica canal simulado y transiciones dirigidas por el modelo. No se anuncian como pruebas de gestos, lector o avisos del sistema.
 
 ## Reproducir la comprobación offline
 

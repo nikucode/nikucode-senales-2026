@@ -2,6 +2,8 @@
 
 Primera implementación creada durante la hackatón. Recorrido manual, dos propuestas modificables, guía detenible, cierres diferenciados y recordatorios puntuales con control explícito.
 
+La interfaz se actualizó con una composición editorial y un motivo gráfico propio, conservando el recorrido y los controles. La dirección visual es una hipótesis en evaluación; el análisis estático no sustituye pruebas en pantalla, teclado o lectores de pantalla. Véase [investigación de experiencia y accesibilidad](../docs/INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
+
 ## Ejecutar
 
 Desde esta carpeta, con Flutter instalado:

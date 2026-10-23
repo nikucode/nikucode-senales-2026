@@ -9,6 +9,7 @@ Actualización: 23 de octubre de 2026. Registro compartido para integrantes y as
 - La fase «A construir» comenzó a las 09:45, una vez terminada la bienvenida, según el programa compartido por el equipo.
 - Primera app nueva en `app/`, con Flutter 3.47.7/Dart 3.13.5 como base inicial de implementación. Compilaron Linux debug y web. Android tiene scaffold, sin APK/canal nativo probado; dispositivos físicos aún por confirmar.
 - Recorrido/estado/render comprobados con motor Flutter headless, 19 checks, siete capturas, cero errores Flutter y canal simulado. Las suites estándar están escritas pero bloqueadas por bind local; avisos SO/gestos/lector/teléfono real no verificados. Ver [evidencia](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
+- Iteración visual aplicada después de esas capturas; se conservan allí como registro de la primera versión. `flutter analyze --no-pub` pasó tras el cambio. Falta generar evidencia visual nueva y revisar accesibilidad con tecnologías asistivas.
 - Preparados: investigación, especificación, fuentes, aceptación, rutas técnicas, guion de checkpoint, defensa y borrador de cinco diapositivas.
 
 ## Decisiones y propuestas

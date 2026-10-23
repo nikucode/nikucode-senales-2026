@@ -7,10 +7,13 @@ void main() {
   runApp(PauseApp(viewModel: PauseViewModel(channel: createReminderChannel())));
 }
 
-const paper = Color(0xFFFAF8F5);
-const ink = Color(0xFF202124);
-const violet = Color(0xFF62567A);
-const lavender = Color(0xFFEAE2F4);
+const paper = Color(0xFFF8F5EF);
+const ink = Color(0xFF26322B);
+const moss = Color(0xFF315B4E);
+const sage = Color(0xFFE3EBE0);
+const clay = Color(0xFFF2E7DC);
+const terracotta = Color(0xFF9E402B);
+const muted = Color(0xFF5A625C);
 
 class PauseApp extends StatefulWidget {
   const PauseApp({super.key, required this.viewModel});
@@ -33,15 +36,15 @@ class _PauseAppState extends State<PauseApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: violet, surface: paper),
+        colorScheme: ColorScheme.fromSeed(seedColor: moss, surface: paper),
         scaffoldBackgroundColor: paper,
         textTheme: const TextTheme(
           bodyLarge: TextStyle(fontSize: 18, height: 1.5, color: ink),
-          bodyMedium: TextStyle(fontSize: 16, height: 1.5, color: ink),
+          bodyMedium: TextStyle(fontSize: 16, height: 1.5, color: muted),
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: violet,
+            backgroundColor: moss,
             foregroundColor: Colors.white,
             minimumSize: const Size(48, 52),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -53,9 +56,9 @@ class _PauseAppState extends State<PauseApp> {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: violet,
+            foregroundColor: moss,
             minimumSize: const Size(48, 52),
-            side: const BorderSide(color: violet),
+            side: const BorderSide(color: moss),
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
           ),
         ),
@@ -101,14 +104,10 @@ class PauseHome extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ExcludeSemantics(
-                                child: CircleAvatar(
-                                  radius: 19,
-                                  backgroundColor: lavender,
-                                  child: Icon(
-                                    Icons.spa_outlined,
-                                    color: violet,
-                                    size: 23,
-                                  ),
+                                child: SizedBox(
+                                  width: 42,
+                                  height: 42,
+                                  child: CustomPaint(painter: _PauseMark()),
                                 ),
                               ),
                               SizedBox(width: 12),
@@ -137,11 +136,12 @@ class PauseHome extends StatelessWidget {
                             )
                           else
                             const Text(
-                              'SIN METAS NI RACHAS',
+                              'A TU PROPIO RITMO',
                               style: TextStyle(
                                 fontSize: 12,
-                                letterSpacing: 1.4,
-                                color: violet,
+                                letterSpacing: 1.2,
+                                color: moss,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                         ],
@@ -153,20 +153,20 @@ class PauseHome extends StatelessWidget {
                           children: [
                             Expanded(child: _Introduction(wide: wide)),
                             const SizedBox(width: 56),
-                            Expanded(child: _FlowCard(vm: viewModel)),
+                            Expanded(child: _PausePanel(vm: viewModel)),
                           ],
                         )
                       else ...[
                         _Introduction(wide: wide),
                         const SizedBox(height: 28),
-                        _FlowCard(vm: viewModel),
+                        _PausePanel(vm: viewModel),
                       ],
                       if (viewModel.hasPendingReminder) ...[
                         const SizedBox(height: 24),
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: lavender,
+                            color: sage,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Wrap(
@@ -191,19 +191,21 @@ class PauseHome extends StatelessWidget {
                           liveRegion: true,
                           child: Text(
                             viewModel.message!,
-                            style: const TextStyle(color: violet),
+                            style: const TextStyle(color: moss),
                           ),
                         ),
                       ],
                       const SizedBox(height: 36),
-                      const Divider(color: Color(0xFFD8D1DD)),
+                      const Divider(color: Color(0xFFD8DED7)),
                       const SizedBox(height: 12),
                       Wrap(
                         alignment: WrapAlignment.spaceBetween,
                         spacing: 20,
                         runSpacing: 8,
                         children: [
-                          const Text('Una propuesta. Tú eliges el momento.'),
+                          const Text(
+                            'Puedes elegir, cambiar o dejarlo para después.',
+                          ),
                           TextButton.icon(
                             onPressed: () => _showReminders(context, viewModel),
                             icon: const Icon(Icons.notifications_none_rounded),
@@ -231,14 +233,19 @@ class _Introduction extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Text(
-        'PAUSAS A TU RITMO',
-        style: TextStyle(color: violet, letterSpacing: 2, fontSize: 12),
+        'UN ESPACIO EN TU JORNADA',
+        style: TextStyle(
+          color: terracotta,
+          letterSpacing: 1.5,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 18),
       Semantics(
         header: true,
         child: Text(
-          'Hay espacio\npara una pausa.',
+          'Un momento\nfuera de la tarea.',
           style: TextStyle(
             fontSize: wide ? 52 : 35,
             height: 1.12,
@@ -250,39 +257,31 @@ class _Introduction extends StatelessWidget {
       ),
       const SizedBox(height: 24),
       const Text(
-        'Una propuesta breve para salir de la tarea y moverte como te resulte adecuado.',
+        'Una invitación breve para salir un momento de la pantalla y moverte como te resulte adecuado.',
         style: TextStyle(fontSize: 18, height: 1.6),
       ),
       if (wide) ...[
-        const SizedBox(height: 40),
-        for (final text in [
-          'Puedes cambiar de propuesta',
-          'El momento lo decides tú',
-          'Termina cuando quieras',
-        ])
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.check_rounded, color: violet, size: 20),
-                const SizedBox(width: 12),
-                Expanded(child: Text(text)),
-              ],
-            ),
+        const SizedBox(height: 38),
+        const SizedBox(
+          width: 360,
+          child: Text(
+            'Cambia la propuesta, elige cuándo empezar o vuelve a tu tarea.',
+            style: TextStyle(color: moss, fontSize: 16, height: 1.5),
           ),
+        ),
       ],
     ],
   );
 }
 
-class _FlowCard extends StatelessWidget {
-  const _FlowCard({required this.vm});
+class _PausePanel extends StatelessWidget {
+  const _PausePanel({required this.vm});
   final PauseViewModel vm;
   @override
   Widget build(BuildContext context) {
     final children = switch (vm.stage) {
       PauseStage.home => <Widget>[
-        const _Title('Una pausa que cabe en tu momento'),
+        const _Title('Una pausa, a tu manera'),
         const SizedBox(height: 12),
         const Text(
           'Explora una propuesta o prepara una invitación para después.',
@@ -300,7 +299,13 @@ class _FlowCard extends StatelessWidget {
         ),
       ],
       PauseStage.proposal => <Widget>[
-        Text(vm.proposal.contextLabel, style: const TextStyle(color: violet)),
+        Text(
+          vm.proposal.contextLabel,
+          style: const TextStyle(
+            color: terracotta,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         _Title(vm.proposal.title),
         const SizedBox(height: 14),
@@ -364,21 +369,25 @@ class _FlowCard extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFE2DCE8)),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF0EEE7),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(44),
+          topRight: Radius.circular(20),
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(44),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const ExcludeSemantics(
             child: SizedBox(
-              height: 94,
+              height: 112,
               child: CustomPaint(painter: _PauseMark()),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           ...children,
         ],
       ),
@@ -488,37 +497,45 @@ class _PauseMark extends CustomPainter {
   const _PauseMark();
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    canvas.drawCircle(center.translate(-28, 0), 42, Paint()..color = lavender);
-    canvas.drawCircle(
-      center.translate(30, -4),
-      34,
-      Paint()..color = const Color(0xFFE0EEE5),
-    );
-    final paint = Paint()
-      ..color = violet
+    final sx = size.width;
+    final sy = size.height;
+    final field = Path()
+      ..moveTo(sx * .07, sy * .69)
+      ..cubicTo(sx * .02, sy * .31, sx * .19, sy * .08, sx * .39, sy * .18)
+      ..cubicTo(sx * .55, sy * .25, sx * .56, sy * .44, sx * .72, sy * .35)
+      ..cubicTo(sx * .91, sy * .24, sx * .99, sy * .52, sx * .91, sy * .77)
+      ..cubicTo(sx * .81, sy * .98, sx * .57, sy * .90, sx * .39, sy * .84)
+      ..cubicTo(sx * .22, sy * .79, sx * .12, sy * .94, sx * .07, sy * .69)
+      ..close();
+    canvas.drawPath(field, Paint()..color = sage);
+
+    final warmPatch = Path()
+      ..moveTo(sx * .63, sy * .12)
+      ..cubicTo(sx * .76, sy * .02, sx * .93, sy * .13, sx * .94, sy * .31)
+      ..cubicTo(sx * .91, sy * .45, sx * .79, sy * .49, sx * .69, sy * .41)
+      ..cubicTo(sx * .59, sy * .33, sx * .56, sy * .19, sx * .63, sy * .12)
+      ..close();
+    canvas.drawPath(warmPatch, Paint()..color = clay);
+
+    final thread = Paint()
+      ..color = moss
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
+      ..strokeWidth = (size.shortestSide * .045).clamp(1.8, 4.0)
       ..strokeCap = StrokeCap.round;
-    final path = Path()
-      ..moveTo(center.dx - 46, center.dy + 18)
-      ..cubicTo(
-        center.dx - 20,
-        center.dy + 18,
-        center.dx - 18,
-        center.dy - 20,
-        center.dx + 3,
-        center.dy - 20,
-      )
-      ..cubicTo(
-        center.dx + 20,
-        center.dy - 20,
-        center.dx + 20,
-        center.dy + 14,
-        center.dx + 44,
-        center.dy + 14,
+    final firstSegment = Path()
+      ..moveTo(sx * .13, sy * .66)
+      ..cubicTo(sx * .25, sy * .67, sx * .27, sy * .43, sx * .41, sy * .48);
+    final secondSegment = Path()
+      ..moveTo(sx * .58, sy * .52)
+      ..cubicTo(sx * .71, sy * .58, sx * .77, sy * .71, sx * .89, sy * .64);
+    canvas
+      ..drawPath(firstSegment, thread)
+      ..drawPath(secondSegment, thread)
+      ..drawCircle(
+        Offset(sx * .50, sy * .50),
+        (size.shortestSide * .065).clamp(2.0, 6.0),
+        Paint()..color = terracotta,
       );
-    canvas.drawPath(path, paint);
   }
 
   @override

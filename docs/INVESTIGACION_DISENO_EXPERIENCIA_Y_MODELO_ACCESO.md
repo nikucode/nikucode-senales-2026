@@ -40,6 +40,8 @@ Esta dirección se diferencia por el tratamiento narrativo y la composición, no
 
 No añadir navegación persistente, estadísticas, rachas o preguntas previas a menos que resuelvan una necesidad observada. «Orgánico» describe una dirección de arte para probar; no significa automáticamente accesible, calmante o terapéutico.
 
+**Iteración aplicada al prototipo, 23-10-2026:** se reemplazó el símbolo de spa y la tarjeta blanca uniforme por un trazo dibujado que se interrumpe y continúa, una superficie cálida con esquinas asimétricas y una paleta verde musgo/terracota. Se conservaron los nombres y la jerarquía de las acciones existentes. Los contrastes calculados para pares de color usados en texto son: tinta/fondo 12,26:1; texto secundario/fondo 6,59:1; musgo/fondo 7,05:1; blanco/botón musgo 7,67:1; terracota/fondo 5,99:1. Se calcularon con la fórmula sRGB relativa de WCAG; no constituyen una auditoría de accesibilidad. El análisis estático de Flutter no encontró incidencias. Aún falta inspeccionar la nueva composición con ampliación, teclado y lector de pantalla, y obtener opinión de usuarios.
+
 ### Prueba de experiencia sugerida
 
 En sesiones breves y voluntarias con escenarios sintéticos, observar si la persona identifica la acción principal, explica con sus palabras la propuesta, encuentra cómo cambiar/rechazar/detener, y logra cerrar el recorrido con teclado o pantalla táctil según destino. Preguntar si percibió presión, distracción o carga de lectura; no interpretar agrado estético como cambio de conducta. Registrar dispositivo, ampliación de texto y tecnología de asistencia utilizada cuando corresponda, sin recopilar datos de salud innecesarios.
