@@ -4,6 +4,8 @@ Actualización: 23 de octubre de 2026. Registro compartido para integrantes y as
 
 ## Estado observado
 
+- En el checkout local de `main` se está integrando selectivamente el aporte de `origin/javi/arranque-y-coordinacion` (`934aedb`, 4 commits adelante y 3 detrás de `origin/main`). Alex confirmó que `git fetch origin` se completó desde su terminal y que esa referencia apunta a `934aedb`. No se fusionó la rama completa para conservar la experiencia Marea.
+- Cambios locales aún sin commit: perfil opcional y preferencias en el dispositivo mediante `shared_preferences`; resumen de interacciones limitado a la sesión; acceso a Mi espacio, Mi panorama y ajustes desde la interfaz Marea. No requiere base remota. Estas modificaciones no se han compilado ni probado todavía.
 - Repo público creado por el equipo: https://github.com/nikucode/nikucode-senales-2026 (enlace y pantalla aportados por Alex).
 - La iteración anterior partía de `f5c513b`; la revisión Marea y sus capturas son cambios locales pendientes de integrar/publicar. El prototipo se compiló para Linux, pero esta sesión no dispone de display para abrir su ventana.
 - La fase «A construir» comenzó a las 09:45, una vez terminada la bienvenida, según el programa compartido por el equipo.

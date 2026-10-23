@@ -19,6 +19,25 @@ class MovementProposal {
   final String contextLabel;
 }
 
+@immutable
+class PauseActivity {
+  const PauseActivity({
+    required this.proposalsOpened,
+    required this.guidesStarted,
+    required this.guidesFinished,
+    required this.guidesStopped,
+    required this.proposalsDismissed,
+    required this.postponements,
+  });
+
+  final int proposalsOpened;
+  final int guidesStarted;
+  final int guidesFinished;
+  final int guidesStopped;
+  final int proposalsDismissed;
+  final int postponements;
+}
+
 /// State for the brief invitation flow; it never infers bodily movement.
 class PauseViewModel extends ChangeNotifier {
   PauseViewModel({required this.channel}) {
@@ -28,12 +47,16 @@ class PauseViewModel extends ChangeNotifier {
   static const _proposals = [
     MovementProposal(
       title: 'Caminar un momento',
-      instruction: 'Camina a tu ritmo, si te sirve. Puedes dejar la pantalla.',
+      instruction:
+          'Camina a tu ritmo, si te resulta adecuado. Puedes apartar la '
+          'mirada de la pantalla.',
       contextLabel: 'Si tienes espacio y puedes caminar',
     ),
     MovementProposal(
       title: 'Tu movimiento habitual',
-      instruction: 'Elige un movimiento que ya conozcas. A tu ritmo.',
+      instruction:
+          'Haz un movimiento cómodo, en la posición que prefieras. Puedes '
+          'apartar la mirada de la pantalla.',
       contextLabel: 'En la posición que prefieras',
     ),
   ];
@@ -48,6 +71,12 @@ class PauseViewModel extends ChangeNotifier {
   int _generation = 0;
   int? _invitationId;
   int _permissionRevision = 0;
+  int _proposalsOpened = 0;
+  int _guidesStarted = 0;
+  int _guidesFinished = 0;
+  int _guidesStopped = 0;
+  int _proposalsDismissed = 0;
+  int _postponements = 0;
   bool _disposed = false;
   Future<void> _channelWork = Future<void>.value();
 
@@ -59,10 +88,19 @@ class PauseViewModel extends ChangeNotifier {
   bool get hasPendingReminder => _timer != null;
   String get channelScope => channel.scopeLabel;
   bool get channelSupported => channel.supported;
+  PauseActivity get activity => PauseActivity(
+    proposalsOpened: _proposalsOpened,
+    guidesStarted: _guidesStarted,
+    guidesFinished: _guidesFinished,
+    guidesStopped: _guidesStopped,
+    proposalsDismissed: _proposalsDismissed,
+    postponements: _postponements,
+  );
 
   void openProposal() {
     if (_disposed || _stage == PauseStage.guide) return;
     _invalidateInvitation();
+    _proposalsOpened++;
     _stage = PauseStage.proposal;
     _message = null;
     _notify();
@@ -77,6 +115,7 @@ class PauseViewModel extends ChangeNotifier {
   void startGuide() {
     if (_disposed || _stage != PauseStage.proposal) return;
     _invalidateInvitation();
+    _guidesStarted++;
     _stage = PauseStage.guide;
     _message = null;
     _notify();
@@ -84,12 +123,14 @@ class PauseViewModel extends ChangeNotifier {
 
   void finishGuide() {
     if (_disposed || _stage != PauseStage.guide) return;
+    _guidesFinished++;
     _stage = PauseStage.finished;
     _notify();
   }
 
   void stopGuide() {
     if (_disposed || _stage != PauseStage.guide) return;
+    _guidesStopped++;
     _stage = PauseStage.stopped;
     _notify();
   }
@@ -97,6 +138,7 @@ class PauseViewModel extends ChangeNotifier {
   void dismissProposal() {
     if (_disposed || _stage != PauseStage.proposal) return;
     _invalidateInvitation();
+    _proposalsDismissed++;
     _stage = PauseStage.home;
     _message = null;
     _notify();
@@ -168,11 +210,13 @@ class PauseViewModel extends ChangeNotifier {
       return;
     }
 
+    final postponingProposal = _stage == PauseStage.proposal;
     _invalidateInvitation();
     final id = ++_generation;
     _invitationId = id;
     _reminderAt = DateTime.now().add(delay);
     _stage = PauseStage.home;
+    if (postponingProposal) _postponements++;
     _message = 'Aviso preparado mientras esta sesión siga abierta.';
     _timer = Timer(delay, () => unawaited(_deliver(id)));
     _notify();

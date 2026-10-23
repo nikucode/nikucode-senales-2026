@@ -2,11 +2,20 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'app_preferences.dart';
+import 'marea_tools.dart';
 import 'pause_view_model.dart';
 import 'reminder_channel_factory.dart';
 
-void main() {
-  runApp(PauseApp(viewModel: PauseViewModel(channel: createReminderChannel())));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await AppPreferencesController.load();
+  runApp(
+    PauseApp(
+      viewModel: PauseViewModel(channel: createReminderChannel()),
+      preferences: preferences,
+    ),
+  );
 }
 
 const deepWater = Color(0xFF081B23);
@@ -19,23 +28,36 @@ const seaGlassInk = Color(0xFF10342F);
 const softLilac = Color(0xFFD8D1F4);
 const softCoral = Color(0xFFFFC7B2);
 
+IconData _avatarFor(int index) => switch (index.clamp(0, 3)) {
+  0 => Icons.water_drop_outlined,
+  1 => Icons.waves_rounded,
+  2 => Icons.nightlight_outlined,
+  _ => Icons.spa_outlined,
+};
+
 class PauseApp extends StatefulWidget {
-  const PauseApp({super.key, required this.viewModel});
+  const PauseApp({super.key, required this.viewModel, this.preferences});
   final PauseViewModel viewModel;
+  final AppPreferencesController? preferences;
   @override
   State<PauseApp> createState() => _PauseAppState();
 }
 
 class _PauseAppState extends State<PauseApp> {
+  late final AppPreferencesController _preferences =
+      widget.preferences ?? AppPreferencesController.memory();
+
   @override
   void dispose() {
     widget.viewModel.dispose();
+    _preferences.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _preferences,
+    builder: (context, _) => MaterialApp(
       title: 'nikucode · pausa',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -47,6 +69,7 @@ class _PauseAppState extends State<PauseApp> {
           surface: deepWaterLight,
           primary: seaGlass,
           onPrimary: seaGlassInk,
+          contrastLevel: _preferences.highContrast ? 1 : 0,
         ),
         scaffoldBackgroundColor: deepWater,
         textTheme: const TextTheme(
@@ -60,7 +83,12 @@ class _PauseAppState extends State<PauseApp> {
             minimumSize: const Size(56, 58),
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
             shape: const StadiumBorder(),
-            side: BorderSide(color: foam.withValues(alpha: .88), width: 1.2),
+            side: BorderSide(
+              color: foam.withValues(
+                alpha: _preferences.highContrast ? 1 : .88,
+              ),
+              width: _preferences.highContrast ? 2 : 1.2,
+            ),
             elevation: 5,
             shadowColor: seaGlass.withValues(alpha: .28),
             textStyle: const TextStyle(
@@ -73,102 +101,134 @@ class _PauseAppState extends State<PauseApp> {
           style: OutlinedButton.styleFrom(
             foregroundColor: foam,
             minimumSize: const Size(56, 54),
-            backgroundColor: foam.withValues(alpha: .055),
-            side: BorderSide(color: foam.withValues(alpha: .44)),
+            backgroundColor: foam.withValues(
+              alpha: _preferences.highContrast ? .12 : .055,
+            ),
+            side: BorderSide(
+              color: foam.withValues(
+                alpha: _preferences.highContrast ? .8 : .44,
+              ),
+              width: _preferences.highContrast ? 1.8 : 1,
+            ),
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: mist,
+            foregroundColor: _preferences.highContrast ? foam : mist,
             minimumSize: const Size(56, 48),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            backgroundColor: foam.withValues(alpha: .055),
-            side: BorderSide(color: foam.withValues(alpha: .22)),
+            backgroundColor: foam.withValues(
+              alpha: _preferences.highContrast ? .12 : .055,
+            ),
+            side: BorderSide(
+              color: foam.withValues(
+                alpha: _preferences.highContrast ? .72 : .22,
+              ),
+              width: _preferences.highContrast ? 1.8 : 1,
+            ),
             shape: const StadiumBorder(),
           ),
         ),
       ),
-      home: PauseHome(viewModel: widget.viewModel),
-    );
-  }
+      home: PauseHome(viewModel: widget.viewModel, preferences: _preferences),
+    ),
+  );
 }
 
 class PauseHome extends StatelessWidget {
-  const PauseHome({super.key, required this.viewModel});
+  const PauseHome({
+    super.key,
+    required this.viewModel,
+    required this.preferences,
+  });
   final PauseViewModel viewModel;
+  final AppPreferencesController preferences;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: viewModel,
-    builder: (context, _) => Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          const ExcludeSemantics(
-            child: CustomPaint(painter: _MareaAtmosphere()),
-          ),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      _TopLine(viewModel: viewModel),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: (constraints.maxHeight - 76).clamp(
-                                0,
-                                2000,
-                              ),
-                            ),
-                            child: Center(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 760,
-                                ),
-                                child: _PausePanel(vm: viewModel),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (viewModel.hasPendingReminder)
-                        TextButton(
-                          onPressed: viewModel.cancelReminder,
-                          child: Text(
-                            'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
-                          ),
-                        ),
-                      if (viewModel.message != null)
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            viewModel.message!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: mist),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
+    builder: (context, _) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        disableAnimations:
+            MediaQuery.disableAnimationsOf(context) || preferences.reduceMotion,
+      ),
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ExcludeSemantics(
+              child: CustomPaint(painter: _MareaAtmosphere()),
             ),
-          ),
-        ],
+            SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        _TopLine(
+                          viewModel: viewModel,
+                          preferences: preferences,
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: (constraints.maxHeight - 76).clamp(
+                                  0,
+                                  2000,
+                                ),
+                              ),
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 760,
+                                  ),
+                                  child: _PausePanel(
+                                    vm: viewModel,
+                                    preferences: preferences,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (viewModel.hasPendingReminder)
+                          TextButton(
+                            onPressed: viewModel.cancelReminder,
+                            child: Text(
+                              'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
+                            ),
+                          ),
+                        if (viewModel.message != null)
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              viewModel.message!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: mist),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
 }
 
 class _TopLine extends StatelessWidget {
-  const _TopLine({required this.viewModel});
+  const _TopLine({required this.viewModel, required this.preferences});
   final PauseViewModel viewModel;
+  final AppPreferencesController preferences;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -213,14 +273,29 @@ class _TopLine extends StatelessWidget {
           }),
         )
       else
-        const SizedBox(height: 48),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: preferences.displayName,
+              onPressed: () => showMareaProfile(context, preferences),
+              icon: Icon(_avatarFor(preferences.avatarIndex)),
+            ),
+            IconButton(
+              tooltip: 'Ajustes de acceso',
+              onPressed: () => showMareaSettings(context, preferences),
+              icon: const Icon(Icons.tune_rounded),
+            ),
+          ],
+        ),
     ],
   );
 }
 
 class _PausePanel extends StatelessWidget {
-  const _PausePanel({required this.vm});
+  const _PausePanel({required this.vm, required this.preferences});
   final PauseViewModel vm;
+  final AppPreferencesController preferences;
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +318,24 @@ class _PausePanel extends StatelessWidget {
           onPressed: () => _showReminders(context, vm),
           icon: const Icon(Icons.notifications_none_rounded),
           label: const Text('Avisos, si los quieres'),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            TextButton.icon(
+              onPressed: () => showMareaPanorama(context, vm),
+              icon: const Icon(Icons.waterfall_chart_rounded),
+              label: const Text('Mi panorama'),
+            ),
+            TextButton.icon(
+              onPressed: () => showMareaProfile(context, preferences),
+              icon: const Icon(Icons.person_outline_rounded),
+              label: const Text('Mi espacio'),
+            ),
+          ],
         ),
       ],
       PauseStage.proposal => <Widget>[

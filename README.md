@@ -12,4 +12,4 @@ Queremos explorar una solución que facilite ese paso sin culpar a la persona ni
 
 ## Qué dejamos fuera
 
-El alcance inicial no incluye diagnóstico, tratamiento, cuentas, sincronización, rachas, bloqueo de otras aplicaciones, sensores ni IA. No afirmamos detectar postura, verificar movimiento, crear hábitos ni prevenir dolor. El prototipo es una propuesta por evaluar, no evidencia de eficacia.
+El alcance inicial no incluye diagnóstico, tratamiento, cuentas, sincronización, rachas, bloqueo de otras aplicaciones, sensores ni IA. El apodo y las preferencias de acceso son opcionales y locales; no requieren una cuenta. No afirmamos detectar postura, verificar movimiento, crear hábitos ni prevenir dolor. El prototipo es una propuesta por evaluar, no evidencia de eficacia.
