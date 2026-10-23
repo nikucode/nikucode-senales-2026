@@ -81,6 +81,7 @@ class PauseViewModel extends ChangeNotifier {
   Future<void> _channelWork = Future<void>.value();
 
   PauseStage get stage => _stage;
+  int get proposalIndex => _proposalIndex;
   MovementProposal get proposal => _proposals[_proposalIndex];
   bool get remindersEnabled => _remindersEnabled;
   DateTime? get reminderAt => _reminderAt;
