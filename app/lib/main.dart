@@ -83,6 +83,7 @@ class PauseHome extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 900;
+            final onHome = viewModel.stage == PauseStage.home;
             return SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: wide ? 48 : 24,
@@ -147,7 +148,7 @@ class PauseHome extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: wide ? 64 : 32),
-                      if (wide)
+                      if (wide && onHome)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -156,11 +157,19 @@ class PauseHome extends StatelessWidget {
                             Expanded(child: _PausePanel(vm: viewModel)),
                           ],
                         )
-                      else ...[
+                      else if (wide)
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 720),
+                            child: _PausePanel(vm: viewModel),
+                          ),
+                        )
+                      else if (onHome) ...[
                         _Introduction(wide: wide),
                         const SizedBox(height: 28),
                         _PausePanel(vm: viewModel),
-                      ],
+                      ] else
+                        _PausePanel(vm: viewModel),
                       if (viewModel.hasPendingReminder) ...[
                         const SizedBox(height: 24),
                         Container(

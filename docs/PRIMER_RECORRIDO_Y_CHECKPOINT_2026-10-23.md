@@ -6,7 +6,7 @@
 
 Inicio → propuesta → cambiar → guía → terminar/detener → volver; rechazo sin reprogramación. Dos propuestas: caminar si resulta adecuado y movimiento habitual elegido. Vistas adaptables a ancho disponible, controles etiquetados y sin animación o seguimiento obligatorio.
 
-**Actualización visual posterior:** la pantalla usa ahora fondo marfil, acentos verde musgo/terracota y una forma original de trazo interrumpido; el panel principal reemplaza la tarjeta blanca uniforme. Se mantuvo el recorrido y la jerarquía de controles. El título y la frase descriptiva se ajustaron para que la propuesta se entienda sin depender de la metáfora visual. Esta iteración pasó análisis estático de Flutter; aún falta observar el render actualizado y probar teclado, ampliación y lector de pantalla.
+**Actualización visual posterior:** la pantalla usa fondo marfil, acentos verde musgo/terracota y una forma de trazo interrumpido; el panel principal reemplaza la tarjeta blanca uniforme. En la última iteración, la introducción solo aparece en inicio; propuesta, guía y cierre muestran directamente su contenido, evitando repetir el bloque de bienvenida. El motor Flutter headless generó capturas actuales a 1200 y 390 px, incluida una propuesta con texto al 200 %. La ampliación se renderiza, pero los controles quedan más abajo y requieren desplazamiento. No se probaron gestos, teclado ni lector de pantalla.
 
 Avisos habilitados explícitamente, programación puntual en memoria, reemplazo/cancelación y generación vigente. Adaptadores Linux y navegador separados. Al toque se solicita activar ventana/pestaña y abrir propuesta; llegada sola no toma foco. Sin servicio Android nativo implementado, persistencia, background independiente del proceso, recurrencia o sincronización.
 
@@ -19,8 +19,8 @@ Avisos habilitados explícitamente, programación puntual en memoria, reemplazo/
 | Linux | Build debug compiló; lanzamiento de ventana en esta sesión falla `cannot open display: :0` |
 | Web | Build release compiló, con recursos web locales; aviso no fatal de fuente Cupertino ausente, sin fallo de compilación |
 | Runner de tests | Bloqueado antes de suites por bind127.0.0.1 no permitido. Casos de lógica/widgets escritos, no declarados pasados |
-| Motor Flutter offline | Harness ejecutado con VMservice deshabilitado: 19 comprobaciones, siete capturas y cero errores Flutter, con canal fake; [resultado](evidencia/checkpoint_smoke_result.json) |
-| Vista de escritorio/móvil | Capturas del motor a1200 y390 de ancho inspeccionadas; no equivalen a dispositivo móvil físico |
+| Motor Flutter offline | Harness ejecutado con VMservice deshabilitado: 19 comprobaciones, ocho capturas y cero errores Flutter, con canal fake; [resultado](evidencia/checkpoint_smoke_result.json) |
+| Vista de escritorio/móvil | Capturas actuales del motor a 1200 y 390 px inspeccionadas; no equivalen a dispositivo físico. La captura de propuesta al 200 % muestra que sus acciones necesitan desplazamiento. |
 | Avisos reales | No verificados: acceso a bus del escritorio bloqueado en sesión; permiso/navegador/apertura desde aviso requieren prueba del equipo |
 | Movimiento/hábito | No medidos ni inferidos de la guía |
 
@@ -30,9 +30,10 @@ Se corrigieron dos riesgos de revisión estática: activación solicitada solo t
 
 - [Inicio en escritorio](evidencia/desktop_home.png).
 - [Propuesta en tamaño móvil](evidencia/mobile_proposal.png).
-- [Vista390×844 con texto al200%](evidencia/mobile_home_200_percent.png): escala2.0 comprobada en RenderParagraph; requiere desplazamiento para llegar a acciones. No es una prueba de gesto/lector.
+- [Vista390×844 de inicio al200%](evidencia/mobile_home_200_percent.png): escala 2.0 comprobada en RenderParagraph.
+- [Propuesta390×844 al200%](evidencia/mobile_proposal_200_percent.png): texto ampliado y controles fuera de la primera vista; se necesita desplazamiento.
 
-Estas capturas pertenecen a la primera versión visual, anterior a la actualización descrita arriba; no representan la interfaz actual. Son capturas reales de render headless, no mockups ni fotografías del teléfono. El resultado JSON identifica canal simulado y transiciones dirigidas por el modelo. No se anuncian como pruebas de gestos, lector o avisos del sistema.
+Las capturas enlazadas son snapshots del render Flutter headless actual, no mockups ni fotografías de un teléfono. El resultado JSON identifica canal simulado y transiciones dirigidas por el modelo. No se anuncian como pruebas de gestos, teclado, lector o avisos del sistema.
 
 ## Reproducir la comprobación offline
 

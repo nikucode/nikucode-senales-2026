@@ -5,11 +5,11 @@ Actualización: 23 de octubre de 2026. Registro compartido para integrantes y as
 ## Estado observado
 
 - Repo público creado por el equipo: https://github.com/nikucode/nikucode-senales-2026 (enlace y pantalla aportados por Alex).
-- La rama principal local y `origin/main` apuntan a `193db7a`, que contiene la primera app Flutter. El historial público conserva los commits previos de preparación documental.
+- Al iniciar esta revisión, `main` y `origin/main` apuntaban a `b6c3318`, que incluye la primera app y la actualización visual. La iteración de interfaz descrita abajo está en cambios locales aún no publicados.
 - La fase «A construir» comenzó a las 09:45, una vez terminada la bienvenida, según el programa compartido por el equipo.
 - Primera app nueva en `app/`, con Flutter 3.47.7/Dart 3.13.5 como base inicial de implementación. Compilaron Linux debug y web. Android tiene scaffold, sin APK/canal nativo probado; dispositivos físicos aún por confirmar.
-- Recorrido/estado/render comprobados con motor Flutter headless, 19 checks, siete capturas, cero errores Flutter y canal simulado. Las suites estándar están escritas pero bloqueadas por bind local; avisos SO/gestos/lector/teléfono real no verificados. Ver [evidencia](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
-- Iteración visual aplicada después de esas capturas; se conservan allí como registro de la primera versión. `flutter analyze --no-pub` pasó tras el cambio. Falta generar evidencia visual nueva y revisar accesibilidad con tecnologías asistivas.
+- Recorrido/estado/render comprobados con motor Flutter headless: 19 checks, ocho capturas, cero errores Flutter y canal simulado. `flutter analyze --no-pub` pasó. Build Linux y web compilaron antes del ajuste más reciente; se volverán a compilar. La ventana Linux no pudo abrirse en esta sesión porque no hay display disponible. Gestos, lector de pantalla, avisos del SO y teléfono real siguen sin verificar. Ver [evidencia](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
+- En propuesta, guía y cierre se quitó la introducción repetida para llevar antes a la acción. Las capturas actuales están en `docs/evidencia/`; a 200 % de texto la propuesta requiere desplazamiento para llegar a sus controles. No es una evaluación de interacción ni certificación de accesibilidad.
 - Preparados: investigación, especificación, fuentes, aceptación, rutas técnicas, guion de checkpoint, defensa y borrador de cinco diapositivas.
 
 ## Decisiones y propuestas
@@ -24,10 +24,10 @@ Contratos: abrir propuesta consume/invalida invitación y cancela programación 
 | Tarea | Responsable | Estado | Cierre esperado |
 |---|---|---|---|
 | Repositorio y documentación inicial | Equipo | Commits `ff5ef84` y `351c267` integrados en la historia de `main` | Mantener documentación pública coherente con la implementación vigente |
-| Primera implementación | Equipo | `193db7a` presente en `main` y `origin/main`; builds y evidencia registrados | Ejecutar y probar el recorrido en los dispositivos del equipo |
+| Primera implementación e iteración de interfaz | Equipo | App en `main`; ajuste compacto local probado con 19 checks y ocho capturas | Recompilar Linux/web y revisar interacción/asistencia en equipos reales |
 | Confirmar destinos reales | Equipo | Pendiente | Stack inicial Flutter; registrar computador/teléfono sin identificadores personales |
 | Prueba de canal real | Equipo, por repartir | Pendiente | Comprobar permiso/entrega/toque/cancelación; el fake no lo sustituye |
-| Checkpoint 1 · 12:00 | Equipo | Guion preparado | Explicar problema, intentos previos y elección |
+| Checkpoint 1 · 12:00 | Equipo | Realizado; Alex informa que el checkpoint salió bien y recomienda investigar cómo acercar la propuesta a la persona | Integrar el aprendizaje sobre autocompasión sin inducir culpa ni exagerar el efecto |
 | Checkpoint 2 · 17:15 | Equipo | Base implementada, comprobación en destino pendiente | Demostrar una función central en un destino real |
 
 ## Continuidad del trabajo
