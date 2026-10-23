@@ -1,6 +1,6 @@
 # Investigación integral y decisiones para el MVP
 
-Fecha: 23-10-2026, preparación antes de la bienvenida. Ejecución del prompt V2 [referencia del archivo de investigación, no incluida en este repo]. Investigación dirigida e integración del acervo existente, no revisión sistemática ni evaluación propia de eficacia. La app competitiva no se desarrolló en este bloque.
+Fecha: 23-10-2026, preparación antes de la bienvenida. Ejecución del [prompt V2](investigacion/PROMPT_MAESTRO_INVESTIGACION_INTEGRAL_2026-10-23.md). Investigación dirigida e integración del acervo existente, no revisión sistemática ni evaluación propia de eficacia. La app competitiva no se desarrolló en este bloque.
 
 ## 1. Dictamen y decisiones que ahorran trabajo
 

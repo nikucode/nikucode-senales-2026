@@ -170,4 +170,4 @@ Precisar cuándo A y B revelan la acción: si ambas la muestran antes de medir e
 
 Usar futuro para funciones aún no implementadas. La pregunta del jurado orienta la explicación; no permite afirmar que ya sabemos que esta persona cambiará.
 
-Referencia de decisiones y límites: [investigación de mecanismo/MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md), [interfaz y accesibilidad](INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md) y transcripción de Makana [referencia del archivo de investigación, no incluida en este repo].
+Referencia de decisiones y límites: [investigación de mecanismo/MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md), [interfaz y accesibilidad](INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md) y [transcripción de Makana](investigacion/ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md).

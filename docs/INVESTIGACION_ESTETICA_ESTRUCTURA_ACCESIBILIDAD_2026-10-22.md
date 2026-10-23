@@ -6,7 +6,7 @@
 
 **Continuidad de producto y pitch:** [síntesis del mecanismo conductual y MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md). El acabado visual queda subordinado a una conducta, barrera y mecanismo explícitos; la nueva lectura de Baughan se limita al resumen en el sitio de la autora, no a un PDF completo.
 
-**Precisión de la organización:** ver transcripción aportada por Alex [referencia del archivo de investigación, no incluida en este repo]. Investigación, ideas, material escrito y preparación técnica permitidos; código de la app solo después de la bienvenida, repositorio público sin desarrollo previo y sin reutilizar desarrollo de proyectos personales. Este registro precisa los resúmenes anteriores.
+**Precisión de la organización:** ver [transcripción aportada por Alex](investigacion/ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md). Investigación, ideas, material escrito y preparación técnica permitidos; código de la app solo después de la bienvenida, repositorio público sin desarrollo previo y sin reutilizar desarrollo de proyectos personales. Este registro precisa los resúmenes anteriores.
 
 Fecha: 22-10-2026. Proyecto: nikucode. Estado: investigación selectiva y propuesta de diseño pendiente de evaluación; sin implementación del código a presentar.
 
@@ -26,11 +26,11 @@ Es una revisión dirigida, no sistemática: no hubo búsqueda exhaustiva ni eval
 
 ### Evidencia local integrada desde la sesión completa de OpenCode
 
-- **Stretchly:** en un ensayo personalizado sobre Hyprland/Wayland, Alex informó obstrucción de sus ventanas y escritura que no llegó al editor. No se determinó el mecanismo de foco o entrada ni se probaron todas las configuraciones. Añadir a la evaluación del diseño la continuidad de la tarea y la ausencia de obstrucción innecesaria. Resultado del ensayo [referencia del archivo de investigación, no incluida en este repo].
-- **Wakeout Chrome 1.1.0:** un recorrido automatizado headless contabilizó una sesión y cuatro ejercicios sin entrada corporal; Snooze permitió regresar sin rutina. No es evaluación humana ni resultado de la app Apple con cámara. Identificar por separado temporizador/guía, autorreporte y movimiento observado. Los textos de juicio al posponer se observaron, pero no se midió su efecto emocional. Resultado del ensayo [referencia del archivo de investigación, no incluida en este repo].
-- **OpalHelper:** el análisis estático rastreó construcción y compilación de AppleScript; no su ejecución ni el funcionamiento del bloqueo. No atribuir a esa inspección evidencia de usabilidad o accesibilidad. Análisis local [referencia del archivo de investigación, no incluida en este repo].
+- **Stretchly:** en un ensayo personalizado sobre Hyprland/Wayland, Alex informó obstrucción de sus ventanas y escritura que no llegó al editor. No se determinó el mecanismo de foco o entrada ni se probaron todas las configuraciones. Añadir a la evaluación del diseño la continuidad de la tarea y la ausencia de obstrucción innecesaria. [Resultado del ensayo](investigacion/ENSAYO_STRETCHLY.md).
+- **Wakeout Chrome 1.1.0:** un recorrido automatizado headless contabilizó una sesión y cuatro ejercicios sin entrada corporal; Snooze permitió regresar sin rutina. No es evaluación humana ni resultado de la app Apple con cámara. Identificar por separado temporizador/guía, autorreporte y movimiento observado. Los textos de juicio al posponer se observaron, pero no se midió su efecto emocional. [Resultado del ensayo](investigacion/ENSAYO_WAKEOUT_CHROME.md).
+- **OpalHelper:** el análisis estático rastreó construcción y compilación de AppleScript; no su ejecución ni el funcionamiento del bloqueo. No atribuir a esa inspección evidencia de usabilidad o accesibilidad. [Análisis local](investigacion/ANALISIS_OPAL_HELPER.md).
 
-La sesión termina con investigación visual en curso: Baughan, Reinecke/Gajos, lectura individualizada y WCAG2ICT son pistas pendientes, no lecturas críticas completadas. Ver integración de la exportación completa [referencia del archivo de investigación, no incluida en este repo].
+La sesión termina con investigación visual en curso: Baughan, Reinecke/Gajos, lectura individualizada y WCAG2ICT son pistas pendientes, no lecturas críticas completadas. Ver [integración de la exportación completa](investigacion/INTEGRACION_SESION_OPENCODE_COMPLETA_2026-10-22.md).
 
 Las cifras en cuarentena de Leppe-Zamora no se usan. Pausa física, marcador de reanudación y jugabilidad conservan hipótesis independientes.
 

@@ -18,7 +18,7 @@ Apoyo si preguntan por el recorte: tarea individual donde exista posibilidad rea
 
 [GitHub permite renombrar un repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository); recomienda actualizar remotos y hay excepciones de redirección, como URLs de Pages/acciones alojadas. Para evitar cambios de enlaces en plena entrega, mantener nombre estable durante el evento es una decisión de gestión, no exigencia técnica. La marca puede ir en README/interfaz sin cambiar inmediatamente la URL del repo.
 
-Crear público y nuevo según reglas; preparar el repo vacío sin desarrollo anterior y comenzar código tras el fin de bienvenida. El programa aportado confirma fase de construcción desde 09:45 y resuelve el hito de bienvenida. Falta la cuenta/organización o URL del repo.
+Crear público y nuevo según reglas; preparar el repo vacío sin desarrollo anterior y comenzar código tras el fin de bienvenida. El programa aportado confirma fase de construcción desde 09:45 y resuelve el hito de bienvenida. Repo ya creado en nikucode/nikucode-senales-2026; stack/destinos siguen pendientes de acordar.
 
 ## 3. Lo que aporta la investigación de naming
 

@@ -1,6 +1,6 @@
 # Compartir investigación durante el evento
 
-Situación comunicada el 23-10-2026: Alex y Javi ya están en la hackatón; checkpoint 1 a las 12:00. Recomendación adaptada a esa etapa: **un único repositorio del equipo y documentación revisada dentro de `docs/`**. El repo competitivo debe cumplir la creación pública/nueva y el inicio de desarrollo tras bienvenida. El programa aportado confirma la fase «A construir» desde 09:45: bienvenida terminada. Cuenta/URL del repo aún no constan en esta sesión.
+Situación comunicada el 23-10-2026: Alex y Javi ya están en la hackatón; checkpoint 1 a las 12:00. Recomendación adaptada a esa etapa: **un único repositorio del equipo y documentación revisada dentro de `docs/`**. El repo competitivo debe cumplir la creación pública/nueva y el inicio de desarrollo tras bienvenida. El programa aportado confirma la fase «A construir» desde 09:45: bienvenida terminada. Repo público ya creado: nikucode/nikucode-senales-2026; consultar estado compartido para publicación y próximos pasos.
 
 ## Decisión práctica
 

@@ -9,3 +9,7 @@ La lectura de fuentes, sus límites y las decisiones están en los informes. La 
 PDF: cinco páginas renderizadas/revisadas. ODP: estructura ZIP/XML comprobada, apertura en Impress pendiente. Ambos son borradores y necesitan captura/demo/resultados reales antes de presentar.
 
 MANIFIESTO_IMPORTACION.json registra hashes del contenido original y su copia inicial adaptada. Si se editan documentos después, el manifiesto sigue describiendo esta importación, no hashes vigentes. El repositorio Git conserva modificaciones posteriores.
+
+Ampliación: se incorporaron 21 respaldos de investigación y ensayos, sin ejecutar otra investigación ni reproducir pruebas. `MANIFIESTO_AMPLIACION.json` registra esa selección y las nuevas adaptaciones de enlaces. El resumen de la aclaración Makana excluye la transcripción literal. Los informes de ensayos no incluyen todos sus logs/binarios; no suponer acceso a artefactos que solo se mencionan.
+
+Los respaldos contienen avisos históricos; no reemplazan el programa vigente o contratos actuales ni deben activarse como siguientes tareas. [Índice y orden de lectura](INDICE_DOCUMENTACION.md).

@@ -1,0 +1,251 @@
+{
+  "tipo": "ampliación de respaldo documental; sin nuevas lecturas científicas ni pruebas de app",
+  "archivos": [
+    {
+      "archivo": "docs/INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md",
+      "origen": "INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md",
+      "sha256_original": "941700b77b7dd2931db60efbba97fe21eba11104d6fca80d0204479cbb58627b",
+      "sha256_copia": "9be891f71901aa22ac5c6e4132535c2a163b016fcfd10212624cce0e37d9ed37",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md",
+      "origen": "GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md",
+      "sha256_original": "45faadf8aa1e84103fee8e995e1ef6045fdec6b9f1156a9d6d73e2f0e2a14ab0",
+      "sha256_copia": "b76b61817fbdd9147f5bc02c7c3619a4bb94cea1446aee8a6f1c2cb8f4adcce5",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/PREPARACION_TECNICA_DESTINOS_2026-10-23.md",
+      "origen": "PREPARACION_TECNICA_DESTINOS_2026-10-23.md",
+      "sha256_original": "8b7d3287900b7e53058c8b364165b91dc459ea933ac8f19522477095cb28ba03",
+      "sha256_copia": "2adac20bf28005e7ae8ffc1ff66e6fd61dd2507511cb94a150706d18a24733cf",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/PITCH_Y_DEFENSA_2026-10-23.md",
+      "origen": "PITCH_Y_DEFENSA_2026-10-23.md",
+      "sha256_original": "4813d046a3d1c32295ad5537cf2397f0d97d2cd2cd137c223071486a291120e3",
+      "sha256_copia": "2d8831f7325baf7904f8855a7d476d3dfa8b395314e8c5eb9f03a3cb432eae39",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/AUDITORIA_CIENTIFICA_MVP_2026-10-23.md",
+      "origen": "AUDITORIA_CIENTIFICA_MVP_2026-10-23.md",
+      "sha256_original": "faea2d0bb8719604232f111f25fef3405d1d0486caeccaefb5ae7f19c0f543e7",
+      "sha256_copia": "faea2d0bb8719604232f111f25fef3405d1d0486caeccaefb5ae7f19c0f543e7",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/FICHA_MVP_PROPUESTA_2026-10-23.md",
+      "origen": "FICHA_MVP_PROPUESTA_2026-10-23.md",
+      "sha256_original": "5924d260716a1611e29c600ddb4fb9b40911f0fae4b456b8b9fc04740004b3e3",
+      "sha256_copia": "a4c11622f7b4e1035298000b563008ef440e413a95090d3bde763b375529aff7",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/MATRIZ_EVIDENCIA_Y_VALIDACION.md",
+      "origen": "MATRIZ_EVIDENCIA_Y_VALIDACION.md",
+      "sha256_original": "1455eaf2594880a0e304c9a09d2169c44844e5bb2e0b6b30897aee3ee3fedb88",
+      "sha256_copia": "d967d5a0e39f14f754b784ecb9a82fd90e73f702a6730457d2740f735f8a9467",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md",
+      "origen": "INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md",
+      "sha256_original": "6114e69aaca041076fdc68a1e8d9b14032ced2fdd8939a9d20eee9578ac89f0a",
+      "sha256_copia": "9bc45d5f9f5635e7faddf2867b3c6588194fb7fc9c82d396919bbf1eb86210c4",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md",
+      "origen": "INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md",
+      "sha256_original": "33c9d8f82ec6a853dd8726c0694a52814a7f783bdc835b3a55344f8cc3b3a388",
+      "sha256_copia": "6d2bd0ac1aa38ebe73bd7e09e05423687aeae42500de6b436bd9e8aba7f4aced",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/CHECKPOINT_1_Y_NOMBRE_2026-10-23.md",
+      "origen": "CHECKPOINT_1_Y_NOMBRE_2026-10-23.md",
+      "sha256_original": "aa8c8b8d096a2289a7e09f259de2d8b89722f7002b4f6b42ebd6806b4737b57b",
+      "sha256_copia": "aad294f37c4c3e758a96933a5f8be7a845b1be9e9f37432142b190bac47bcc8f",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/PROGRAMA_VIGENTE_2026-10-23.md",
+      "origen": "PROGRAMA_VIGENTE_2026-10-23.md",
+      "sha256_original": "2d9a32d806dc2cdc35a186e964a8e5b17cbb3fd9c813c51dc6d367802cb44516",
+      "sha256_copia": "2d9a32d806dc2cdc35a186e964a8e5b17cbb3fd9c813c51dc6d367802cb44516",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/COORDINACION_REPO_EQUIPO_2026-10-23.md",
+      "origen": "COORDINACION_REPO_EQUIPO_2026-10-23.md",
+      "sha256_original": "2df9150770e6bfd28eba712f17f5a4a42b783d6e77d7328915a191e6dd93c7cc",
+      "sha256_copia": "7b7da9f51e0e04c9bfc1166173f733607072341cd9f4e94df265c5160d0f7909",
+      "tipo": "documento principal, enlaces ampliados"
+    },
+    {
+      "archivo": "docs/investigacion/ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md",
+      "origen": "ACLARACION_MAKANA_TRANSCRIPCION_2026-10-22.md",
+      "sha256_original": "ac162041794316e839251a385efb681cc48e4273678fc60f5c202ae6cf83cd52",
+      "sha256_copia": "7f2fa42bfa2da1310b94227f801829c741dcc65c79c22ad9a81ccef0de3cb22f",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/PROMPT_MAESTRO_INVESTIGACION_INTEGRAL_2026-10-23.md",
+      "origen": "PROMPT_MAESTRO_INVESTIGACION_INTEGRAL_2026-10-23.md",
+      "sha256_original": "ca026a461ed4790160bd956b58ed034ff5c6c76e67eccaeb81f18bdfac451a4d",
+      "sha256_copia": "cd80e3134568457d0069a66f7a0770614175cf2d951c27851a01786b841d70ad",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/AUDITORIA_INTEGRAL_EVIDENCIA_Y_COHERENCIA.md",
+      "origen": "AUDITORIA_INTEGRAL_EVIDENCIA_Y_COHERENCIA.md",
+      "sha256_original": "3369e4edf3d56734b120a3af6321248dfd8f32e07a65208d6fc28e0466bb5362",
+      "sha256_copia": "01d3e6bf70dd8ffa791aaf6a26f2fe3858e0bd88d2964af35ad50fdbed47a28c",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/AUDITORIA_GAMIFICACION_EXERGAMES_Y_PAUSAS.md",
+      "origen": "AUDITORIA_GAMIFICACION_EXERGAMES_Y_PAUSAS.md",
+      "sha256_original": "9e5841e988fb6d0b666dffd9468f9f9ba39b14cf05cc2780c19dbb7dfc566bb3",
+      "sha256_copia": "38e39c95f8a99d1e556dcf0ff95412328893ba20bcef6925806325a5d47f5017",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/FICHAS_CRITICAS.md",
+      "origen": "FICHAS_CRITICAS.md",
+      "sha256_original": "ebf73ea2b3f82c3acea7b43adfa47fb7fe0c82ccf5c43a0c419c48cb515afb19",
+      "sha256_copia": "cda3f0913a9a4b01fb81f078e8e2f2f832a0d31dad099bdd4a98e107db2ef582",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/FLUJO_AGENTES_HERRAMIENTAS_APP_Y_PITCH_2026-10-22.md",
+      "origen": "FLUJO_AGENTES_HERRAMIENTAS_APP_Y_PITCH_2026-10-22.md",
+      "sha256_original": "b8c20b36219f036240de9999a6f3333b189ab4613b5ef1ce442da760741d0ee8",
+      "sha256_copia": "0579e53879bf59f334583f9f485f765f39a0eeb2f1551031a4fb0b51b9211f26",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INTEGRACION_OPENCODE_A_CODEX_2026-10-22.md",
+      "origen": "INTEGRACION_OPENCODE_A_CODEX_2026-10-22.md",
+      "sha256_original": "006e95584a8a0e2971a03f553bcd2f80f08011ff88793837a715f54510d4f89c",
+      "sha256_copia": "558ca9bc500c3b027acf6b565617c102e6fe3e136b12e5f3e710489048824dcc",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INTEGRACION_SESION_OPENCODE_COMPLETA_2026-10-22.md",
+      "origen": "INTEGRACION_SESION_OPENCODE_COMPLETA_2026-10-22.md",
+      "sha256_original": "f3da18cd2a5e693c8f4f3b12acc35a13b6e579ee99ae5e81c6497dd3b7d886c8",
+      "sha256_copia": "b117260005bdb5738360e54daed447e5a056f295654bf682f5e2f83a70852c32",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVENTARIO_FUENTES_GAMIFICACION_Y_BARRERAS.md",
+      "origen": "INVENTARIO_FUENTES_GAMIFICACION_Y_BARRERAS.md",
+      "sha256_original": "a8e7bb971d662721a43c14db9a54463dd3eb199453044f4dfecaae6791c77014",
+      "sha256_copia": "f20cf127b13e8a39eef52d6843d6306ee4ac2e2c1c7b899dcd3dc6d0db297094",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_CARGA_DIGITAL_Y_PAUSAS.md",
+      "origen": "INVESTIGACION_CARGA_DIGITAL_Y_PAUSAS.md",
+      "sha256_original": "f882e8a40db06dd32c981b67738f723e61cdaa61d05968b3bb4f83083657d914",
+      "sha256_copia": "a1177a033f6f84f067d8f14f29067f8c1d8cd28820dbe0071ba0eb1fca1a2c94",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_COMPARATIVA_APPS_HABITOS_ENFOQUE.md",
+      "origen": "INVESTIGACION_COMPARATIVA_APPS_HABITOS_ENFOQUE.md",
+      "sha256_original": "04c2acd6ecdd43474dbc824d89754c2182c13eafc63eed6faf0039c712209f7d",
+      "sha256_copia": "e33cf8242a4c777ea36f3d04e88a71031613e957898853f4e3d1e5abb9cb1cb2",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_COMPETENCIA_DIRECTA_Y_ESTRATEGIA_NIKUCODE.md",
+      "origen": "INVESTIGACION_COMPETENCIA_DIRECTA_Y_ESTRATEGIA_NIKUCODE.md",
+      "sha256_original": "9894d42749848d7024929d84801a9b356df93b23cd980fa9e407302446f37c88",
+      "sha256_copia": "66353a13bc1557f7f789eaf754194a123f9700b2bd3e86302523e4c4ef28ce0f",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_DISENO_PERSUASIVO_Y_DEPENDENCIA.md",
+      "origen": "INVESTIGACION_DISENO_PERSUASIVO_Y_DEPENDENCIA.md",
+      "sha256_original": "48f6ae2c042ca24e0419077d8b86b84f0324a630fe7d8c9bcc779ac5757d0660",
+      "sha256_copia": "867d52e005de27a34b0b53e2cd1f1b1e71275fb249964df537e5316ca631757c",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_EDUCACION_POSITIVA_Y_MICROCONTENIDO.md",
+      "origen": "INVESTIGACION_EDUCACION_POSITIVA_Y_MICROCONTENIDO.md",
+      "sha256_original": "e607a18fe3b2171bcb2e4bf18df6d11268ab90053b2061c0854a3ddbeac549e9",
+      "sha256_copia": "93c5a820d4575ba1ceef8bc965266673959d15738b68cd4d0b096b494d34f89d",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/INVESTIGACION_VALIDACIONES_NOTIFICACIONES_Y_ESTETICA.md",
+      "origen": "INVESTIGACION_VALIDACIONES_NOTIFICACIONES_Y_ESTETICA.md",
+      "sha256_original": "c5efd5d3f4ea044791e6c53c9e307e5b4eaf3c0779fa769503c0eb7430667c8e",
+      "sha256_copia": "a63b59f7923c1fa35b031070b60a001075c7c94bfd71169e916a06b5d3744313",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/MATRIZ_ALTERNATIVAS_Y_PRUEBA_MINIMA.md",
+      "origen": "MATRIZ_ALTERNATIVAS_Y_PRUEBA_MINIMA.md",
+      "sha256_original": "239d263006bc9cd367523d3154d1ca06c320bc3eb4093a18cef89c5ce90e439a",
+      "sha256_copia": "f16f330d6fc29ddeeb7b97942af1bbfe83bd19218baf7627ebfa8ed9ff3962fa",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/RESEARCH_AND_CASES.md",
+      "origen": "RESEARCH_AND_CASES.md",
+      "sha256_original": "5523efce86c441cadcd47209008826cb446b6bba34afc0cbc11352031f5f29c2",
+      "sha256_copia": "86fe9cc73c8f0101d3fbb4961dda8d01c765371b57b52227b340100c4692b648",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/EVIDENCIA_Y_EXPERIMENTOS_FLUJO_NIKUCODE.md",
+      "origen": "EVIDENCIA_Y_EXPERIMENTOS_FLUJO_NIKUCODE.md",
+      "sha256_original": "2b137a9d1362f8c520464bd7a94246a385edae097f8cba642e55c232b8f91ef2",
+      "sha256_copia": "22f4306e58f5b2f59f42e8dd8b5af2864454a096fc5089119be09310c6672b93",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/ENSAYO_STRETCHLY.md",
+      "origen": "RESULTADO_RUNTIME_03.md",
+      "sha256_original": "3cb5d30a3e6f6a82cf78dfedac5a3337b4cead7bb72b4591c8ca5937654c04bf",
+      "sha256_copia": "ee5ab1133ee8dcee3ef1d216cb2ec480fb29629b8559014d817636b1232bdd7a",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/ENSAYO_WAKEOUT_CHROME.md",
+      "origen": "RESULTADO_RUNTIME.md",
+      "sha256_original": "f05b4d8adfddf7fed5ab2e218182c1df469df2671213fb93651b4662dc77e25d",
+      "sha256_copia": "a60951be24da72067d667d52a6a2a413cfb28d547dfa894f76f7de3619de30e8",
+      "tipo": "respaldo con aviso histórico"
+    },
+    {
+      "archivo": "docs/investigacion/ANALISIS_OPAL_HELPER.md",
+      "origen": "ANALISIS_NATIVO_HELPER.md",
+      "sha256_original": "1bc34ff9b2953ad0bc1616751e2092ae8b7f22ea71fab5993d68c5563b639bed",
+      "sha256_copia": "c4c7b1101d10f79179119308c8f921a18a956d679ffc7ba03c93063f83ee9e14",
+      "tipo": "respaldo con aviso histórico"
+    }
+  ],
+  "referencias_excluidas": [
+    "../../investigacion_competidores/stretchly/RESULTADO_RUNTIME_01.md",
+    "../../investigacion_competidores/stretchly/RESULTADO_RUNTIME_02.md",
+    "../../session-a04513b0-dd75-46fc-8fbd-c9fc0e775621.md",
+    "ANALISIS_PROMPT_INVESTIGACION_V2_2026-10-23.md",
+    "HACKATHON_CONTEXT.md",
+    "PROMPT_MAESTRO_INVESTIGACION_INTEGRAL_2026-10-23_V1.md"
+  ],
+  "exclusiones": [
+    "conversaciones completas y transcripción literal",
+    "credenciales/perfiles globales/configuración personal",
+    "código previo y binarios de competidores",
+    "papers completos y suplementos; se conservan referencias/DOI",
+    "planes/copies históricas redundantes"
+  ]
+}

@@ -91,7 +91,7 @@ Comprobación realizada ahora, lectura/versión con timeout breve:
 | Chromium | 154.0.8037.97 | APIs/permisos efectivos de notificación, rendimiento o accesibilidad |
 | Linux toolchain | clang, cmake, ninja, pkg-config y busctl en PATH; GTK3 3.24.52 y GTK4 4.24.1 resueltas por pkg-config | Compilación, servidor D-Bus o capacidad de acciones/foco de la sesión |
 
-No se ejecutaron `flutter doctor`, builds, instalaciones ni pruebas del servidor de avisos. Las verificaciones previas del perfil de agentes están en flujo de herramientas [referencia del archivo de investigación, no incluida en este repo]: no se repitieron. La sesión actual y el perfil de evento no tienen garantizadas las mismas herramientas/MCP.
+No se ejecutaron `flutter doctor`, builds, instalaciones ni pruebas del servidor de avisos. Las verificaciones previas del perfil de agentes están en [flujo de herramientas](investigacion/FLUJO_AGENTES_HERRAMIENTAS_APP_Y_PITCH_2026-10-22.md): no se repitieron. La sesión actual y el perfil de evento no tienen garantizadas las mismas herramientas/MCP.
 
 Comandos ilustrativos para la comprobación al llegar; **no ejecutados aquí**. Cada uno debe usarse para una duda concreta, sin copiar su salida pública si contiene identificadores de dispositivos:
 

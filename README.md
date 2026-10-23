@@ -19,6 +19,7 @@ En el núcleo inicial propuesto: cuentas, sincronización, rachas, bloqueo de ot
 Este primer bloque contiene documentación y preparación de producto; **todavía no contiene una app ejecutable**. Stack, destinos exactos y pasos de ejecución se incorporarán cuando existan y se verifiquen.
 
 - [Estado compartido y siguiente tarea](docs/ESTADO_COMPARTIDO.md).
+- [Arranque para Javi](docs/ARRANQUE_JAVI.md) e [índice de toda la documentación](docs/INDICE_DOCUMENTACION.md).
 - [Especificación y aceptación](docs/GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md).
 - [Programa vigente](docs/PROGRAMA_VIGENTE_2026-10-23.md): checkpoints 12:00/17:15; entrega sábado13:00; pitch5+3.
 
