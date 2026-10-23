@@ -19,7 +19,7 @@ No hay base revisada para una dosis universal. Los siguientes contenidos son pro
 | Campo | C1 · Caminar un momento | C2 · Tu movimiento habitual |
 |---|---|---|
 | Contexto | Tarea individual, espacio despejado y caminar adecuado para esa persona | Persona que prefiere otra acción o posición |
-| Propuesta | «Si caminar te resulta adecuado, deja la tarea y camina un momento a tu ritmo. Puedes dejar la pantalla.» | «Haz un movimiento que ya conozcas y te resulte adecuado, en la posición que prefieras. Puedes dejar la pantalla.» |
+| Propuesta | «Si puedes caminar y te resulta adecuado ahora, deja la tarea y empieza a caminar a tu propio ritmo. Puedes apartar la mirada.» | «Elige un movimiento que ya conozcas y consideres adecuado ahora. Puedes apartar la mirada.» |
 | Inicio corporal para una evaluación | Primer paso tras interrumpir la tarea, observado o declarado según protocolo | Comienzo del movimiento previamente descrito por la persona en la evaluación; no inferirlo de un clic |
 | Final corporal | Dejar de caminar; puede no coincidir con el botón de cierre | Final de la acción acordada; no inferirlo de fin de guía |
 | Duración | La persona termina cuando quiera; el recorrido básico no exige cronómetro | Igual; sin meta ni castigo |
@@ -30,7 +30,7 @@ C2 es un recurso inclusivo provisional, no una rutina validada ni equivalente fi
 
 **Una alternativa adicional de salida:** «Ahora prefiero descansar sin movimiento». Puede cerrar o guiar una pausa de pantalla si se decide incluirla, pero no se suma a pausas físicas ni cuenta como ruptura sedentaria. No hace falta construir un tercer modo para la primera demo.
 
-Contenido visible breve: propuesta, posibilidad de cambiar/detener y salida. Las limitaciones de investigación se explican en el material del proyecto; no convertir la pantalla en un consentimiento clínico extenso. El equipo debe revisar las propuestas antes de publicarlas ampliamente; contenido terapéutico requeriría otro alcance y revisión competente.
+Contenido visible breve: propuesta, posibilidad de cambiar/detener y salida. Al entrar a cada guía, C1 repite la condición y conecta la tarea con empezar a caminar; C2 invita a elegir un movimiento conocido, sin que la app lo nombre ni lo prescriba. Ambas guías permiten apartar o dejar la pantalla, no usan duración, repeticiones, metas ni temporizador y se pueden cerrar en cualquier momento. Las limitaciones de investigación se explican en el material del proyecto; no convertir la pantalla en un consentimiento clínico extenso. El equipo debe revisar las propuestas antes de publicarlas ampliamente; contenido terapéutico requeriría otro alcance y revisión competente.
 
 ## 3. Vistas y textos listos para revisar
 
@@ -39,8 +39,8 @@ Nombre de trabajo: «nikucode · pausa». No se eligió marca final. Evitar una 
 | Vista | Texto de trabajo | Acciones |
 |---|---|---|
 | Inicio | «Un momento para moverte, cuando puedas». Estado real: «Avisos apagados», «Avisos activos en este dispositivo» o «La señal funciona mientras esta app esté abierta», según capacidad comprobada | «Ver una pausa»; «Preparar un aviso» si existe canal; «Preferencias»; cancelar pendiente visible |
-| Propuesta | Título de C1/C2 y su texto; sin explicaciones científicas largas | Principal «Empezar guía»; secundarias «Cambiar propuesta», «Más tarde» y «Ahora no», con jerarquía legible |
-| Guía | «Puedes dejar la pantalla. Vuelve cuando quieras cerrar la guía.» Más la instrucción de la acción | «Terminar guía» y «Detener guía». Ambos disponibles siempre; sin esperar a un reloj |
+| Propuesta | Título de C1/C2 y su texto; sin explicaciones científicas largas | Principal «Empezar»; «Cambiar propuesta», «Configurar aviso» y «Ahora no». Configurar solo abre ajustes; no programa por sí mismo |
+| Guía | Instrucción condicional de caminar o invitación a elegir movimiento habitual; puede dejarse la pantalla, sin reloj | «Cerrar guía» y «Detener y volver». Ambos disponibles siempre |
 | Cierre por final | «Guía terminada» | «Volver» o salir; sin felicitación que afirme ejercicio realizado |
 | Cierre por detención | «Guía detenida» | «Volver» o salir sin castigo |
 | Confirmación de aviso | «Aviso solicitado para…» y estado de programación real | «Cancelar aviso». No confirmar entrega futura garantizada |
@@ -51,9 +51,9 @@ Un botón de guía no es un control de verificación corporal. La app debe etiqu
 
 ## 4. Política de avisos candidata que reduce trabajo
 
-**Primera versión:** una invitación puntual programada explícitamente por la persona y una posposición local. La recurrencia automática queda fuera de esta primera implementación salvo que el canal y el tiempo permitan definirla/probarla. Es una simplificación nueva propuesta para resolver la política pendiente, no una recomendación sanitaria.
+**Primera versión:** una invitación puntual preparada explícitamente por la persona mediante un temporizador de sesión. La recurrencia automática queda fuera de esta primera implementación. Este temporizador requiere que la app siga abierta y no confirma que el sistema operativo entregue la invitación; es una decisión de implementación, no una recomendación sanitaria.
 
-Un horario explícito —por ejemplo, una selección manejable de minutos— organiza una oportunidad. No equivale a medir tiempo sentado. El intervalo de demo puede ser corto y se identifica como prueba técnica. No se presenta como frecuencia de salud óptima ni como detección del final de una tarea.
+Un horario explícito —por ejemplo, una selección manejable de minutos— organiza una oportunidad. No equivale a medir tiempo sentado. Configurar aviso solo abre los ajustes: programar requiere habilitar avisos explícitamente y elegir un intervalo. El intervalo es una decisión técnica de la persona, no una recomendación sanitaria. Un intervalo breve de demo se identifica como prueba técnica. No se presenta como frecuencia de salud óptima ni como detección del final de una tarea.
 
 Reglas:
 

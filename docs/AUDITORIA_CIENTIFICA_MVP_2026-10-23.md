@@ -71,7 +71,7 @@ La literatura de efectos agudos no prueba que una app consiga la acción ni que 
 
 ### A09 · Media · Contratos de avisos incompletos
 
-Faltaba especificar «Más tarde» con avisos apagados/permiso denegado y «Ahora no» cuando existe un pendiente previo. **Corrección de diseño:** no programar ni reactivar implícitamente; mostrar la limitación y salida. Rechazar cancela el pendiente local de esa interacción. No vaciar los registros del sistema que no pertenezcan a la app; retirada/cancelación debe verificarse. Política recurrente sigue pendiente; no prometer deduplicación entre dispositivos.
+Faltaba especificar «Configurar aviso» con avisos apagados/permiso denegado y «Ahora no» cuando existe un pendiente previo. **Corrección de diseño:** abrir ajustes no programa ni reactiva avisos; mostrar la limitación y dejar la salida. Programar requiere activación explícita y elección de intervalo. Rechazar cancela el pendiente local de esa interacción. No vaciar los registros del sistema que no pertenezcan a la app; retirada/cancelación debe verificarse. Política recurrente sigue pendiente; no prometer deduplicación entre dispositivos.
 
 ### A10 · Alta · Instrucciones históricas reinstalaban otra hipótesis y funciones
 

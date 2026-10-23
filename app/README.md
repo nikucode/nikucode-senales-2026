@@ -21,13 +21,13 @@ flutter run -d web-server --web-port=8080
 
 Abrir la URL mostrada por el comando. Para acceso desde teléfono en la misma red se requiere servir en una interfaz accesible —por ejemplo, `--web-hostname=0.0.0.0`— y usar la IP del computador. El HTTP de una IP local no garantiza las APIs de avisos: esa ruta sirve para probar el recorrido, no para demostrar notificaciones móviles. No se desplegó un sitio público.
 
-Versiones de compilación observadas: Flutter3.47.7, Dart3.13.5. El pubspec conserva su requisito de SDK. No copiar paquetes compilados entre plataformas. Para otra plataforma, comprobar su toolchain antes de prometer un ejecutable.
+Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspec conserva su requisito de SDK. No copiar paquetes compilados entre plataformas. Para otra plataforma, comprobar su toolchain antes de prometer un ejecutable.
 
 ## Avisos: alcance implementado
 
 - Linux: `notify-send` y `busctl`, servidor de sesión con acciones y permiso/acceso efectivo. La programación usa un Timer en el proceso; cerrar la app la pierde y suspender puede retrasarla. Al pulsar el aviso se solicita activar la ventana mediante un canal nativo; el compositor puede limitarlo.
 - Web: Notifications API si existe y el usuario la habilita. Requiere contexto/permisos compatibles y pestaña viva; el navegador puede retrasar timers ocultos. Algunos navegadores móviles rechazan el constructor aun con permiso: se muestra error en vez de prometer un service worker inexistente.
-- Android nativo: scaffold generado, canal de avisos nativo todavía no implementado y APK no compilado. El recorrido es común, pero no se acredita funcionamiento físico hasta probarlo.
+- Android nativo: `MainActivity` implementa el permiso de notificaciones y la publicación/apertura de una invitación. El temporizador corre en la sesión Flutter: se requiere mantener la app abierta; no hay alarma exacta ni garantía de entrega en segundo plano. La prueba de APK y la entrega/toque en teléfono físico siguen pendientes en el entorno de Alex. En un equipo con Android SDK y dispositivo conectado, desde esta carpeta ejecutar `flutter devices` y luego `flutter run -d <device-id>`.
 - Preferencias y pendientes solo en memoria. Sin recurrencia, sincronización, cuenta, registro de salud ni detección corporal.
 
 ## Estructura

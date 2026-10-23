@@ -240,65 +240,80 @@ class _TopLine extends StatelessWidget {
   final AppPreferencesController preferences;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Semantics(
-        label: 'nikucode pausa',
-        child: ExcludeSemantics(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 36,
-                height: 34,
-                child: CustomPaint(painter: _PauseMark(viewModel.stage)),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'nikucode',
-                style: TextStyle(
-                  color: foam,
-                  fontSize: 14,
-                  letterSpacing: .5,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      if (viewModel.stage != PauseStage.home)
-        TextButton(
-          onPressed: switch (viewModel.stage) {
-            PauseStage.proposal => viewModel.dismissProposal,
-            PauseStage.guide => viewModel.stopGuide,
-            _ => viewModel.goHome,
-          },
-          child: Text(switch (viewModel.stage) {
-            PauseStage.proposal => 'Ahora no',
-            PauseStage.guide => 'Detener',
-            _ => 'Inicio',
-          }),
-        )
-      else
-        Row(
+  Widget build(BuildContext context) {
+    final brand = Semantics(
+      label: 'nikucode pausa',
+      child: ExcludeSemantics(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              tooltip: preferences.displayName,
-              onPressed: () => showMareaProfile(context, preferences),
-              icon: Icon(_avatarFor(preferences.avatarIndex)),
+            SizedBox(
+              width: 36,
+              height: 34,
+              child: CustomPaint(painter: _PauseMark(viewModel.stage)),
             ),
-            IconButton(
-              tooltip: 'Ajustes de acceso',
-              onPressed: () => showMareaSettings(context, preferences),
-              icon: const Icon(Icons.tune_rounded),
+            const SizedBox(width: 8),
+            const Text(
+              'nikucode',
+              style: TextStyle(
+                color: foam,
+                fontSize: 14,
+                letterSpacing: .5,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
-    ],
-  );
+      ),
+    );
+    final actions = viewModel.stage != PauseStage.home
+        ? TextButton(
+            onPressed: switch (viewModel.stage) {
+              PauseStage.proposal => viewModel.dismissProposal,
+              PauseStage.guide => viewModel.stopGuide,
+              _ => viewModel.goHome,
+            },
+            child: Text(switch (viewModel.stage) {
+              PauseStage.proposal => 'Ahora no',
+              PauseStage.guide => 'Detener',
+              _ => 'Inicio',
+            }),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: preferences.displayName,
+                onPressed: () => showMareaProfile(context, preferences),
+                icon: Icon(_avatarFor(preferences.avatarIndex)),
+              ),
+              IconButton(
+                tooltip: 'Ajustes de acceso',
+                onPressed: () => showMareaSettings(context, preferences),
+                icon: const Icon(Icons.tune_rounded),
+              ),
+            ],
+          );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+        if (largeText || constraints.maxWidth < 300) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(alignment: AlignmentDirectional.centerStart, child: brand),
+              Align(alignment: AlignmentDirectional.centerEnd, child: actions),
+            ],
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [brand, actions],
+        );
+      },
+    );
+  }
 }
 
 class _PausePanel extends StatelessWidget {
@@ -359,11 +374,11 @@ class _PausePanel extends StatelessWidget {
         TextButton.icon(
           onPressed: vm.changeProposal,
           icon: const Icon(Icons.shuffle_rounded),
-          label: const Text('Otra idea'),
+          label: const Text('Cambiar propuesta'),
         ),
         TextButton(
           onPressed: () => _showReminders(context, vm),
-          child: const Text('Más tarde'),
+          child: const Text('Configurar aviso'),
         ),
       ],
       PauseStage.guide => <Widget>[
@@ -371,7 +386,7 @@ class _PausePanel extends StatelessWidget {
         const SizedBox(height: 10),
         const _Title('A tu ritmo'),
         const SizedBox(height: 9),
-        Text(vm.proposal.instruction, textAlign: TextAlign.center),
+        Text(vm.proposal.guideInstruction, textAlign: TextAlign.center),
         const SizedBox(height: 28),
         FilledButton(
           onPressed: vm.finishGuide,
@@ -501,11 +516,22 @@ Future<void> _showReminders(
           children: [
             Text(vm.channelScope),
             const SizedBox(height: 12),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Habilitar avisos en esta sesión'),
-              value: vm.remindersEnabled,
-              onChanged: vm.channelSupported ? vm.setRemindersEnabled : null,
+            MergeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Habilitar avisos en esta sesión'),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Switch(
+                      value: vm.remindersEnabled,
+                      onChanged: vm.channelSupported
+                          ? vm.setRemindersEnabled
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (!vm.channelSupported)
               const Text(
@@ -513,7 +539,11 @@ Future<void> _showReminders(
               ),
             if (vm.remindersEnabled) ...[
               const SizedBox(height: 16),
-              const Text('¿Cuándo quieres preparar la invitación?'),
+              const Text('Elige un intervalo para la invitación'),
+              const SizedBox(height: 12),
+              const Text(
+                'El intervalo es una elección tuya, no una recomendación sanitaria.',
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,

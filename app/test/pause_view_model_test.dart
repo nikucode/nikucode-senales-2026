@@ -127,6 +127,7 @@ void main() {
     expect(model.stage, PauseStage.proposal);
     expect(channel.shown, isEmpty);
     expect(model.message, contains('No se programó'));
+    expect(model.message, isNot(contains('Aviso preparado')));
     model.dispose();
     await tester.pump();
   });
@@ -163,6 +164,7 @@ void main() {
     expect(model.hasPendingReminder, isFalse);
     expect(model.stage, PauseStage.home);
     expect(channel.shown, isEmpty);
+    expect(model.message, isNot(contains('Se solicitó mostrar')));
     model.dispose();
     await tester.pump();
   });

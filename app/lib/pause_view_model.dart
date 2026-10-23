@@ -11,11 +11,13 @@ class MovementProposal {
   const MovementProposal({
     required this.title,
     required this.instruction,
+    required this.guideInstruction,
     required this.contextLabel,
   });
 
   final String title;
   final String instruction;
+  final String guideInstruction;
   final String contextLabel;
 }
 
@@ -48,16 +50,24 @@ class PauseViewModel extends ChangeNotifier {
     MovementProposal(
       title: 'Caminar un momento',
       instruction:
-          'Camina a tu ritmo, si te resulta adecuado. Puedes apartar la '
-          'mirada de la pantalla.',
+          'Si puedes caminar y te resulta adecuado ahora, deja la tarea y '
+          'empieza a caminar a tu propio ritmo. Puedes apartar la mirada.',
+      guideInstruction:
+          'Si sigue siendo adecuado, deja la tarea y empieza a caminar a tu '
+          'propio ritmo. Puedes dejar la pantalla; vuelve solo si quieres '
+          'cerrar esta guía.',
       contextLabel: 'Si tienes espacio y puedes caminar',
     ),
     MovementProposal(
       title: 'Tu movimiento habitual',
       instruction:
-          'Haz un movimiento cómodo, en la posición que prefieras. Puedes '
-          'apartar la mirada de la pantalla.',
-      contextLabel: 'En la posición que prefieras',
+          'Elige un movimiento que ya conozcas y consideres adecuado ahora. '
+          'Puedes apartar la mirada.',
+      guideInstruction:
+          'Si este momento te sirve, elige un movimiento que ya conozcas y '
+          'consideres adecuado. Empieza a tu manera. Puedes dejar la pantalla; '
+          'no necesitas completar nada aquí.',
+      contextLabel: 'Elegido por ti, según el momento',
     ),
   ];
 
@@ -218,7 +228,9 @@ class PauseViewModel extends ChangeNotifier {
     _reminderAt = DateTime.now().add(delay);
     _stage = PauseStage.home;
     if (postponingProposal) _postponements++;
-    _message = 'Aviso preparado mientras esta sesión siga abierta.';
+    _message =
+        'Temporizador local preparado. La app debe seguir abierta; todavía '
+        'no se ha solicitado mostrar el aviso.';
     _timer = Timer(delay, () => unawaited(_deliver(id)));
     _notify();
   }
