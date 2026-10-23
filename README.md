@@ -14,9 +14,17 @@ La investigación informa esta hipótesis; todavía no demuestra que la app camb
 
 En el núcleo inicial propuesto: cuentas, sincronización, rachas, bloqueo de otras apps, cámara, sensores e IA. No afirmamos detectar postura, crear hábito, prevenir dolor ni verificar movimiento por terminar una guía. Los avisos dependen de las capacidades comprobadas de cada destino.
 
-## Estado y colaboración
+## Estado y ejecución
 
-Este primer bloque contiene documentación y preparación de producto; **todavía no contiene una app ejecutable**. Stack, destinos exactos y pasos de ejecución se incorporarán cuando existan y se verifiquen.
+Primera app Flutter en `app/`: recorrido adaptable, propuestas modificables, guía detenible y avisos puntuales por canal. Compilaron Linux debug y web; la comprobación headless pasó con canal simulado. Avisos reales y teléfono físico siguen pendientes.
+
+```sh
+cd app
+flutter pub get
+flutter run -d linux
+```
+
+[Otros destinos y límites](app/README.md) · [Capturas y evidencia](docs/PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
 
 - [Estado compartido y siguiente tarea](docs/ESTADO_COMPARTIDO.md).
 - [Arranque para Javi](docs/ARRANQUE_JAVI.md) e [índice de toda la documentación](docs/INDICE_DOCUMENTACION.md).

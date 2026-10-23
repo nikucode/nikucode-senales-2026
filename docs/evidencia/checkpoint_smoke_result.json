@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "checks": [
+    "home action rendered",
+    "390x844 large text is rendered at 200 percent",
+    "changing text scale preserves the view model",
+    "disabled reminders do not schedule",
+    "in-process timer calls fake channel",
+    "delivered invitation no longer pending",
+    "valid delivered action opens proposal",
+    "proposal action rendered",
+    "alternative proposal available",
+    "guide controls rendered",
+    "guide closure distinguished",
+    "replaced action is ignored",
+    "manual opening cancels pending delivery",
+    "reject returns without restoring invitation",
+    "stop is distinct from finish",
+    "disable cancels pending timer",
+    "permission denial leaves channel disabled",
+    "app disposal closes channel",
+    "no Flutter rendering errors reported"
+  ],
+  "captures": [
+    "desktop_home",
+    "mobile_home",
+    "mobile_home_200_percent",
+    "mobile_proposal",
+    "desktop_proposal",
+    "desktop_guide",
+    "desktop_finished"
+  ],
+  "large_text": {
+    "viewport_width": 390,
+    "viewport_height": 844,
+    "observed_render_paragraph_scale": 2.0
+  },
+  "render_errors": [],
+  "limits": [
+    "fake notification transport; no operating-system delivery verified",
+    "headless rendering at viewport sizes; no physical phone tested",
+    "model-driven transitions, not pointer/keyboard interaction tests",
+    "no measurement of bodily movement or behavioural effect"
+  ]
+}

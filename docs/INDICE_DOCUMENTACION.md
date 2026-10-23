@@ -2,6 +2,7 @@
 
 ## Empezar
 
+- [Primera app: ejecutar, evidencia y guion de checkpoint](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
 - [Arranque para Javi](ARRANQUE_JAVI.md).
 - [Estado compartido](ESTADO_COMPARTIDO.md): entrada viva y tareas.
 - [Guía de implementación y aceptación](GUIA_IMPLEMENTACION_Y_ACEPTACION_2026-10-23.md).

@@ -1,5 +1,7 @@
 # Javi: empezar a trabajar
 
+**Actualización de implementación:** ya existe app Flutter en `app/`. Lee primero el estado actual y [primer recorrido/evidencia](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md). No crear otra app ni repetir scaffold sin coordinar. El siguiente trabajo es probar escritorio/canal/destino real y repartir módulos con Alex.
+
 El repo público ya fue creado y Alex confirmó la publicación del primer commit `ff5ef84`. Esta ampliación agrega respaldo de investigación y una ruta corta para arrancar; verificar que se haya publicado antes de buscar esos archivos en GitHub.
 
 ## Lectura mínima
