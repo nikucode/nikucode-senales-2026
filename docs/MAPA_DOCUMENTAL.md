@@ -19,6 +19,7 @@
 | Propuesta de vistas/estados y sus antecedentes | [Ficha de MVP](FICHA_MVP_PROPUESTA_2026-10-23.md) |
 | Estilo, estructura y accesibilidad | [Investigación de interfaz](INVESTIGACION_ESTETICA_ESTRUCTURA_ACCESIBILIDAD_2026-10-22.md) |
 | Diferenciación, experiencia, acceso y sostenibilidad | [Investigación de experiencia y modelo de acceso](INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md) |
+| Referentes Apple, tema oscuro, estilos fluidos/accesibilidad y SDD | [Investigación de referentes visuales y SDD](INVESTIGACION_REFERENTES_VISUALES_Y_SDD_2026-10-23.md) |
 | Mecanismos y límites de las hipótesis | [Mecanismo y MVP](INVESTIGACION_MECANISMO_CONDUCTUAL_MVP_Y_PITCH_2026-10-22.md) |
 | Checkpoint y candidatos de marca | [Checkpoint/naming](CHECKPOINT_1_Y_NOMBRE_2026-10-23.md) |
 | Horarios, entrega y rúbrica | [Programa vigente](PROGRAMA_VIGENTE_2026-10-23.md) |

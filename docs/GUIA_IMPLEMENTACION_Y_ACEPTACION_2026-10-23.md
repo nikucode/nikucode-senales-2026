@@ -142,3 +142,20 @@ Si el canal falla en el primer bloque, consultar [ruta técnica](PREPARACION_TEC
 **Revisor/pruebas:** «Solo cambios concretos del bloque, no todo el repo. Comprueba AC pertinentes y regresiones de cancelación/accesibilidad. No repitas checks ya pasados sin cambios. Comunica hallazgos con evidencia; no reescribas arquitectura ni asumas pruebas del sistema desde un mock.»
 
 Usar como máximo dos encargos independientes simultáneos; el principal conserva registro y presentación. Las rutas se asignan sobre el repo realmente creado; no son archivos de app preparados de antemano.
+
+## 10. SDD ligero para cambios del prototipo
+
+Se adopta un ciclo breve de especificación por cambio para que la intención, el código y la evidencia permanezcan conectados. No se instalará OpenSpec o Spec Kit durante la hackatón: sus flujos oficiales son referencias, no estándares obligatorios, y el proyecto ya tiene esta guía y AC01–AC12. La comparación y adaptación están documentadas en [la investigación de referentes visuales y SDD](INVESTIGACION_REFERENTES_VISUALES_Y_SDD_2026-10-23.md).
+
+Para cada cambio que altere el flujo o la promesa:
+
+1. **Explorar:** anotar problema del usuario, hipótesis y qué alternativa se deja fuera.
+2. **Especificar:** escribir un resultado observable y enlazarlo a un AC existente; sumar un AC solo si de verdad hay un comportamiento nuevo.
+3. **Revisar:** acordar alcance y responsable antes de editar; repartir archivos para no duplicar trabajo.
+4. **Implementar:** completar un corte pequeño de extremo a extremo.
+5. **Verificar:** registrar destino, sistema/versión, pasos, resultado y límites; usar «verificado» solo para ese alcance.
+6. **Cerrar:** actualizar estado compartido y evidencia. La especificación actual se mantiene; las decisiones reemplazadas se anotan como tales, sin crear una segunda fuente de verdad.
+
+Ficha mínima: `Problema | Hipótesis | Requisito observable | AC | Fuera de alcance | Responsable | Evidencia/entorno | Estado | Límite`.
+
+Ejemplo: **propuesto**, «Con movimiento reducido activo, el cambio de propuesta a guía no ejecuta la transición decorativa y conserva el foco en la acción principal» → AC10 → comprobar en destino real y registrar sistema/versión. Un test puede verificar un estado técnico bajo una preferencia simulada, pero no acredita accesibilidad real con lector. «El tema oscuro calma» no es criterio de aceptación: es una hipótesis de percepción que requiere evaluación con personas.
