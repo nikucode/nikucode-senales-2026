@@ -1,0 +1,11 @@
+# Credenciales y entorno local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Temporales locales
+*.log
+.DS_Store
+Thumbs.db
