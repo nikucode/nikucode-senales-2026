@@ -101,7 +101,7 @@ class PauseHome extends StatelessWidget {
                         runSpacing: 12,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Row(
+                          Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ExcludeSemantics(
@@ -114,7 +114,7 @@ class PauseHome extends StatelessWidget {
                               SizedBox(width: 12),
                               Flexible(
                                 child: Text(
-                                  'nikucode · pausa',
+                                  onHome ? 'nikucode · pausa' : 'Pausa',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 20,
@@ -377,7 +377,7 @@ class _PausePanel extends StatelessWidget {
       ],
     };
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(vm.stage == PauseStage.home ? 28 : 20),
       decoration: const BoxDecoration(
         color: Color(0xFFF0EEE7),
         borderRadius: BorderRadius.only(
@@ -390,13 +390,13 @@ class _PausePanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ExcludeSemantics(
+          ExcludeSemantics(
             child: SizedBox(
-              height: 112,
+              height: vm.stage == PauseStage.home ? 112 : 56,
               child: CustomPaint(painter: _PauseMark()),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: vm.stage == PauseStage.home ? 20 : 12),
           ...children,
         ],
       ),

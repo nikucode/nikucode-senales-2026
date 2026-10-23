@@ -6,7 +6,7 @@
 
 Inicio → propuesta → cambiar → guía → terminar/detener → volver; rechazo sin reprogramación. Dos propuestas: caminar si resulta adecuado y movimiento habitual elegido. Vistas adaptables a ancho disponible, controles etiquetados y sin animación o seguimiento obligatorio.
 
-**Actualización visual posterior:** la pantalla usa fondo marfil, acentos verde musgo/terracota y una forma de trazo interrumpido; el panel principal reemplaza la tarjeta blanca uniforme. En la última iteración, la introducción solo aparece en inicio; propuesta, guía y cierre muestran directamente su contenido, evitando repetir el bloque de bienvenida. El motor Flutter headless generó capturas actuales a 1200 y 390 px, incluida una propuesta con texto al 200 %. La ampliación se renderiza, pero los controles quedan más abajo y requieren desplazamiento. No se probaron gestos, teclado ni lector de pantalla.
+**Actualización visual posterior:** la pantalla usa fondo marfil, acentos verde musgo/terracota y una forma de trazo interrumpido; el panel principal reemplaza la tarjeta blanca uniforme. En el recorrido abierto, la introducción deja de repetirse, el encabezado de marca se compacta a «Pausa» y el adorno se reduce. El motor Flutter headless generó capturas actuales a 1200 y 390 px, incluida una propuesta con texto al 200 %. La acción principal aparece al borde inferior de la primera vista y los controles restantes requieren desplazamiento. No se probaron gestos, teclado ni lector de pantalla.
 
 Avisos habilitados explícitamente, programación puntual en memoria, reemplazo/cancelación y generación vigente. Adaptadores Linux y navegador separados. Al toque se solicita activar ventana/pestaña y abrir propuesta; llegada sola no toma foco. Sin servicio Android nativo implementado, persistencia, background independiente del proceso, recurrencia o sincronización.
 
@@ -19,7 +19,8 @@ Avisos habilitados explícitamente, programación puntual en memoria, reemplazo/
 | Linux | Build debug compiló; lanzamiento de ventana en esta sesión falla `cannot open display: :0` |
 | Web | Build release compiló, con recursos web locales; aviso no fatal de fuente Cupertino ausente, sin fallo de compilación |
 | Runner de tests | Bloqueado antes de suites por bind127.0.0.1 no permitido. Casos de lógica/widgets escritos, no declarados pasados |
-| Motor Flutter offline | Harness ejecutado con VMservice deshabilitado: 19 comprobaciones, ocho capturas y cero errores Flutter, con canal fake; [resultado](evidencia/checkpoint_smoke_result.json) |
+| Motor Flutter offline | Harness ejecutado con VMservice deshabilitado: 20 comprobaciones, ocho capturas y cero errores Flutter, con canal fake; [resultado](evidencia/checkpoint_smoke_result.json) |
+| Recompilación tras compactar la interfaz | `flutter analyze --no-pub`, Linux debug y web release compilaron. La compilación web conserva un aviso no fatal por fuente Cupertino no incluida; la app compila. |
 | Vista de escritorio/móvil | Capturas actuales del motor a 1200 y 390 px inspeccionadas; no equivalen a dispositivo físico. La captura de propuesta al 200 % muestra que sus acciones necesitan desplazamiento. |
 | Avisos reales | No verificados: acceso a bus del escritorio bloqueado en sesión; permiso/navegador/apertura desde aviso requieren prueba del equipo |
 | Movimiento/hábito | No medidos ni inferidos de la guía |

@@ -9,6 +9,7 @@
     "delivered invitation no longer pending",
     "valid delivered action opens proposal",
     "proposal action rendered",
+    "active flow uses compact brand header",
     "alternative proposal available",
     "guide controls rendered",
     "guide closure distinguished",

@@ -157,6 +157,11 @@ Future<void> main() async {
       'valid delivered action opens proposal',
     );
     check(renderedText().contains('Empezar guía'), 'proposal action rendered');
+    check(
+      renderedText().contains('Pausa') &&
+          !renderedText().contains('nikucode · pausa'),
+      'active flow uses compact brand header',
+    );
     textScale.value = TextScaler.linear(2);
     await capture('mobile_proposal_200_percent', const Size(390, 844));
     textScale.value = TextScaler.noScaling;
