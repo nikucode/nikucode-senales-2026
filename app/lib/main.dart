@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'aero_home.dart';
+import 'app_preferences.dart';
 import 'pause_view_model.dart';
 import 'reminder_channel_factory.dart';
 
-void main() {
-  runApp(PauseApp(viewModel: PauseViewModel(channel: createReminderChannel())));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await AppPreferencesController.load();
+  runApp(
+    PauseApp(
+      viewModel: PauseViewModel(channel: createReminderChannel()),
+      preferences: preferences,
+    ),
+  );
 }
 
 const paper = Color(0xFFF8F5EF);
@@ -17,57 +26,93 @@ const terracotta = Color(0xFF9E402B);
 const muted = Color(0xFF5A625C);
 
 class PauseApp extends StatefulWidget {
-  const PauseApp({super.key, required this.viewModel});
+  const PauseApp({super.key, required this.viewModel, this.preferences});
   final PauseViewModel viewModel;
+  final AppPreferencesController? preferences;
   @override
   State<PauseApp> createState() => _PauseAppState();
 }
 
 class _PauseAppState extends State<PauseApp> {
+  late final AppPreferencesController preferences =
+      widget.preferences ?? AppPreferencesController.memory();
+
   @override
   void dispose() {
     widget.viewModel.dispose();
+    preferences.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'nikucode · pausa',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: moss, surface: paper),
-        scaffoldBackgroundColor: paper,
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontSize: 18, height: 1.5, color: ink),
-          bodyMedium: TextStyle(fontSize: 16, height: 1.5, color: muted),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            backgroundColor: moss,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(48, 52),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+    return ListenableBuilder(
+      listenable: preferences,
+      builder: (context, _) {
+        final accent = preferences.highContrast
+            ? const Color(0xFF07546D)
+            : const Color(0xFF197B94);
+        return MaterialApp(
+          title: 'nikucode · pausa',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: accent,
+              surface: const Color(0xFFF9FBF8),
+            ),
+            scaffoldBackgroundColor: Colors.transparent,
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(
+                fontSize: 18,
+                height: 1.45,
+                color: Color(0xFF14333D),
+              ),
+              bodyMedium: TextStyle(
+                fontSize: 16,
+                height: 1.45,
+                color: Color(0xFF35515A),
+              ),
+            ),
+            filledButtonTheme: FilledButtonThemeData(
+              style: FilledButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(48, 54),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            outlinedButtonTheme: OutlinedButtonThemeData(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF174A5B),
+                minimumSize: const Size(48, 52),
+                side: const BorderSide(color: Color(0xFF48879A)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 16,
+                ),
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF174A5B),
+                minimumSize: const Size(48, 48),
+              ),
             ),
           ),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: moss,
-            minimumSize: const Size(48, 52),
-            side: const BorderSide(color: moss),
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+          home: AeroPauseHome(
+            viewModel: widget.viewModel,
+            preferences: preferences,
           ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-        ),
-      ),
-      home: PauseHome(viewModel: widget.viewModel),
+        );
+      },
     );
   }
 }

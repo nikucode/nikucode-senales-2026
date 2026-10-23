@@ -241,6 +241,10 @@ void main() {
     model.startGuide();
     model.finishGuide();
     expect(model.stage, PauseStage.finished);
+    expect(model.activity.proposalsOpened, 2);
+    expect(model.activity.guidesStarted, 2);
+    expect(model.activity.guidesStopped, 1);
+    expect(model.activity.guidesFinished, 1);
     model.dispose();
     await tester.pump();
     expect(channel.disposed, isTrue);
