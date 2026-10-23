@@ -28,10 +28,14 @@ class _FakeChannel extends ReminderChannel {
   void dispose() => callback = null;
 }
 
-Future<void> _mountApp(WidgetTester tester, PauseViewModel model) async {
-  final preferences = AppPreferencesController.memory();
-  await preferences.setReduceMotion(true);
-  await tester.pumpWidget(PauseApp(viewModel: model, preferences: preferences));
+Future<void> _mountApp(
+  WidgetTester tester,
+  PauseViewModel model, {
+  AppPreferencesController? preferences,
+}) async {
+  final controller = preferences ?? AppPreferencesController.memory();
+  await controller.setReduceMotion(true);
+  await tester.pumpWidget(PauseApp(viewModel: model, preferences: controller));
 }
 
 void main() {
@@ -61,7 +65,11 @@ void main() {
       await tester.tap(find.text('Empezar'));
       await tester.pumpAndSettle();
       expect(find.textContaining('Si este momento te sirve'), findsOneWidget);
+      expect(find.text('Empieza a tu manera.'), findsOneWidget);
       expect(find.textContaining('dejar la pantalla'), findsOneWidget);
+      expect(find.textContaining('duración'), findsNothing);
+      expect(find.textContaining('repeticiones'), findsNothing);
+      expect(find.textContaining('temporizador'), findsNothing);
       await tester.ensureVisible(find.text('Detener y volver'));
       await tester.tap(find.text('Detener y volver'));
       await tester.pumpAndSettle();
@@ -81,6 +89,100 @@ void main() {
     });
   }
 
+  testWidgets('bienvenida usa, actualiza y borra el apodo local', (
+    tester,
+  ) async {
+    final preferences = AppPreferencesController.memory();
+    final model = PauseViewModel(channel: UnavailableReminderChannel());
+    await _mountApp(tester, model, preferences: preferences);
+    expect(find.text('Haz espacio para moverte'), findsOneWidget);
+    expect(find.textContaining('Hola,'), findsNothing);
+
+    await tester.ensureVisible(find.text('Mi espacio'));
+    await tester.tap(find.text('Mi espacio'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '  Alex  ');
+    await tester.ensureVisible(find.text('Guardar en este dispositivo'));
+    await tester.tap(find.text('Guardar en este dispositivo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hola, Alex'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Mi espacio'));
+    await tester.tap(find.text('Mi espacio'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Borrar perfil local'));
+    await tester.tap(find.text('Borrar perfil local'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('Haz espacio para moverte'), findsOneWidget);
+    expect(find.textContaining('Hola,'), findsNothing);
+
+    await tester.ensureVisible(find.text('Mi espacio'));
+    await tester.tap(find.text('Mi espacio'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '   ');
+    await tester.ensureVisible(find.text('Guardar en este dispositivo'));
+    await tester.tap(find.text('Guardar en este dispositivo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Haz espacio para moverte'), findsOneWidget);
+    expect(find.textContaining('Hola,'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Mi panorama muestra conteos accesibles de esta sesión', (
+    tester,
+  ) async {
+    final model = PauseViewModel(channel: UnavailableReminderChannel());
+    model.openProposal();
+    model.dismissProposal();
+    model.openProposal();
+    model.startGuide();
+    model.finishGuide();
+    model.goHome();
+    await _mountApp(tester, model);
+    final semantics = tester.ensureSemantics();
+    addTearDown(semantics.dispose);
+
+    await tester.ensureVisible(find.text('Mi panorama'));
+    await tester.tap(find.text('Mi panorama'));
+    await tester.pumpAndSettle();
+    expect(find.text('Propuestas abiertas'), findsOneWidget);
+    expect(find.text('Guías iniciadas'), findsOneWidget);
+    expect(find.text('Guías terminadas'), findsOneWidget);
+    expect(find.bySemanticsLabel('Propuestas abiertas: 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('Guías iniciadas: 1'), findsOneWidget);
+    expect(find.bySemanticsLabel('Guías terminadas: 1'), findsOneWidget);
+    expect(find.bySemanticsLabel('Guías detenidas: 0'), findsOneWidget);
+    expect(find.bySemanticsLabel('Pospuestas: 0'), findsOneWidget);
+    expect(find.bySemanticsLabel('Cerradas por ahora: 1'), findsOneWidget);
+    expect(
+      find.textContaining(
+        'No mide movimiento, sedentarismo, salud ni progreso.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('No guarda historial por hora o día.'),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(find.text('Cerrar panorama'));
+    await tester.tap(find.text('Cerrar panorama'));
+    await tester.pumpAndSettle();
+
+    final resetModel = PauseViewModel(channel: UnavailableReminderChannel());
+    await _mountApp(tester, resetModel);
+    await tester.ensureVisible(find.text('Mi panorama'));
+    await tester.tap(find.text('Mi panorama'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Aún no hay interacciones registradas en esta sesión.'),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsLabel('Propuestas abiertas: 0'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('guía de caminar mantiene la indicación condicional', (
     tester,
   ) async {
@@ -90,7 +192,15 @@ void main() {
     await tester.pumpAndSettle();
     model.startGuide();
     await tester.pumpAndSettle();
-    expect(find.textContaining('Si sigue siendo adecuado'), findsOneWidget);
+    expect(
+      find.textContaining('aparta un momento la atención de la tarea'),
+      findsOneWidget,
+    );
+    expect(find.text('Empieza a caminar a tu propio ritmo.'), findsOneWidget);
+    expect(find.textContaining('Puedes dejar la pantalla'), findsOneWidget);
+    expect(find.textContaining('duración'), findsNothing);
+    expect(find.textContaining('repeticiones'), findsNothing);
+    expect(find.textContaining('temporizador'), findsNothing);
     expect(find.text('Cerrar guía'), findsOneWidget);
     expect(find.text('Detener y volver'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -175,10 +285,7 @@ void main() {
     await tester.ensureVisible(find.text('Avisos, si los quieres'));
     await tester.tap(find.text('Avisos, si los quieres'));
     await tester.pumpAndSettle();
-    expect(
-      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).onChanged,
-      isNull,
-    );
+    expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
     await tester.tap(find.text('Cerrar'));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing);

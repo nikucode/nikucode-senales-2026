@@ -4,6 +4,8 @@ Primera implementación creada durante la hackatón. Recorrido manual, dos propu
 
 La interfaz se actualizó con una composición editorial y un motivo gráfico propio, conservando el recorrido y los controles. La dirección visual es una hipótesis en evaluación; el análisis estático no sustituye pruebas en pantalla, teclado o lectores de pantalla. Véase [investigación de experiencia y accesibilidad](../docs/INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
 
+El apodo opcional solo se guarda en el dispositivo y personaliza el saludo de Inicio. Mi panorama presenta conteos de interacciones de la sesión actual con barras rotuladas y valores textuales accesibles; no guarda historial por fecha y no mide movimiento, sedentarismo, salud ni progreso. Una vista por día u hora requeriría decidir periodo, almacenamiento y privacidad antes de implementarse.
+
 ## Ejecutar
 
 Desde esta carpeta, con Flutter instalado:

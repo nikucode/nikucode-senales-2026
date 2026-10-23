@@ -214,6 +214,7 @@ Future<void> showMareaPanorama(
           1,
           (current, metric) => math.max(current, metric.value).toInt(),
         );
+        final hasInteractions = values.any((metric) => metric.value > 0);
         return _MareaSheet(
           highContrast: preferences.highContrast,
           textScale: preferences.textScale,
@@ -227,9 +228,17 @@ Future<void> showMareaPanorama(
                   'Interacciones de esta sesión',
                   textAlign: TextAlign.center,
                 ),
+                if (!hasInteractions) ...[
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Aún no hay interacciones registradas en esta sesión.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 14),
                 Semantics(
-                  label: 'Gráfico de interacciones de esta sesión',
+                  container: true,
+                  label: 'Gráfico de barras. Cada categoría incluye su conteo.',
                   child: Column(
                     children: [
                       for (final metric in values)
@@ -243,7 +252,12 @@ Future<void> showMareaPanorama(
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Estos datos describen acciones dentro de la app. No comprueban movimiento, sedentarismo ni efectos sobre dolor.',
+                  'Solo resume interacciones de esta sesión. No mide movimiento, sedentarismo, salud ni progreso.',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'No guarda historial por hora o día. Mostrarlo requeriría decidir el periodo, el almacenamiento y la privacidad.',
                   style: TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 14),
@@ -356,49 +370,51 @@ class _MetricBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     label: '$label: $value',
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(label)),
-              Text(
-                '$value',
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              height: 12,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ColoredBox(color: Colors.white.withValues(alpha: .10)),
-                  FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: value / maxValue,
-                    child: const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFF7BE2DC),
-                            Color(0xFFC4A7F4),
-                            Color(0xFFFFA9C5),
-                          ],
+    child: ExcludeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(label)),
+                Text(
+                  '$value',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                height: 12,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ColoredBox(color: Colors.white.withValues(alpha: .10)),
+                    FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: value / maxValue,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF7BE2DC),
+                              Color(0xFFC4A7F4),
+                              Color(0xFFFFA9C5),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );

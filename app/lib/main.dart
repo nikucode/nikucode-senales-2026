@@ -326,11 +326,14 @@ class _PausePanel extends StatelessWidget {
     final media = MediaQuery.of(context);
     final compact = media.size.width < 600 || media.textScaler.scale(1) > 1.3;
     final largeText = media.textScaler.scale(1) > 1.3;
+    final nickname = preferences.nickname.trim();
     final children = switch (vm.stage) {
       PauseStage.home => <Widget>[
         const _Eyebrow('UN INTERVALO EN TU JORNADA'),
         const SizedBox(height: 10),
-        const _Title('Haz espacio para moverte'),
+        _Title(
+          nickname.isEmpty ? 'Haz espacio para moverte' : 'Hola, $nickname',
+        ),
         const SizedBox(height: 25),
         FilledButton.icon(
           onPressed: vm.openProposal,
@@ -385,9 +388,10 @@ class _PausePanel extends StatelessWidget {
         const _Eyebrow('SIN PRISA'),
         const SizedBox(height: 10),
         const _Title('A tu ritmo'),
-        const SizedBox(height: 9),
-        Text(vm.proposal.guideInstruction, textAlign: TextAlign.center),
-        const SizedBox(height: 28),
+        const SizedBox(height: 14),
+        for (var i = 0; i < vm.proposal.guideSteps.length; i++)
+          _GuideStep(number: i + 1, text: vm.proposal.guideSteps[i]),
+        const SizedBox(height: 18),
         FilledButton(
           onPressed: vm.finishGuide,
           child: const Text('Cerrar guía'),
@@ -494,6 +498,50 @@ class _Eyebrow extends StatelessWidget {
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 1.5,
+    ),
+  );
+}
+
+class _GuideStep extends StatelessWidget {
+  const _GuideStep({required this.number, required this.text});
+
+  final int number;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: 'Paso $number. $text',
+    child: ExcludeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: seaGlass.withValues(alpha: .8)),
+                color: seaGlass.withValues(alpha: .12),
+              ),
+              child: Text(
+                '$number',
+                style: const TextStyle(
+                  color: foam,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }

@@ -30,7 +30,7 @@ C2 es un recurso inclusivo provisional, no una rutina validada ni equivalente fi
 
 **Una alternativa adicional de salida:** «Ahora prefiero descansar sin movimiento». Puede cerrar o guiar una pausa de pantalla si se decide incluirla, pero no se suma a pausas físicas ni cuenta como ruptura sedentaria. No hace falta construir un tercer modo para la primera demo.
 
-Contenido visible breve: propuesta, posibilidad de cambiar/detener y salida. Al entrar a cada guía, C1 repite la condición y conecta la tarea con empezar a caminar; C2 invita a elegir un movimiento conocido, sin que la app lo nombre ni lo prescriba. Ambas guías permiten apartar o dejar la pantalla, no usan duración, repeticiones, metas ni temporizador y se pueden cerrar en cualquier momento. Las limitaciones de investigación se explican en el material del proyecto; no convertir la pantalla en un consentimiento clínico extenso. El equipo debe revisar las propuestas antes de publicarlas ampliamente; contenido terapéutico requeriría otro alcance y revisión competente.
+Contenido visible breve: propuesta, posibilidad de cambiar/detener y salida. La guía presenta tres pasos visuales y breves: C1 repite la condición y conecta apartar la atención de la tarea con empezar a caminar; C2 invita a elegir un movimiento conocido, sin que la app lo nombre ni lo prescriba; ambas terminan recordando que se puede dejar la pantalla y volver o salir cuando se quiera. No usan duración, repeticiones, metas ni temporizador. Las limitaciones de investigación se explican en el material del proyecto; no convertir la pantalla en un consentimiento clínico extenso. El equipo debe revisar las propuestas antes de publicarlas ampliamente; contenido terapéutico requeriría otro alcance y revisión competente.
 
 ## 3. Vistas y textos listos para revisar
 
@@ -39,8 +39,10 @@ Nombre de trabajo: «nikucode · pausa». No se eligió marca final. Evitar una 
 | Vista | Texto de trabajo | Acciones |
 |---|---|---|
 | Inicio | «Un momento para moverte, cuando puedas». Estado real: «Avisos apagados», «Avisos activos en este dispositivo» o «La señal funciona mientras esta app esté abierta», según capacidad comprobada | «Ver una pausa»; «Preparar un aviso» si existe canal; «Preferencias»; cancelar pendiente visible |
+| Bienvenida local | «Hola, [apodo]» cuando el apodo local no esté vacío; saludo neutral en caso contrario | Se actualiza al guardar o borrar. No añade cuenta ni sincronización |
 | Propuesta | Título de C1/C2 y su texto; sin explicaciones científicas largas | Principal «Empezar»; «Cambiar propuesta», «Configurar aviso» y «Ahora no». Configurar solo abre ajustes; no programa por sí mismo |
-| Guía | Instrucción condicional de caminar o invitación a elegir movimiento habitual; puede dejarse la pantalla, sin reloj | «Cerrar guía» y «Detener y volver». Ambos disponibles siempre |
+| Guía | Tres pasos visibles de caminar condicional o movimiento habitual elegido; la persona puede dejar la pantalla y regresar o salir cuando quiera | «Cerrar guía» y «Detener y volver». Ambos disponibles siempre; sin reloj |
+| Mi panorama | Conteos de categorías de interacción de la sesión, en barras rotuladas con valor textual | Estado vacío; sin historial ni agrupación temporal. No describe movimiento, salud o progreso |
 | Cierre por final | «Guía terminada» | «Volver» o salir; sin felicitación que afirme ejercicio realizado |
 | Cierre por detención | «Guía detenida» | «Volver» o salir sin castigo |
 | Confirmación de aviso | «Aviso solicitado para…» y estado de programación real | «Cancelar aviso». No confirmar entrega futura garantizada |

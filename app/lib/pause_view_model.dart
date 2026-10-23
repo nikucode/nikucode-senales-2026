@@ -11,13 +11,13 @@ class MovementProposal {
   const MovementProposal({
     required this.title,
     required this.instruction,
-    required this.guideInstruction,
+    required this.guideSteps,
     required this.contextLabel,
   });
 
   final String title;
   final String instruction;
-  final String guideInstruction;
+  final List<String> guideSteps;
   final String contextLabel;
 }
 
@@ -52,10 +52,11 @@ class PauseViewModel extends ChangeNotifier {
       instruction:
           'Si puedes caminar y te resulta adecuado ahora, deja la tarea y '
           'empieza a caminar a tu propio ritmo. Puedes apartar la mirada.',
-      guideInstruction:
-          'Si sigue siendo adecuado, deja la tarea y empieza a caminar a tu '
-          'propio ritmo. Puedes dejar la pantalla; vuelve solo si quieres '
-          'cerrar esta guía.',
+      guideSteps: [
+        'Si caminar te parece adecuado ahora, aparta un momento la atención de la tarea.',
+        'Empieza a caminar a tu propio ritmo.',
+        'Puedes dejar la pantalla y volver cuando quieras; detente o sal en cualquier momento.',
+      ],
       contextLabel: 'Si tienes espacio y puedes caminar',
     ),
     MovementProposal(
@@ -63,10 +64,11 @@ class PauseViewModel extends ChangeNotifier {
       instruction:
           'Elige un movimiento que ya conozcas y consideres adecuado ahora. '
           'Puedes apartar la mirada.',
-      guideInstruction:
-          'Si este momento te sirve, elige un movimiento que ya conozcas y '
-          'consideres adecuado. Empieza a tu manera. Puedes dejar la pantalla; '
-          'no necesitas completar nada aquí.',
+      guideSteps: [
+        'Si este momento te sirve, elige un movimiento que ya conozcas y consideres adecuado.',
+        'Empieza a tu manera.',
+        'Puedes dejar la pantalla y volver cuando quieras; detente o sal en cualquier momento.',
+      ],
       contextLabel: 'Elegido por ti, según el momento',
     ),
   ];
