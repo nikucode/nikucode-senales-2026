@@ -56,7 +56,7 @@ Los nombres de estilo no constituyen evidencia de usabilidad. La accesibilidad d
 - **Transiciones:** un morph/cambio de trazo de 180–280 ms al cambiar de estado, sin loops, parallax, rebote o desplazamiento que obligue a seguir con la mirada. Respetar `prefers-reduced-motion`/la configuración del sistema; en reducción, cambio inmediato sin pérdida de estado.
 - **Texto:** una frase funcional por etapa. La guía permite apartar la vista; «Detener» y «Ahora no» permanecen como etiquetas textuales.
 
-El prototipo ya incorpora composición central, formas propias y una transición breve con respeto por movimiento reducido. Los aspectos pendientes son una variante oscura, la comprobación de accesibilidad en dispositivos reales y comparación de comprensión; las capturas actuales no demuestran esas propiedades.
+La iteración implementada el 23-10 usa la variante oscura: composición central, base azul tinta, reflejos acuáticos, forma líquida propia, botones ovalados sólidos y una transición breve del estado completo que respeta movimiento reducido. `flutter analyze --no-pub` pasó; el render headless pasó 20 comprobaciones y generó ocho capturas. La ventana Linux no se pudo abrir en esta sesión por falta de display. Quedan pendientes comparación con el tratamiento claro, contraste sobre las superficies renderizadas en varios dispositivos, teclado/lector y observación de comprensión con personas. Las capturas y sus límites están en [evidencia del prototipo](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
 
 ## Experimento visual pequeño
 

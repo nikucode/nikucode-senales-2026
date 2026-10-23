@@ -7,14 +7,15 @@ void main() {
   runApp(PauseApp(viewModel: PauseViewModel(channel: createReminderChannel())));
 }
 
-const paper = Color(0xFFF8F5EF);
-const ink = Color(0xFF26322B);
-const moss = Color(0xFF315B4E);
-const sage = Color(0xFFE3EBE0);
-const clay = Color(0xFFF2E7DC);
-const lilac = Color(0xFFEAE5F1);
-const terracotta = Color(0xFF9E402B);
-const muted = Color(0xFF5A625C);
+const deepWater = Color(0xFF081B23);
+const deepWaterLight = Color(0xFF12323A);
+const glassEdge = Color(0xFF49717A);
+const foam = Color(0xFFF3F8F5);
+const mist = Color(0xFFC5D8D5);
+const seaGlass = Color(0xFF9BF0DC);
+const seaGlassInk = Color(0xFF10342F);
+const softLilac = Color(0xFFD8D1F4);
+const softCoral = Color(0xFFFFC7B2);
 
 class PauseApp extends StatefulWidget {
   const PauseApp({super.key, required this.viewModel});
@@ -37,18 +38,26 @@ class _PauseAppState extends State<PauseApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: moss, surface: paper),
-        scaffoldBackgroundColor: paper,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seaGlass,
+          brightness: Brightness.dark,
+          surface: deepWaterLight,
+          primary: seaGlass,
+          onPrimary: seaGlassInk,
+        ),
+        scaffoldBackgroundColor: deepWater,
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontSize: 18, height: 1.5, color: ink),
-          bodyMedium: TextStyle(fontSize: 16, height: 1.5, color: muted),
+          bodyLarge: TextStyle(fontSize: 18, height: 1.45, color: foam),
+          bodyMedium: TextStyle(fontSize: 16, height: 1.45, color: mist),
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: moss,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(48, 52),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            backgroundColor: seaGlass,
+            foregroundColor: seaGlassInk,
+            minimumSize: const Size(56, 58),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+            shape: const StadiumBorder(),
             textStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -57,14 +66,18 @@ class _PauseAppState extends State<PauseApp> {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: moss,
-            minimumSize: const Size(48, 52),
-            side: const BorderSide(color: moss),
+            foregroundColor: foam,
+            minimumSize: const Size(56, 54),
+            side: const BorderSide(color: glassEdge),
+            shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          style: TextButton.styleFrom(
+            foregroundColor: mist,
+            minimumSize: const Size(56, 48),
+          ),
         ),
       ),
       home: PauseHome(viewModel: widget.viewModel),
@@ -80,49 +93,60 @@ class PauseHome extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: viewModel,
     builder: (context, _) => Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: 760,
-                    minHeight: (constraints.maxHeight - 32).clamp(0, 2000),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const ExcludeSemantics(
+            child: CustomPaint(painter: _MareaAtmosphere()),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
                   ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _TopLine(viewModel: viewModel),
-                        Expanded(
-                          child: Center(child: _PausePanel(vm: viewModel)),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: 760,
+                        minHeight: (constraints.maxHeight - 32).clamp(0, 2000),
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            _TopLine(viewModel: viewModel),
+                            Expanded(
+                              child: Center(child: _PausePanel(vm: viewModel)),
+                            ),
+                            if (viewModel.hasPendingReminder)
+                              TextButton(
+                                onPressed: viewModel.cancelReminder,
+                                child: Text(
+                                  'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
+                                ),
+                              ),
+                            if (viewModel.message != null)
+                              Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  viewModel.message!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: mist),
+                                ),
+                              ),
+                          ],
                         ),
-                        if (viewModel.hasPendingReminder)
-                          TextButton(
-                            onPressed: viewModel.cancelReminder,
-                            child: Text(
-                              'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
-                            ),
-                          ),
-                        if (viewModel.message != null)
-                          Semantics(
-                            liveRegion: true,
-                            child: Text(
-                              viewModel.message!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: muted),
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     ),
   );
@@ -139,10 +163,25 @@ class _TopLine extends StatelessWidget {
       Semantics(
         label: 'nikucode pausa',
         child: ExcludeSemantics(
-          child: SizedBox(
-            width: 52,
-            height: 40,
-            child: CustomPaint(painter: _PauseMark(viewModel.stage)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 36,
+                height: 34,
+                child: CustomPaint(painter: _PauseMark(viewModel.stage)),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'nikucode',
+                style: TextStyle(
+                  color: foam,
+                  fontSize: 14,
+                  letterSpacing: .5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -175,8 +214,10 @@ class _PausePanel extends StatelessWidget {
     final compact = media.size.width < 600 || media.textScaler.scale(1) > 1.3;
     final children = switch (vm.stage) {
       PauseStage.home => <Widget>[
-        const _Title('Una pausa, si te sirve'),
-        const SizedBox(height: 28),
+        const _Eyebrow('UN INTERVALO EN TU JORNADA'),
+        const SizedBox(height: 10),
+        const _Title('Haz espacio para moverte'),
+        const SizedBox(height: 25),
         FilledButton.icon(
           onPressed: vm.openProposal,
           icon: const Icon(Icons.arrow_forward_rounded),
@@ -190,10 +231,12 @@ class _PausePanel extends StatelessWidget {
         ),
       ],
       PauseStage.proposal => <Widget>[
+        const _Eyebrow('UNA POSIBILIDAD'),
+        const SizedBox(height: 10),
         _Title(vm.proposal.title),
-        const SizedBox(height: 12),
+        const SizedBox(height: 9),
         Text(vm.proposal.instruction, textAlign: TextAlign.center),
-        const SizedBox(height: 28),
+        const SizedBox(height: 23),
         FilledButton(onPressed: vm.startGuide, child: const Text('Empezar')),
         const SizedBox(height: 8),
         TextButton.icon(
@@ -207,8 +250,10 @@ class _PausePanel extends StatelessWidget {
         ),
       ],
       PauseStage.guide => <Widget>[
+        const _Eyebrow('SIN PRISA'),
+        const SizedBox(height: 10),
         const _Title('A tu ritmo'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 9),
         Text(vm.proposal.instruction, textAlign: TextAlign.center),
         const SizedBox(height: 28),
         FilledButton(
@@ -223,7 +268,7 @@ class _PausePanel extends StatelessWidget {
       ],
       PauseStage.finished || PauseStage.stopped => <Widget>[
         _Title(
-          vm.stage == PauseStage.stopped ? 'Guía cerrada' : 'Espacio hecho',
+          vm.stage == PauseStage.stopped ? 'Guía detenida' : 'Guía terminada',
         ),
         const SizedBox(height: 24),
         FilledButton(
@@ -233,42 +278,42 @@ class _PausePanel extends StatelessWidget {
       ],
     };
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        AnimatedSwitcher(
-          duration: media.disableAnimations
-              ? Duration.zero
-              : const Duration(milliseconds: 280),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: .96, end: 1).animate(animation),
-              child: child,
-            ),
-          ),
-          child: ExcludeSemantics(
-            key: ValueKey(vm.stage),
+    return AnimatedSwitcher(
+      duration: media.disableAnimations
+          ? Duration.zero
+          : const Duration(milliseconds: 360),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: .975, end: 1).animate(animation),
+          child: child,
+        ),
+      ),
+      child: Column(
+        key: ValueKey(vm.stage),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ExcludeSemantics(
             child: SizedBox(
-              width: compact ? 200 : 280,
-              height: compact ? 158 : 220,
+              width: compact ? 230 : 310,
+              height: compact ? 190 : 250,
               child: CustomPaint(painter: _PauseMark(vm.stage)),
             ),
           ),
-        ),
-        SizedBox(height: compact ? 14 : 24),
-        ...children.map(
-          (child) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: child is Text || child is _Title
-                ? SizedBox(width: double.infinity, child: child)
-                : child,
+          SizedBox(height: compact ? 12 : 18),
+          ...children.map(
+            (child) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: child is Text || child is _Title || child is _Eyebrow
+                  ? SizedBox(width: double.infinity, child: child)
+                  : child,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -287,7 +332,25 @@ class _Title extends StatelessWidget {
         fontSize: 29,
         height: 1.18,
         fontWeight: FontWeight.w400,
+        color: foam,
       ),
+    ),
+  );
+}
+
+class _Eyebrow extends StatelessWidget {
+  const _Eyebrow(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    textAlign: TextAlign.center,
+    style: const TextStyle(
+      color: seaGlass,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 1.5,
     ),
   );
 }
@@ -373,6 +436,83 @@ Future<void> _showReminders(
   ),
 );
 
+class _MareaAtmosphere extends CustomPainter {
+  const _MareaAtmosphere();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    canvas.drawRect(
+      bounds,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [deepWaterLight, deepWater, Color(0xFF07171F)],
+        ).createShader(bounds),
+    );
+
+    final upperGlow = Rect.fromCircle(
+      center: Offset(size.width * .84, size.height * .16),
+      radius: size.width * .48,
+    );
+    canvas.drawCircle(
+      upperGlow.center,
+      upperGlow.width / 2,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [seaGlass.withValues(alpha: .12), Colors.transparent],
+        ).createShader(upperGlow),
+    );
+
+    final lowerGlow = Rect.fromCircle(
+      center: Offset(size.width * .12, size.height * .82),
+      radius: size.width * .40,
+    );
+    canvas.drawCircle(
+      lowerGlow.center,
+      lowerGlow.width / 2,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [softLilac.withValues(alpha: .09), Colors.transparent],
+        ).createShader(lowerGlow),
+    );
+
+    final tide = Path()
+      ..moveTo(0, size.height * .70)
+      ..cubicTo(
+        size.width * .29,
+        size.height * .60,
+        size.width * .58,
+        size.height * .84,
+        size.width,
+        size.height * .68,
+      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(
+      tide,
+      Paint()..color = const Color(0xFF4C9E9A).withValues(alpha: .035),
+    );
+
+    for (final point in [
+      Offset(size.width * .13, size.height * .22),
+      Offset(size.width * .88, size.height * .38),
+      Offset(size.width * .77, size.height * .78),
+    ]) {
+      canvas.drawCircle(
+        point,
+        2.2,
+        Paint()..color = foam.withValues(alpha: .20),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _MareaAtmosphere oldDelegate) => false;
+}
+
 class _PauseMark extends CustomPainter {
   const _PauseMark(this.stage);
   final PauseStage stage;
@@ -381,68 +521,140 @@ class _PauseMark extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final sx = size.width;
     final sy = size.height;
-    final field = Path()
-      ..moveTo(sx * .07, sy * .69)
-      ..cubicTo(sx * .02, sy * .31, sx * .19, sy * .08, sx * .39, sy * .18)
-      ..cubicTo(sx * .55, sy * .25, sx * .56, sy * .44, sx * .72, sy * .35)
-      ..cubicTo(sx * .91, sy * .24, sx * .99, sy * .52, sx * .91, sy * .77)
-      ..cubicTo(sx * .81, sy * .98, sx * .57, sy * .90, sx * .39, sy * .84)
-      ..cubicTo(sx * .22, sy * .79, sx * .12, sy * .94, sx * .07, sy * .69)
-      ..close();
-    canvas.drawPath(field, Paint()..color = sage);
+    final center = Offset(sx * .5, sy * .5);
+    final scale = size.shortestSide;
+    final drift = switch (stage) {
+      PauseStage.home || PauseStage.proposal => 0.0,
+      PauseStage.guide => .07,
+      PauseStage.finished => .14,
+      PauseStage.stopped => -.08,
+    };
 
-    final warmPatch = Path()
-      ..moveTo(sx * .63, sy * .12)
-      ..cubicTo(sx * .76, sy * .02, sx * .93, sy * .13, sx * .94, sy * .31)
-      ..cubicTo(sx * .91, sy * .45, sx * .79, sy * .49, sx * .69, sy * .41)
-      ..cubicTo(sx * .59, sy * .33, sx * .56, sy * .19, sx * .63, sy * .12)
-      ..close();
-    canvas.drawPath(warmPatch, Paint()..color = clay);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(sx * .20, sy * .28),
-        width: sx * .13,
-        height: sy * .12,
-      ),
-      Paint()..color = lilac,
+    final halo = Rect.fromCircle(center: center, radius: scale * .48);
+    canvas.drawCircle(
+      center,
+      scale * .47,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [seaGlass.withValues(alpha: .20), Colors.transparent],
+        ).createShader(halo),
     );
 
-    final thread = Paint()
-      ..color = moss
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = (size.shortestSide * .045).clamp(1.8, 4.0)
-      ..strokeCap = StrokeCap.round;
-    final firstSegment = Path()
-      ..moveTo(sx * .13, sy * .66)
-      ..cubicTo(sx * .25, sy * .67, sx * .27, sy * .43, sx * .41, sy * .48);
-    final secondSegment = Path()
-      ..moveTo(sx * .58, sy * .52)
-      ..cubicTo(sx * .71, sy * .58, sx * .77, sy * .71, sx * .89, sy * .64);
-    final joinedPath = Path()
-      ..moveTo(sx * .13, sy * .66)
-      ..cubicTo(sx * .25, sy * .67, sx * .27, sy * .43, sx * .41, sy * .48)
-      ..cubicTo(sx * .52, sy * .50, sx * .52, sy * .50, sx * .58, sy * .52)
-      ..cubicTo(sx * .71, sy * .58, sx * .77, sy * .71, sx * .89, sy * .64);
-    final route = switch (stage) {
-      PauseStage.guide || PauseStage.finished => joinedPath,
-      _ => null,
-    };
-    if (route != null) {
-      canvas.drawPath(route, thread);
-    } else {
-      canvas
-        ..drawPath(firstSegment, thread)
-        ..drawPath(secondSegment, thread);
-    }
-    final marker = switch (stage) {
-      PauseStage.guide => Offset(sx * .73, sy * .60),
-      PauseStage.finished => Offset(sx * .89, sy * .64),
-      _ => Offset(sx * .50, sy * .50),
-    };
+    final water = Path()
+      ..moveTo(sx * .08, sy * (.53 + drift))
+      ..cubicTo(sx * .02, sy * .26, sx * .23, sy * .08, sx * .43, sy * .19)
+      ..cubicTo(sx * .58, sy * .27, sx * .64, sy * .40, sx * .81, sy * .34)
+      ..cubicTo(sx * 1.01, sy * .29, sx * .99, sy * .62, sx * .84, sy * .77)
+      ..cubicTo(sx * .68, sy * .94, sx * .45, sy * .88, sx * .30, sy * .83)
+      ..cubicTo(
+        sx * .15,
+        sy * .77,
+        sx * .10,
+        sy * .69,
+        sx * .08,
+        sy * (.53 + drift),
+      )
+      ..close();
+
+    canvas.drawPath(
+      water,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFB9FFF0),
+            Color(0xFF64D9CF),
+            Color(0xFF4F9CB5),
+            Color(0xFF9183C7),
+          ],
+          stops: [0, .34, .70, 1],
+        ).createShader(Offset.zero & size)
+        ..style = PaintingStyle.fill,
+    );
+
+    canvas.drawPath(
+      water,
+      Paint()
+        ..color = foam.withValues(alpha: .62)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (scale * .012).clamp(1.2, 3.2)
+        ..strokeJoin = StrokeJoin.round,
+    );
+
+    final innerCurrent = Path()
+      ..moveTo(sx * .18, sy * .62)
+      ..cubicTo(sx * .30, sy * .47, sx * .42, sy * .75, sx * .57, sy * .55)
+      ..cubicTo(sx * .67, sy * .42, sx * .73, sy * .49, sx * .82, sy * .43);
+    canvas.drawPath(
+      innerCurrent,
+      Paint()
+        ..color = const Color(0xFF174952).withValues(alpha: .78)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (scale * .035).clamp(3.5, 9.0)
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawPath(
+      innerCurrent,
+      Paint()
+        ..color = foam.withValues(alpha: .82)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (scale * .008).clamp(.9, 2.2)
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final lensCenter = Offset(sx * .70, sy * .27);
     canvas.drawCircle(
-      marker,
-      (size.shortestSide * .065).clamp(2.0, 6.0),
-      Paint()..color = terracotta,
+      lensCenter,
+      scale * .095,
+      Paint()
+        ..shader =
+            RadialGradient(
+              center: const Alignment(-.35, -.45),
+              colors: [
+                foam.withValues(alpha: .72),
+                softLilac.withValues(alpha: .36),
+                seaGlass.withValues(alpha: .06),
+              ],
+            ).createShader(
+              Rect.fromCircle(center: lensCenter, radius: scale * .095),
+            ),
+    );
+    canvas.drawCircle(
+      lensCenter,
+      scale * .095,
+      Paint()
+        ..color = foam.withValues(alpha: .68)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (scale * .009).clamp(1, 2),
+    );
+
+    final reflection = Path()
+      ..moveTo(sx * .19, sy * .38)
+      ..cubicTo(sx * .27, sy * .20, sx * .39, sy * .20, sx * .47, sy * .25);
+    canvas.drawPath(
+      reflection,
+      Paint()
+        ..color = foam.withValues(alpha: .82)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (scale * .014).clamp(1.4, 3.4)
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final dot = switch (stage) {
+      PauseStage.home || PauseStage.proposal => Offset(sx * .49, sy * .50),
+      PauseStage.guide => Offset(sx * .67, sy * .49),
+      PauseStage.finished => Offset(sx * .82, sy * .44),
+      PauseStage.stopped => Offset(sx * .35, sy * .64),
+    };
+    canvas.drawCircle(dot, scale * .027, Paint()..color = softCoral);
+    canvas.drawCircle(
+      dot,
+      scale * .045,
+      Paint()
+        ..color = softCoral.withValues(alpha: .28)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = scale * .008,
     );
   }
 

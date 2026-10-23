@@ -28,16 +28,12 @@ class PauseViewModel extends ChangeNotifier {
   static const _proposals = [
     MovementProposal(
       title: 'Caminar un momento',
-      instruction:
-          'Camina a tu ritmo, si te resulta adecuado. Puedes apartar la '
-          'mirada de la pantalla.',
+      instruction: 'Si te sirve, camina un momento a tu ritmo. Puedes apartar la mirada.',
       contextLabel: 'Si tienes espacio y puedes caminar',
     ),
     MovementProposal(
       title: 'Tu movimiento habitual',
-      instruction:
-          'Haz un movimiento cómodo, en la posición que prefieras. Puedes '
-          'apartar la mirada de la pantalla.',
+      instruction: 'Elige un movimiento que ya conozcas y hazlo a tu ritmo.',
       contextLabel: 'En la posición que prefieras',
     ),
   ];

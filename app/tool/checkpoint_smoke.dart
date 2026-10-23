@@ -182,7 +182,7 @@ Future<void> main() async {
     model.finishGuide();
     await frame();
     check(
-      renderedText().contains('Espacio hecho'),
+      renderedText().contains('Guía terminada'),
       'guide closure distinguished',
     );
     await capture('desktop_finished', const Size(1200, 900));
