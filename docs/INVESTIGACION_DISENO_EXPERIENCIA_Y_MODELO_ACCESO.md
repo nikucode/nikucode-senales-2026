@@ -40,6 +40,29 @@ Esta dirección se diferencia por el tratamiento narrativo y la composición, no
 
 No añadir navegación persistente, estadísticas, rachas o preguntas previas a menos que resuelvan una necesidad observada. «Orgánico» describe una dirección de arte para probar; no significa automáticamente accesible, calmante o terapéutico.
 
+### Dirección visual candidata: «margen vivo»
+
+El equipo quiere combinar la autoría de una página artística personal —incluidas las referencias de Neocities— con la claridad de una interfaz de producto. «Margen vivo» es un nombre de trabajo para probar esa combinación, no una identidad definida por evidencia ni una referencia a copiar. De Neocities se toma la intención de autoría y composición editorial; de Opal, únicamente la jerarquía clara observada como referente. No se reproducen colores, iconos, pantallas, ilustraciones ni recursos de marca ajenos.
+
+La evidencia aconseja probar esta dirección, no dar por sentado que sea más usable:
+
+- En un experimento online con 281 personas, la variante visualmente más estética de una app web móvil recibió valoraciones mayores de estética y usabilidad percibida. No mejoró significativamente el tiempo de tarea (*p* = .60); la puntuación de desempeño tampoco alcanzó significación en la prueba t convencional (*p* = .07). El estudio no comparó pasteles, estilos artesanales o apps de pausas. [Perrig et al., 2023](https://doi.org/10.3389/fpsyg.2023.1113842).
+- Una reevaluación de cinco conjuntos de datos sobre complejidad visual encontró relaciones mixtas entre complejidad y estética, además de factores de confusión. Por tanto, «minimalista» no equivale a quitar toda ilustración: hay que conservar lo que ayuda a reconocer la acción y evitar que los adornos compitan con ella. [Miniukovich y Marchese, CHI 2020](https://doi.org/10.1145/3313831.3376602).
+- Un modelo entrenado con 418 capturas y 771.000 valoraciones de 32.000 personas investigó diferencias grupales en percepción estética. Es evidencia de variación de preferencias, no una receta para inferir el gusto de una persona ni una justificación para segmentar a partir de atributos sensibles. [Leiva et al., 2023](https://doi.org/10.1007/s10209-022-00910-x).
+
+**Tratamientos visuales para comparar, manteniendo flujo, textos, controles y disposición iguales:**
+
+| Variante | Tratamiento | Qué permite aprender |
+|---|---|---|
+| A · Tinta en el margen | Fondo cálido, texto tinta, un acento pastel, trazo orgánico pequeño; más espacio vacío. | Si la jerarquía y la metáfora se entienden con baja ornamentación. |
+| B · Recorte de papel | Las mismas tinta y acciones, con más superficies pastel suaves, bordes asimétricos y pequeñas anotaciones visuales. | Si mayor carácter editorial aporta agrado sin ocultar acciones ni elevar distracción. |
+
+No hay base para declarar que una variante ganará. En ambas, pasteles son fondos y acentos; etiquetas y controles conservan texto oscuro con contraste medido. La forma puede ser orgánica alrededor del contenido, pero los botones siguen siendo reconocibles por posición, etiqueta, foco y comportamiento. La animación no es necesaria para entender ni completar la pausa y, si se incorpora, debe respetar las preferencias de movimiento reducido.
+
+Comparar ambas variantes con tareas breves en orden alternado: identificar qué ofrece la pantalla; señalar «Empezar», «Cambiar» y «Ahora no»; explicar cómo detener la guía. Preguntar primero qué creen que hace, sin describirles la metáfora. Registrar comprensión, ubicación de controles, ayuda necesaria, preferencia estética y sensación de presión por separado. Que una variante guste más no significa que sea más intuitiva ni que aumente el movimiento.
+
+**Ajuste aplicado al pretotipo, 23-10-2026:** la marca gráfica actual usa un trazo interrumpido verde con acento terracota sobre superficies cálidas asimétricas. Con el recorrido abierto se compactaron la marca y la ilustración para liberar espacio con texto ampliado. Esta es una primera candidata más cercana a «Tinta en el margen»; la alternativa con mayor presencia pastel todavía debe representarse y compararse. La página [evidencia de implementación](PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md) contiene las capturas renderizadas; no hay aún prueba con usuarios.
+
 **Iteración aplicada al prototipo, 23-10-2026:** se reemplazó el símbolo de spa y la tarjeta blanca uniforme por un trazo dibujado que se interrumpe y continúa, una superficie cálida con esquinas asimétricas y una paleta verde musgo/terracota. Se conservaron los nombres y la jerarquía de las acciones existentes. Los contrastes calculados para pares de color usados en texto son: tinta/fondo 12,26:1; texto secundario/fondo 6,59:1; musgo/fondo 7,05:1; blanco/botón musgo 7,67:1; terracota/fondo 5,99:1. Se calcularon con la fórmula sRGB relativa de WCAG; no constituyen una auditoría de accesibilidad. El análisis estático de Flutter no encontró incidencias. Aún falta inspeccionar la nueva composición con ampliación, teclado y lector de pantalla, y obtener opinión de usuarios.
 
 ### Prueba de experiencia sugerida
