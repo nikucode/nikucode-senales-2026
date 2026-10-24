@@ -56,11 +56,32 @@ class _PauseAppState extends State<PauseApp> {
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'nikucode · pausa',
-    debugShowCheckedModeBanner: false,
-    theme: _mareaTheme(highContrast: false),
-    home: PauseHome(viewModel: widget.viewModel, preferences: _preferences),
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _preferences,
+    builder: (context, _) => MaterialApp(
+      title: 'nikucode · pausa',
+      debugShowCheckedModeBanner: false,
+      theme: _mareaTheme(highContrast: _preferences.highContrast),
+      themeAnimationDuration: _preferences.reduceMotion
+          ? Duration.zero
+          : kThemeAnimationDuration,
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        return MediaQuery(
+          data: media.copyWith(
+            disableAnimations:
+                media.disableAnimations || _preferences.reduceMotion,
+            textScaler: TextScaler.linear(
+              math
+                  .max(media.textScaler.scale(1), _preferences.textScale)
+                  .toDouble(),
+            ),
+          ),
+          child: child!,
+        );
+      },
+      home: PauseHome(viewModel: widget.viewModel, preferences: _preferences),
+    ),
   );
 }
 
@@ -140,94 +161,91 @@ class PauseHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: preferences,
-    builder: (context, _) => Theme(
-      data: _mareaTheme(highContrast: preferences.highContrast),
-      child: ListenableBuilder(
-        listenable: viewModel,
-        builder: (context, _) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            disableAnimations:
-                MediaQuery.disableAnimationsOf(context) ||
-                preferences.reduceMotion,
-            textScaler: TextScaler.linear(
-              math
-                  .max(
-                    MediaQuery.textScalerOf(context).scale(1),
-                    preferences.textScale,
-                  )
-                  .toDouble(),
-            ),
+    builder: (context, _) => ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          disableAnimations:
+              MediaQuery.disableAnimationsOf(context) ||
+              preferences.reduceMotion,
+          textScaler: TextScaler.linear(
+            math
+                .max(
+                  MediaQuery.textScalerOf(context).scale(1),
+                  preferences.textScale,
+                )
+                .toDouble(),
           ),
-          child: Scaffold(
-            body: Stack(
-              fit: StackFit.expand,
-              children: [
-                ExcludeSemantics(
-                  child: CustomPaint(
-                    painter: _MareaAtmosphere(
-                      highContrast: preferences.highContrast,
-                    ),
+        ),
+        child: Scaffold(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              ExcludeSemantics(
+                child: CustomPaint(
+                  painter: _MareaAtmosphere(
+                    highContrast: preferences.highContrast,
                   ),
                 ),
-                SafeArea(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            _TopLine(
-                              viewModel: viewModel,
-                              preferences: preferences,
-                            ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                ),
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    minHeight: (constraints.maxHeight - 76)
-                                        .clamp(0, 2000),
+              ),
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: [
+                          _TopLine(
+                            viewModel: viewModel,
+                            preferences: preferences,
+                          ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: (constraints.maxHeight - 76).clamp(
+                                    0,
+                                    2000,
                                   ),
-                                  child: Center(
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                        maxWidth: 760,
-                                      ),
-                                      child: _PausePanel(
-                                        vm: viewModel,
-                                        preferences: preferences,
-                                      ),
+                                ),
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 760,
+                                    ),
+                                    child: _PausePanel(
+                                      vm: viewModel,
+                                      preferences: preferences,
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            if (viewModel.hasPendingReminder)
-                              TextButton(
-                                onPressed: viewModel.cancelReminder,
-                                child: Text(
-                                  'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
-                                ),
+                          ),
+                          if (viewModel.hasPendingReminder)
+                            TextButton(
+                              onPressed: viewModel.cancelReminder,
+                              child: Text(
+                                'Cancelar aviso · ${TimeOfDay.fromDateTime(viewModel.reminderAt!).format(context)}',
                               ),
-                            if (viewModel.message != null)
-                              Semantics(
-                                liveRegion: true,
-                                child: Text(
-                                  viewModel.message!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: mist),
-                                ),
+                            ),
+                          if (viewModel.message != null)
+                            Semantics(
+                              liveRegion: true,
+                              child: Text(
+                                viewModel.message!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: mist),
                               ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -552,6 +570,9 @@ Future<void> _showReminders(
   PauseViewModel vm,
 ) => showDialog<void>(
   context: context,
+  animationStyle: MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
   builder: (dialogContext) => ListenableBuilder(
     listenable: vm,
     builder: (context, _) => AlertDialog(

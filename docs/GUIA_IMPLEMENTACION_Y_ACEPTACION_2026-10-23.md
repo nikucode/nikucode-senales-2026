@@ -111,7 +111,7 @@ Registro mínimo: destino/versión, caso, resultado observado, evidencia si apor
 | AC07 | Pendiente → abrir propuesta manual → pasar a otra app antes de su hora | Apertura consume/cancela; no se duplica interfaz ni se crea cola. Comprobar el canal; registrar si un banner ya entregado no puede impedirse/retirarse |
 | AC08 | Cerrar/reabrir; tocar aviso después de su hora y tocar aviso cancelado/reemplazado | Hora pasada por sí sola no invalida una invitación entregada; solo un ID vigente puede abrirla una vez. Android valida el intent inicial y `onNewIntent`; un ID consumido/cancelado/reemplazado no reabre la propuesta. No recuperar ni reprogramar el temporizador. El puente automatizado no sustituye la prueba en teléfono real |
 | AC09 | Guía detenida/terminada | Se distinguen y ninguna registra ejercicio corporal comprobado |
-| AC10 | Teclado/lector/texto ampliado | Se puede identificar, accionar y abandonar el flujo sin cortes ni controles inaccesibles detectados |
+| AC10 | Teclado/lector/texto ampliado | Se puede identificar, accionar y abandonar el flujo sin cortes; preferencias coherentes también en ventanas superpuestas y categorías del panorama anunciables con sus valores. Las pruebas widget no acreditan accesibilidad en un lector/dispositivo real |
 | AC11 | Sin conexión | Contenido/flujo local disponible en los destinos donde se prometió; notificaciones se prueban por separado |
 | AC12 | Dos dispositivos y demo acelerada | No afirmar sincronización; programación de prueba identificada y cancelada al terminar |
 

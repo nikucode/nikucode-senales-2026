@@ -22,6 +22,10 @@ Future<void> showMareaProfile(
   context: context,
   isScrollControlled: true,
   backgroundColor: Colors.transparent,
+  sheetAnimationStyle:
+      preferences.reduceMotion || MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
   builder: (sheetContext) => ListenableBuilder(
     listenable: preferences,
     builder: (context, _) => _MareaSheet(
@@ -130,6 +134,10 @@ Future<void> showMareaSettings(
   context: context,
   isScrollControlled: true,
   backgroundColor: Colors.transparent,
+  sheetAnimationStyle:
+      preferences.reduceMotion || MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
   builder: (sheetContext) => ListenableBuilder(
     listenable: preferences,
     builder: (context, _) => _MareaSheet(
@@ -154,7 +162,7 @@ Future<void> showMareaSettings(
               contentPadding: EdgeInsets.zero,
               title: const Text('Reducir movimiento'),
               subtitle: const Text(
-                'Detiene la flotación y las transiciones animadas.',
+                'Detiene la flotación. Las nuevas ventanas se abren sin animación.',
               ),
               value: preferences.reduceMotion,
               onChanged: preferences.setReduceMotion,
@@ -196,6 +204,10 @@ Future<void> showMareaPanorama(
   context: context,
   isScrollControlled: true,
   backgroundColor: Colors.transparent,
+  sheetAnimationStyle:
+      preferences.reduceMotion || MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
   builder: (sheetContext) => ListenableBuilder(
     listenable: preferences,
     builder: (context, _) => ListenableBuilder(
@@ -369,6 +381,7 @@ class _MetricBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
+    container: true,
     label: '$label: $value',
     child: ExcludeSemantics(
       child: Padding(

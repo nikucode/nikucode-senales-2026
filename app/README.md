@@ -34,6 +34,10 @@ Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspe
 
 Cancelar o reemplazar invalida también los IDs en espera entre Android y Dart. Una respuesta inicial tardía no abre una propuesta después de una elección manual. Un error al leer o validar la invitación deja disponible el inicio manual y muestra que no se pudo comprobar. Preparar un nuevo temporizador requiere que la retirada anterior responda sin error; un fallo no se confirma como cancelación ni como nueva programación.
 
+Las solicitudes simultáneas de permiso desde Dart comparten una respuesta nativa, para no sobrescribir el resultado pendiente en `MainActivity`. Una respuesta con un tipo inesperado no se interpreta como permiso concedido. Esta protección del adaptador no demuestra la recepción de un aviso en Android.
+
+Las preferencias de contraste, tamaño de texto y movimiento reducido se aplican por encima del navegador de pantallas. Las hojas abiertas reciben el tema actualizado; las categorías de Mi panorama tienen nodos semánticos propios. Con movimiento reducido activo, las nuevas hojas y el diálogo de avisos se crean sin transición animada. El estilo de una ventana se fija al abrirla: si se cambia la preferencia mientras está abierta, su transición de cierre puede conservar el estilo anterior. No se ha validado accesibilidad en dispositivo.
+
 ## Estructura
 
 - `lib/main.dart`: vistas adaptables y presentación.
@@ -53,7 +57,7 @@ flutter build linux --debug --no-pub
 flutter build web --no-pub --no-web-resources-cdn --no-wasm-dry-run
 ```
 
-Revisión del 23-10 sobre `8253005` más cambios locales: formato Dart y `flutter analyze --no-pub` pasaron. El runner no pudo crear `127.0.0.1:0` (`Operation not permitted`), por lo que la suite no ejecutó casos. `flutter doctor -v` no encontró Android SDK y `flutter devices` solo detectó Linux: no se ejecutó build APK ni recorrido físico. Los tests de MethodChannel simulado no comprueban la `MainActivity` ni la entrega del sistema.
+Revisión de cierre del 23-10 preparada sobre `2dd5154`; los resultados siguientes corresponden a los archivos de esta entrega. Formato Dart y `flutter analyze --no-pub` pasaron. El runner no pudo crear `127.0.0.1:0` (`Operation not permitted`), por lo que la suite no ejecutó casos. `flutter doctor -v` no encontró Android SDK y `flutter devices` solo detectó Linux: no se ejecutó build APK ni recorrido físico. Los tests de MethodChannel simulado no comprueban la `MainActivity` ni la entrega del sistema.
 
 Las capturas y resultados del [primer recorrido](../docs/PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md) son históricos; no son evidencia de esta revisión. No se utilizó ese harness para sustituir la suite bloqueada.
 

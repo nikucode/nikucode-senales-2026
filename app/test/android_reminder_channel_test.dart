@@ -16,6 +16,37 @@ void main() {
     messenger.setMockMethodCallHandler(methodChannel, null);
   });
 
+  test('concurrent permission requests share one native response', () async {
+    final permission = Completer<Object?>();
+    var requests = 0;
+    messenger.setMockMethodCallHandler(methodChannel, (call) async {
+      if (call.method == 'requestPermission') {
+        requests++;
+        return permission.future;
+      }
+      return null;
+    });
+    final model = PauseViewModel(channel: AndroidReminderChannel());
+    final first = model.setRemindersEnabled(true);
+    final second = model.setRemindersEnabled(true);
+    await Future<void>.delayed(Duration.zero);
+    expect(requests, 1);
+    permission.complete(true);
+    await Future.wait([first, second]);
+    expect(model.remindersEnabled, isTrue);
+    model.dispose();
+    await Future<void>.delayed(Duration.zero);
+  });
+
+  test('malformed permission response is not a grant', () async {
+    messenger.setMockMethodCallHandler(methodChannel, (call) async {
+      return call.method == 'requestPermission' ? 'true' : null;
+    });
+    final channel = AndroidReminderChannel();
+    addTearDown(channel.dispose);
+    expect(await channel.requestPermission(), isFalse);
+  });
+
   test(
     'native-validated warm event can reach a newly created model once',
     () async {

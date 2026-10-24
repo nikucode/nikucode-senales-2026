@@ -22,6 +22,7 @@ class AndroidReminderChannel extends ReminderChannel {
   bool _queuedOpenError = false;
   bool _disposed = false;
   int _invitationRevision = 0;
+  Future<bool>? _permissionRequest;
 
   AndroidReminderChannel() {
     _methodChannel.setMethodCallHandler(_handleNativeCall);
@@ -121,10 +122,18 @@ class AndroidReminderChannel extends ReminderChannel {
   }
 
   @override
-  Future<bool> requestPermission() async {
+  Future<bool> requestPermission() {
+    final pending = _permissionRequest;
+    if (pending != null) return pending;
+    final request = _requestNativePermission();
+    _permissionRequest = request;
+    return request.whenComplete(() => _permissionRequest = null);
+  }
+
+  Future<bool> _requestNativePermission() async {
     try {
-      return await _methodChannel.invokeMethod<bool>('requestPermission') ??
-          false;
+      return await _methodChannel.invokeMethod<Object?>('requestPermission') ==
+          true;
     } on PlatformException {
       return false;
     } on MissingPluginException {

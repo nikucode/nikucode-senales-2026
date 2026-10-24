@@ -39,6 +39,41 @@ Future<void> _mountApp(
 }
 
 void main() {
+  testWidgets('access preferences reach dialogs and update open sheets', (
+    tester,
+  ) async {
+    final preferences = AppPreferencesController.memory();
+    await preferences.setTextScale(1.6);
+    await preferences.setHighContrast(true);
+    final model = PauseViewModel(channel: _FakeChannel());
+    await _mountApp(tester, model, preferences: preferences);
+
+    await tester.ensureVisible(find.text('Avisos, si los quieres'));
+    await tester.tap(find.text('Avisos, si los quieres'));
+    await tester.pumpAndSettle();
+    final dialog = tester.element(find.text('Avisos de este dispositivo'));
+    expect(MediaQuery.textScalerOf(dialog).scale(10), 16);
+    expect(MediaQuery.disableAnimationsOf(dialog), isTrue);
+    expect(Theme.of(dialog).scaffoldBackgroundColor, Colors.black);
+    expect(ModalRoute.of(dialog)!.transitionDuration, Duration.zero);
+    await tester.tap(find.text('Cerrar'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Mi panorama'));
+    await tester.tap(find.text('Mi panorama'));
+    await tester.pumpAndSettle();
+    var sheet = tester.element(find.text('Interacciones de esta sesión'));
+    expect(MediaQuery.textScalerOf(sheet).scale(10), 16);
+    expect(ModalRoute.of(sheet)!.transitionDuration, Duration.zero);
+    await preferences.setTextScale(1.2);
+    await preferences.setHighContrast(false);
+    await tester.pumpAndSettle();
+    sheet = tester.element(find.text('Interacciones de esta sesión'));
+    expect(MediaQuery.textScalerOf(sheet).scale(10), 12);
+    expect(Theme.of(sheet).scaffoldBackgroundColor, deepWater);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final width in [390.0, 1200.0]) {
     testWidgets('recorrido de pausa y salida en ancho $width', (tester) async {
       tester.view.physicalSize = Size(width, 1100);
