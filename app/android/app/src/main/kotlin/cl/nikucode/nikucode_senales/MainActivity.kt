@@ -32,46 +32,55 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         bridge = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         bridge?.setMethodCallHandler { call, result ->
-            when (call.method) {
-                "requestPermission" -> requestNotificationPermission(result)
-                "showReminder" -> {
-                    val id = (call.arguments as? Number)?.toLong()
-                    if (id == null || id <= 0L) {
-                        result.error("invalid_id", "Missing reminder id", null)
-                    } else {
-                        try {
-                            showReminder(id)
-                            result.success(true)
-                        } catch (error: Exception) {
-                            result.error("show_failed", error.message, null)
+            try {
+                when (call.method) {
+                    "requestPermission" -> requestNotificationPermission(result)
+                    "showReminder" -> {
+                        val id = when (val value = call.arguments) {
+                            is Long -> value
+                            is Int -> value.toLong()
+                            else -> null
+                        }
+                        if (id == null || id <= 0L) {
+                            result.error("invalid_id", "Missing reminder id", null)
+                        } else {
+                            try {
+                                showReminder(id)
+                                result.success(true)
+                            } catch (error: Exception) {
+                                result.error("show_failed", error.message, null)
+                            }
                         }
                     }
-                }
-                "cancelReminders" -> {
-                    if (!clearActiveInvitation()) {
-                        result.error(
-                            "cancel_failed",
-                            "Could not invalidate the invitation",
-                            null,
-                        )
-                    } else {
-                        notificationManager().cancelAll()
-                        result.success(true)
+                    "cancelReminders" -> {
+                        invalidatePendingOpen()
+                        if (!clearActiveInvitation()) {
+                            result.error(
+                                "cancel_failed",
+                                "Could not invalidate the invitation",
+                                null,
+                            )
+                        } else {
+                            notificationManager().cancelAll()
+                            result.success(true)
+                        }
                     }
-                }
-                "consumeInitialReminder" -> {
-                    val pending = pendingReminderId
-                    if (pending != null) {
-                        pendingReminderId = null
-                        result.success(pending)
-                    } else {
-                        val source = intent
-                        val id = consumeValidInvitation(source)
-                        clearReminderExtra(source)
-                        result.success(id)
+                    "consumeInitialReminder" -> {
+                        val pending = pendingReminderId
+                        if (pending != null) {
+                            pendingReminderId = null
+                            result.success(pending)
+                        } else {
+                            val source = intent
+                            val id = consumeValidInvitation(source)
+                            clearReminderExtra(source)
+                            result.success(id)
+                        }
                     }
+                    else -> result.notImplemented()
                 }
-                else -> result.notImplemented()
+            } catch (error: Exception) {
+                result.error("reminder_operation_failed", error.message, null)
             }
         }
         deliverPendingReminder()
@@ -118,6 +127,7 @@ class MainActivity : FlutterActivity() {
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     private fun showReminder(id: Long) {
+        invalidatePendingOpen()
         val manager = notificationManager()
         if (!notificationsAllowed()) {
             throw IllegalStateException("Notifications are unavailable or permission was denied")
@@ -179,11 +189,21 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val id = consumeValidInvitation(intent)
+        try {
+            val id = consumeValidInvitation(intent) ?: return
+            pendingReminderId = id
+            deliverPendingReminder()
+        } catch (error: Exception) {
+            pendingReminderId = null
+            bridge?.invokeMethod("reminderOpenFailed", null)
+        } finally {
+            clearReminderExtra(intent)
+        }
+    }
+
+    private fun invalidatePendingOpen() {
+        pendingReminderId = null
         clearReminderExtra(intent)
-        if (id == null) return
-        pendingReminderId = id
-        deliverPendingReminder()
     }
 
     private fun deliverPendingReminder() {
@@ -222,11 +242,15 @@ class MainActivity : FlutterActivity() {
         val preferences = invitationPreferences()
         if (preferences.getLong(ACTIVE_INVITATION_ID, 0L) != id) return null
         if (!notificationsAllowed()) {
-            clearActiveInvitation()
+            if (!clearActiveInvitation()) {
+                throw IllegalStateException("Could not invalidate the active invitation ID")
+            }
             notificationManager().cancel(platformNotificationId(id))
             return null
         }
-        if (!preferences.edit().remove(ACTIVE_INVITATION_ID).commit()) return null
+        if (!preferences.edit().remove(ACTIVE_INVITATION_ID).commit()) {
+            throw IllegalStateException("Could not consume the active invitation ID")
+        }
 
         notificationManager().cancel(platformNotificationId(id))
         return id

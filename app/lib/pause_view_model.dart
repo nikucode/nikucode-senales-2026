@@ -44,7 +44,8 @@ class PauseActivity {
 class PauseViewModel extends ChangeNotifier {
   PauseViewModel({required this.channel}) {
     channel.onOpen = openFromReminder;
-    channel.onInitialOpen = openFromInitialReminder;
+    channel.onValidatedOpen = openFromValidatedReminder;
+    channel.onOpenError = _reportOpenError;
   }
 
   static const _proposals = [
@@ -83,6 +84,7 @@ class PauseViewModel extends ChangeNotifier {
   Timer? _timer;
   int _generation = 0;
   int? _invitationId;
+  bool _initialInvitationAllowed = true;
   final Set<int> _consumedInitialInvitationIds = <int>{};
   int _permissionRevision = 0;
   int _proposalsOpened = 0;
@@ -177,16 +179,29 @@ class PauseViewModel extends ChangeNotifier {
     openProposal();
   }
 
-  /// Accepts an initial Android intent only after its channel has matched and
-  /// consumed the opaque ID of a currently posted notification.
-  void openFromInitialReminder(int id) {
-    if (id <= 0 || _disposed || !_consumedInitialInvitationIds.add(id)) return;
+  /// Accepts Android intents only after the native transport has validated
+  /// and consumed the invitation ID. Startup does not enable future reminders.
+  void openFromValidatedReminder(int id) {
+    if (id <= 0 || _disposed) return;
+    if (_remindersEnabled && id == _invitationId) {
+      openFromReminder(id);
+      return;
+    }
+    if (!_initialInvitationAllowed || !_consumedInitialInvitationIds.add(id)) {
+      return;
+    }
     if (_stage == PauseStage.proposal || _stage == PauseStage.guide) return;
 
     _invalidateInvitation();
     _proposalsOpened++;
     _stage = PauseStage.proposal;
     _message = null;
+    _notify();
+  }
+
+  void _reportOpenError() {
+    if (_disposed) return;
+    _message = 'No se pudo comprobar la invitación. Puedes abrir una pausa manualmente.';
     _notify();
   }
 
@@ -239,7 +254,17 @@ class PauseViewModel extends ChangeNotifier {
     }
 
     final postponingProposal = _stage == PauseStage.proposal;
-    _invalidateInvitation();
+    final cancellation = _invalidateInvitation();
+    final revision = _generation;
+    final cancelled = await cancellation;
+    if (_disposed || revision != _generation) return;
+    if (!cancelled) {
+      _message =
+          'No se preparó otro aviso: no se pudo confirmar la retirada del anterior. '
+          'Puedes abrir una pausa manualmente.';
+      _notify();
+      return;
+    }
     final now = DateTime.now().microsecondsSinceEpoch;
     final id = now > _generation ? now : _generation + 1;
     _generation = id;
@@ -256,10 +281,14 @@ class PauseViewModel extends ChangeNotifier {
 
   Future<void> cancelReminder() async {
     if (_disposed) return;
-    _invalidateInvitation();
-    _message = 'Aviso cancelado en esta sesión.';
+    final cancellation = _invalidateInvitation();
+    final revision = _generation;
+    _message = 'Se está solicitando retirar el aviso del sistema.';
     _notify();
-    await _channelWork;
+    final cancelled = await cancellation;
+    if (_disposed || revision != _generation || !cancelled) return;
+    _message = 'Temporizador cancelado y retirada solicitada al sistema.';
+    _notify();
   }
 
   Future<void> _deliver(int id) async {
@@ -289,18 +318,22 @@ class PauseViewModel extends ChangeNotifier {
       _stage != PauseStage.proposal &&
       _stage != PauseStage.guide;
 
-  void _invalidateInvitation() {
-    _generation++;
+  Future<bool> _invalidateInvitation() {
+    final revision = ++_generation;
+    _initialInvitationAllowed = false;
     _invitationId = null;
     _timer?.cancel();
     _timer = null;
     _reminderAt = null;
-    unawaited(
-      _enqueue(channel.cancel).catchError((Object error) {
-        if (_disposed) return;
-        _message = 'No se pudo confirmar la retirada del aviso del sistema.';
-        _notify();
-      }),
+    return _enqueue(channel.cancel).then(
+      (_) => true,
+      onError: (Object error) {
+        if (!_disposed && revision == _generation) {
+          _message = 'No se pudo confirmar la retirada del aviso del sistema.';
+          _notify();
+        }
+        return false;
+      },
     );
   }
 
@@ -322,7 +355,8 @@ class PauseViewModel extends ChangeNotifier {
     _disposed = true;
     _permissionRevision++;
     channel.onOpen = null;
-    channel.onInitialOpen = null;
+    channel.onValidatedOpen = null;
+    channel.onOpenError = null;
     _invalidateInvitation();
     unawaited(_channelWork.whenComplete(channel.dispose));
     super.dispose();

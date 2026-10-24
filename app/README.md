@@ -32,6 +32,8 @@ Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspe
 - Android nativo: `MainActivity` implementa el permiso, publicación y apertura de una invitación. El temporizador sigue en memoria y requiere que el proceso de la app continúe activo hasta solicitar la notificación; el sistema puede retrasarlo al suspender la app. No hay alarma exacta, servicio en segundo plano ni garantía de entrega. Para validar un toque en arranque en frío se guarda localmente solo el ID opaco asociado a la invitación cuya publicación se solicitó; Flutter lo acepta si Android devuelve el mismo ID en el intent. Se consume al validar el intent y se elimina al cancelar, reemplazar o desactivar. No se guarda el temporizador ni se habilitan automáticamente futuros avisos. Si el proceso termina antes de solicitar la notificación, la señal puede perderse. La compilación APK y las pruebas de aviso/toque en teléfono físico no se han observado en este entorno.
 - Sin recurrencia, sincronización, cuenta, registro de salud ni detección corporal. Los contadores de Mi panorama existen solo mientras vive la sesión.
 
+Cancelar o reemplazar invalida también los IDs en espera entre Android y Dart. Una respuesta inicial tardía no abre una propuesta después de una elección manual. Un error al leer o validar la invitación deja disponible el inicio manual y muestra que no se pudo comprobar. Preparar un nuevo temporizador requiere que la retirada anterior responda sin error; un fallo no se confirma como cancelación ni como nueva programación.
+
 ## Estructura
 
 - `lib/main.dart`: vistas adaptables y presentación.
@@ -46,11 +48,13 @@ Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspe
 
 ```sh
 flutter analyze --no-pub
-flutter test --no-pub
+flutter test --no-pub --concurrency=1 test/pause_view_model_test.dart test/widget_test.dart test/android_reminder_channel_test.dart
 flutter build linux --debug --no-pub
 flutter build web --no-pub --no-web-resources-cdn --no-wasm-dry-run
 ```
 
-El runner estándar de tests está bloqueado en la sesión de construcción por prohibición de bind local; no se afirma que su suite pasó. La verificación alternativa ejecutó el motor real offline con un canal simulado. Método, capturas y límites en [evidencia del primer recorrido](../docs/PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md).
+Revisión del 23-10 sobre `8253005` más cambios locales: formato Dart y `flutter analyze --no-pub` pasaron. El runner no pudo crear `127.0.0.1:0` (`Operation not permitted`), por lo que la suite no ejecutó casos. `flutter doctor -v` no encontró Android SDK y `flutter devices` solo detectó Linux: no se ejecutó build APK ni recorrido físico. Los tests de MethodChannel simulado no comprueban la `MainActivity` ni la entrega del sistema.
+
+Las capturas y resultados del [primer recorrido](../docs/PRIMER_RECORRIDO_Y_CHECKPOINT_2026-10-23.md) son históricos; no son evidencia de esta revisión. No se utilizó ese harness para sustituir la suite bloqueada.
 
 Los binarios/builds y cachés quedan ignorados por Git. Las instrucciones no equivalen a pruebas observadas de avisos del sistema, teléfono físico, teclado/lector o efecto conductual.

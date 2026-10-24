@@ -8,9 +8,11 @@ class FakeChannel extends ReminderChannel {
   bool permission = true;
   bool failShow = false;
   bool failPermission = false;
+  bool failCancel = false;
   bool available = true;
   Completer<bool>? permissionRequest;
   Completer<void>? showing;
+  Completer<void>? cancelling;
   final shown = <int>[];
   int cancellations = 0;
   bool disposed = false;
@@ -36,12 +38,111 @@ class FakeChannel extends ReminderChannel {
   }
 
   @override
-  Future<void> cancel() async => cancellations++;
+  Future<void> cancel() async {
+    cancellations++;
+    if (cancelling != null) await cancelling!.future;
+    if (failCancel) throw StateError('cancel failed');
+  }
+
   @override
   void dispose() => disposed = true;
 }
 
 void main() {
+  testWidgets('native-validated session invitation opens only once', (
+    tester,
+  ) async {
+    final channel = FakeChannel();
+    final model = PauseViewModel(channel: channel);
+    await model.setRemindersEnabled(true);
+    await model.scheduleReminder(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    final id = channel.shown.single;
+    model.openFromValidatedReminder(id);
+    expect(model.stage, PauseStage.proposal);
+    model.dismissProposal();
+    model.openFromValidatedReminder(id);
+    expect(model.stage, PauseStage.home);
+    expect(model.activity.proposalsOpened, 1);
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('cancellation failure is reported without a success message', (
+    tester,
+  ) async {
+    final channel = FakeChannel();
+    final model = PauseViewModel(channel: channel);
+    await model.setRemindersEnabled(true);
+    await model.scheduleReminder(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    final id = channel.shown.single;
+    channel.failCancel = true;
+
+    final cancelling = model.cancelReminder();
+    expect(model.message, contains('Se está solicitando'));
+    await cancelling;
+    expect(model.message, contains('No se pudo confirmar'));
+    expect(model.hasPendingReminder, isFalse);
+    channel.callback!(id);
+    expect(model.stage, PauseStage.home);
+    channel.failCancel = false;
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('failed withdrawal prevents preparing a replacement', (
+    tester,
+  ) async {
+    final channel = FakeChannel()..failCancel = true;
+    final model = PauseViewModel(channel: channel);
+    await model.setRemindersEnabled(true);
+    await model.scheduleReminder(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(model.hasPendingReminder, isFalse);
+    expect(channel.shown, isEmpty);
+    expect(model.message, contains('No se preparó otro aviso'));
+    model.openProposal();
+    expect(model.stage, PauseStage.proposal);
+    channel.failCancel = false;
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('manual opening supersedes scheduling awaiting withdrawal', (
+    tester,
+  ) async {
+    final cancellation = Completer<void>();
+    final channel = FakeChannel()..cancelling = cancellation;
+    final model = PauseViewModel(channel: channel);
+    await model.setRemindersEnabled(true);
+    final scheduling = model.scheduleReminder(const Duration(seconds: 1));
+    await tester.pump();
+    model.openProposal();
+    cancellation.complete();
+    await scheduling;
+    await tester.pump(const Duration(seconds: 2));
+    expect(model.stage, PauseStage.proposal);
+    expect(model.hasPendingReminder, isFalse);
+    expect(channel.shown, isEmpty);
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('a delayed initial invitation cannot undo a manual choice', (
+    tester,
+  ) async {
+    final model = PauseViewModel(channel: FakeChannel());
+    model.openProposal();
+    model.dismissProposal();
+    model.openFromValidatedReminder(7103);
+    expect(model.stage, PauseStage.home);
+    expect(model.activity.proposalsOpened, 1);
+    model.dispose();
+    await tester.pump();
+  });
+
   testWidgets('replacement shows only the latest invitation', (tester) async {
     final channel = FakeChannel();
     final model = PauseViewModel(channel: channel);
@@ -100,13 +201,13 @@ void main() {
       final channel = FakeChannel();
       final model = PauseViewModel(channel: channel);
 
-      model.openFromInitialReminder(7001);
+      model.openFromValidatedReminder(7001);
       expect(model.stage, PauseStage.proposal);
       expect(model.remindersEnabled, isFalse);
       expect(model.activity.proposalsOpened, 1);
 
       model.dismissProposal();
-      model.openFromInitialReminder(7001);
+      model.openFromValidatedReminder(7001);
       expect(model.stage, PauseStage.home);
       expect(model.activity.proposalsOpened, 1);
       model.dispose();
@@ -116,8 +217,8 @@ void main() {
 
   testWidgets('invalid cold-start invitation IDs are ignored', (tester) async {
     final model = PauseViewModel(channel: FakeChannel());
-    model.openFromInitialReminder(0);
-    model.openFromInitialReminder(-1);
+    model.openFromValidatedReminder(0);
+    model.openFromValidatedReminder(-1);
 
     expect(model.stage, PauseStage.home);
     expect(model.activity.proposalsOpened, 0);
@@ -133,7 +234,7 @@ void main() {
     model.openProposal();
     model.startGuide();
 
-    model.openFromInitialReminder(7002);
+    model.openFromValidatedReminder(7002);
     expect(model.stage, PauseStage.guide);
     expect(model.activity.proposalsOpened, 1);
     model.dispose();

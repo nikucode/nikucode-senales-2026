@@ -16,10 +16,12 @@ ReminderChannel createReminderChannel() => switch (Platform.operatingSystem) {
 /// Android notifications while the app session is active.
 class AndroidReminderChannel extends ReminderChannel {
   static const _methodChannel = MethodChannel('cl.nikucode/reminders');
-  void Function(int)? _onOpen;
-  void Function(int)? _onInitialOpen;
-  final List<int> _queuedOpenIds = <int>[];
-  int? _queuedInitialId;
+  void Function(int)? _onValidatedOpen;
+  void Function()? _onOpenError;
+  int? _queuedValidatedId;
+  bool _queuedOpenError = false;
+  bool _disposed = false;
+  int _invitationRevision = 0;
 
   AndroidReminderChannel() {
     _methodChannel.setMethodCallHandler(_handleNativeCall);
@@ -27,40 +29,61 @@ class AndroidReminderChannel extends ReminderChannel {
   }
 
   Future<void> _loadInitialReminder() async {
+    final revision = _invitationRevision;
     try {
-      final id = await _methodChannel.invokeMethod<int>(
+      final id = await _methodChannel.invokeMethod<Object?>(
         'consumeInitialReminder',
       );
-      if (id != null) _deliverInitialOpen(id);
+      if (_disposed || revision != _invitationRevision) return;
+      if (id == null) return;
+      if (id is! int || id <= 0) {
+        _deliverOpenError();
+        return;
+      }
+      _deliverValidatedOpen(id);
     } on PlatformException {
-      // The manual route remains available if native intent lookup fails.
+      if (!_disposed && revision == _invitationRevision) _deliverOpenError();
     } on MissingPluginException {
-      // The adapter can also be hosted without the Android runner.
+      if (!_disposed && revision == _invitationRevision) _deliverOpenError();
     }
   }
 
-  void _deliverOpen(int id) {
-    final callback = _onOpen;
+  void _deliverOpenError() {
+    if (_disposed) return;
+    final callback = _onOpenError;
     if (callback == null) {
-      _queuedOpenIds.add(id);
+      _queuedOpenError = true;
     } else {
-      callback(id);
+      callback();
     }
   }
 
-  void _deliverInitialOpen(int id) {
-    final callback = _onInitialOpen;
+  void _invalidateQueuedInvitations() {
+    _invitationRevision++;
+    _queuedValidatedId = null;
+    _queuedOpenError = false;
+  }
+
+  void _deliverValidatedOpen(int id) {
+    final callback = _onValidatedOpen;
     if (callback == null) {
-      _queuedInitialId ??= id;
+      _queuedValidatedId ??= id;
     } else {
       callback(id);
     }
   }
 
   Future<Object?> _handleNativeCall(MethodCall call) async {
+    if (_disposed) return null;
     if (call.method == 'reminderOpened') {
       final id = call.arguments;
-      if (id is int) _deliverOpen(id);
+      if (id is int && id > 0) {
+        _deliverValidatedOpen(id);
+      } else {
+        _deliverOpenError();
+      }
+    } else if (call.method == 'reminderOpenFailed') {
+      _deliverOpenError();
     }
     return null;
   }
@@ -75,23 +98,25 @@ class AndroidReminderChannel extends ReminderChannel {
       'al tocarla; la entrega depende del sistema.';
 
   @override
-  set onOpen(void Function(int)? callback) {
-    _onOpen = callback;
-    if (callback == null) return;
-    final queued = List<int>.of(_queuedOpenIds);
-    _queuedOpenIds.clear();
-    for (final id in queued) {
+  // Android uses the callback for native-validated IDs, including warm taps.
+  set onOpen(void Function(int)? callback) {}
+
+  @override
+  set onValidatedOpen(void Function(int)? callback) {
+    _onValidatedOpen = callback;
+    final id = _queuedValidatedId;
+    if (callback != null && id != null) {
+      _queuedValidatedId = null;
       callback(id);
     }
   }
 
   @override
-  set onInitialOpen(void Function(int)? callback) {
-    _onInitialOpen = callback;
-    final id = _queuedInitialId;
-    if (callback != null && id != null) {
-      _queuedInitialId = null;
-      callback(id);
+  set onOpenError(void Function()? callback) {
+    _onOpenError = callback;
+    if (!_disposed && callback != null && _queuedOpenError) {
+      _queuedOpenError = false;
+      callback();
     }
   }
 
@@ -108,18 +133,23 @@ class AndroidReminderChannel extends ReminderChannel {
   }
 
   @override
-  Future<void> show(int invitationId) =>
-      _methodChannel.invokeMethod<void>('showReminder', invitationId);
+  Future<void> show(int invitationId) {
+    _invalidateQueuedInvitations();
+    return _methodChannel.invokeMethod<void>('showReminder', invitationId);
+  }
 
   @override
-  Future<void> cancel() => _methodChannel.invokeMethod<void>('cancelReminders');
+  Future<void> cancel() {
+    _invalidateQueuedInvitations();
+    return _methodChannel.invokeMethod<void>('cancelReminders');
+  }
 
   @override
   void dispose() {
-    _onOpen = null;
-    _onInitialOpen = null;
-    _queuedOpenIds.clear();
-    _queuedInitialId = null;
+    _disposed = true;
+    _onValidatedOpen = null;
+    _onOpenError = null;
+    _invalidateQueuedInvitations();
     _methodChannel.setMethodCallHandler(null);
   }
 }

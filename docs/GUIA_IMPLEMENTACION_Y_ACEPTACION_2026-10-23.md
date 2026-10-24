@@ -1,6 +1,6 @@
 # Guía escrita para implementar y demostrar el MVP
 
-Preparada el 23-10-2026 antes de la bienvenida. Especificación candidata del asistente: no código, implementación ni aprobación de todas sus decisiones. Computador/celular sí son alcance confirmado. Si las pruebas reales cambian la viabilidad, actualizar el contrato y el pitch juntos.
+Iniciada el 23-10-2026 antes de la bienvenida y actualizada durante la implementación. Describe el contrato del recorrido; escribir un criterio no acredita que se haya cumplido. Computador/celular son alcance confirmado. El estado compartido distingue implementación, pruebas y límites observados. Si las pruebas reales cambian la viabilidad, actualizar el contrato y el pitch juntos.
 
 Entrada rápida: [estado compartido](ESTADO_COMPARTIDO.md). Fundamento y decisiones: [informe integral](INVESTIGACION_INTEGRAL_Y_DECISIONES_2026-10-23.md). Contratos anteriores compatibles: [ficha V0](FICHA_MVP_PROPUESTA_2026-10-23.md). Canal por sistema: [preparación técnica](PREPARACION_TECNICA_DESTINOS_2026-10-23.md).
 
@@ -45,7 +45,8 @@ Nombre de trabajo: «nikucode · pausa». No se eligió marca final. Evitar una 
 | Mi panorama | Conteos de categorías de interacción de la sesión, en barras rotuladas con valor textual | Estado vacío; sin historial ni agrupación temporal. No describe movimiento, salud o progreso |
 | Cierre por final | «Guía terminada» | «Volver» o salir; sin felicitación que afirme ejercicio realizado |
 | Cierre por detención | «Guía detenida» | «Volver» o salir sin castigo |
-| Confirmación de aviso | «Aviso solicitado para…» y estado de programación real | «Cancelar aviso». No confirmar entrega futura garantizada |
+| Temporizador preparado | Se informa que es local, que la app debe seguir abierta y que aún no se ha solicitado mostrar el aviso | «Cancelar aviso». No confirmar entrega futura |
+| Solicitud de publicación | «Se solicitó mostrar la invitación en este dispositivo» | No equivale a entrega o recepción comprobada |
 | Canal ausente/denegado | «En este dispositivo no se programará un aviso con esta configuración.» Adaptar la causa específica conocida | «Volver»; «Configurar avisos» solo si realmente se implementa |
 | Preferencias | Estado del canal y controles mínimos | Activar explícitamente, desactivar/cancelar, modalidad cuando exista |
 
@@ -60,13 +61,14 @@ Un horario explícito —por ejemplo, una selección manejable de minutos— org
 Reglas:
 
 1. Habilitar una señal requiere acción explícita y permiso disponible. Programar no demuestra entrega ni recepción.
-2. Apertura desde aviso válido → propuesta relacionada directamente. No pasar por Inicio obligatoriamente. Abrir propuesta manualmente o desde aviso consume/invalida la invitación vigente y cancela su programación pendiente propia; salir después no la restaura. «Más tarde» crea una nueva invitación explícita.
+2. Apertura desde aviso válido → propuesta relacionada directamente. No pasar por Inicio obligatoriamente. Abrir propuesta manualmente o desde aviso consume/invalida la invitación vigente y cancela su programación pendiente propia; salir después no la restaura. «Configurar aviso» abre ajustes: habilitar y elegir un intervalo prepara una nueva invitación explícita.
 3. Una nueva programación/posposición reemplaza la pendiente local anterior; no se acumulan. Mostrar destino temporal y cancelación.
 4. Empezar guía o rechazar esa interacción cancela su pendiente. Desactivar cancela todos los pendientes propios en ese dispositivo. Nunca manipular avisos de otras apps.
 5. Si ya hay propuesta/guía activa, no abrir otra ni robar foco. Cancelar al abrir propuesta reduce la carrera con el SO; no garantiza impedir un banner que el sistema ya hubiera entregado. Una entrega suprimida no crea cola. Registrar esa limitación y comprobar retirada de entregas propias donde se soporte.
 6. Distinguir hora programada de validez de la acción: un aviso entregado puede tocarse después de su hora y seguir siendo válido. Usar identificador/generación vigente, invalidado por cancelar, reemplazar, consumir o desactivar. No hay caducidad temporal adicional en la primera demo. Un enlace invalidado no restaura guía ni fabrica pendiente; ofrece acceso manual. Al reabrir no reprogramar entregas atrasadas ni lanzar ráfagas. Si no se conoce entrega, describirla como desconocida, no como pendiente futuro o recepción confirmada.
 7. El temporizador no sobrevive al cierre del proceso: no se guarda ni se reprograma al iniciar de nuevo. En Android se conserva únicamente el ID opaco de la invitación asociada a la publicación solicitada, para validar un toque que llegue mediante intent inicial; se consume una sola vez y se invalida al cancelar, reemplazar o desactivar. No persiste el consentimiento para futuros avisos. La entrega y permanencia de la notificación siguen bajo control del sistema operativo. Si el proceso termina antes de que el temporizador la solicite, la señal puede perderse.
 8. Si dos dispositivos no se coordinan, cada uno tiene sus avisos. No prometer deduplicación global; evitar activar ambos por defecto.
+9. Cancelar/reemplazar invalida los IDs en espera tanto en Android como en Dart. El intent inicial y `onNewIntent` se reciben por una entrada común de IDs ya validados nativamente; aceptar uno no habilita futuros avisos. Una lectura inicial tardía se descarta si la persona ya abrió manualmente, canceló o preparó otra invitación. Los errores de lectura/validación se comunican sin bloquear el recorrido manual. La cancelación se informa como solicitud en curso hasta que el canal responda; si falla, no se prepara un temporizador nuevo ni se confirma la retirada.
 
 **Contrato inicial de cierre de guía:** cerrar la app descarta la guía; no registrar éxito ni retomarla como terminada. Si una versión posterior ofrece retomar, debe distinguirse. Un reinicio no recupera una cola de señales antiguas.
 
