@@ -17,15 +17,50 @@ ReminderChannel createReminderChannel() => switch (Platform.operatingSystem) {
 class AndroidReminderChannel extends ReminderChannel {
   static const _methodChannel = MethodChannel('cl.nikucode/reminders');
   void Function(int)? _onOpen;
+  void Function(int)? _onInitialOpen;
+  final List<int> _queuedOpenIds = <int>[];
+  int? _queuedInitialId;
 
   AndroidReminderChannel() {
     _methodChannel.setMethodCallHandler(_handleNativeCall);
+    unawaited(_loadInitialReminder());
+  }
+
+  Future<void> _loadInitialReminder() async {
+    try {
+      final id = await _methodChannel.invokeMethod<int>(
+        'consumeInitialReminder',
+      );
+      if (id != null) _deliverInitialOpen(id);
+    } on PlatformException {
+      // The manual route remains available if native intent lookup fails.
+    } on MissingPluginException {
+      // The adapter can also be hosted without the Android runner.
+    }
+  }
+
+  void _deliverOpen(int id) {
+    final callback = _onOpen;
+    if (callback == null) {
+      _queuedOpenIds.add(id);
+    } else {
+      callback(id);
+    }
+  }
+
+  void _deliverInitialOpen(int id) {
+    final callback = _onInitialOpen;
+    if (callback == null) {
+      _queuedInitialId ??= id;
+    } else {
+      callback(id);
+    }
   }
 
   Future<Object?> _handleNativeCall(MethodCall call) async {
     if (call.method == 'reminderOpened') {
       final id = call.arguments;
-      if (id is int) _onOpen?.call(id);
+      if (id is int) _deliverOpen(id);
     }
     return null;
   }
@@ -35,11 +70,30 @@ class AndroidReminderChannel extends ReminderChannel {
 
   @override
   String get scopeLabel =>
-      'Android: las invitaciones requieren permiso y que esta sesión siga '
-      'abierta. Android puede pausar temporizadores en segundo plano.';
+      'Android: el temporizador requiere que la app siga abierta y puede '
+      'retrasarse al suspenderla. Una invitación ya publicada puede abrirse '
+      'al tocarla; la entrega depende del sistema.';
 
   @override
-  set onOpen(void Function(int)? callback) => _onOpen = callback;
+  set onOpen(void Function(int)? callback) {
+    _onOpen = callback;
+    if (callback == null) return;
+    final queued = List<int>.of(_queuedOpenIds);
+    _queuedOpenIds.clear();
+    for (final id in queued) {
+      callback(id);
+    }
+  }
+
+  @override
+  set onInitialOpen(void Function(int)? callback) {
+    _onInitialOpen = callback;
+    final id = _queuedInitialId;
+    if (callback != null && id != null) {
+      _queuedInitialId = null;
+      callback(id);
+    }
+  }
 
   @override
   Future<bool> requestPermission() async {
@@ -63,6 +117,9 @@ class AndroidReminderChannel extends ReminderChannel {
   @override
   void dispose() {
     _onOpen = null;
+    _onInitialOpen = null;
+    _queuedOpenIds.clear();
+    _queuedInitialId = null;
     _methodChannel.setMethodCallHandler(null);
   }
 }

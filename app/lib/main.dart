@@ -9,10 +9,11 @@ import 'reminder_channel_factory.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final reminderChannel = createReminderChannel();
   final preferences = await AppPreferencesController.load();
   runApp(
     PauseApp(
-      viewModel: PauseViewModel(channel: createReminderChannel()),
+      viewModel: PauseViewModel(channel: reminderChannel),
       preferences: preferences,
     ),
   );

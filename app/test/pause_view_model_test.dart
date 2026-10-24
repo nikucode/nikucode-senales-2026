@@ -89,6 +89,53 @@ void main() {
     model.dismissProposal();
     channel.callback!(channel.shown.single);
     expect(model.stage, PauseStage.home);
+    expect(model.activity.proposalsOpened, 1);
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets(
+    'cold-start invitation opens once without enabling future alerts',
+    (tester) async {
+      final channel = FakeChannel();
+      final model = PauseViewModel(channel: channel);
+
+      model.openFromInitialReminder(7001);
+      expect(model.stage, PauseStage.proposal);
+      expect(model.remindersEnabled, isFalse);
+      expect(model.activity.proposalsOpened, 1);
+
+      model.dismissProposal();
+      model.openFromInitialReminder(7001);
+      expect(model.stage, PauseStage.home);
+      expect(model.activity.proposalsOpened, 1);
+      model.dispose();
+      await tester.pump();
+    },
+  );
+
+  testWidgets('invalid cold-start invitation IDs are ignored', (tester) async {
+    final model = PauseViewModel(channel: FakeChannel());
+    model.openFromInitialReminder(0);
+    model.openFromInitialReminder(-1);
+
+    expect(model.stage, PauseStage.home);
+    expect(model.activity.proposalsOpened, 0);
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('cold-start invitation does not interrupt an active guide', (
+    tester,
+  ) async {
+    final channel = FakeChannel();
+    final model = PauseViewModel(channel: channel);
+    model.openProposal();
+    model.startGuide();
+
+    model.openFromInitialReminder(7002);
+    expect(model.stage, PauseStage.guide);
+    expect(model.activity.proposalsOpened, 1);
     model.dispose();
     await tester.pump();
   });

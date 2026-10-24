@@ -8,7 +8,7 @@ Entrada rápida: [estado compartido](ESTADO_COMPARTIDO.md). Fundamento y decisio
 
 Una herramienta que invita a interrumpir brevemente una tarea, propone una acción comprensible y permite actuar, cambiar, posponer o salir. Debe poder usarse de principio a fin en computador y celular. El canal real de avisos se verifica al inicio, porque condiciona la promesa de intervenir durante trabajo/estudio.
 
-**Recorte candidato:** sin cuenta, backend, nube, historial de salud, marcador obligatorio, rachas, puntuación, IA, cámara, bloqueo de otras apps ni sincronización. Es una decisión pragmática de alcance, no un hallazgo de que esas funciones sean inútiles. La persistencia mínima se justifica por preferencias y avisos pendientes, según el destino. No elegir base de datos antes de conocer esa necesidad.
+**Recorte candidato:** sin cuenta, backend, nube, historial de salud, marcador obligatorio, rachas, puntuación, IA, cámara, bloqueo de otras apps ni sincronización. Es una decisión pragmática de alcance, no un hallazgo de que esas funciones sean inútiles. Las preferencias de presentación se guardan localmente; el temporizador no. Android conserva solo el ID opaco de la invitación cuya publicación solicitó, para validar el intent de apertura. No elegir base de datos antes de conocer esa necesidad.
 
 Orden de trabajo: un recorrido vertical completo → canal viable y contratos → adaptación de ambos destinos → comprobación de accesibilidad → acabado → presentación. Crear el repo público y comenzar desarrollo solo tras terminar la bienvenida. No copiar código de los laboratorios ni asumir que las instrucciones de agentes se heredan en la nueva raíz.
 
@@ -65,7 +65,7 @@ Reglas:
 4. Empezar guía o rechazar esa interacción cancela su pendiente. Desactivar cancela todos los pendientes propios en ese dispositivo. Nunca manipular avisos de otras apps.
 5. Si ya hay propuesta/guía activa, no abrir otra ni robar foco. Cancelar al abrir propuesta reduce la carrera con el SO; no garantiza impedir un banner que el sistema ya hubiera entregado. Una entrega suprimida no crea cola. Registrar esa limitación y comprobar retirada de entregas propias donde se soporte.
 6. Distinguir hora programada de validez de la acción: un aviso entregado puede tocarse después de su hora y seguir siendo válido. Usar identificador/generación vigente, invalidado por cancelar, reemplazar, consumir o desactivar. No hay caducidad temporal adicional en la primera demo. Un enlace invalidado no restaura guía ni fabrica pendiente; ofrece acceso manual. Al reabrir no reprogramar entregas atrasadas ni lanzar ráfagas. Si no se conoce entrega, describirla como desconocida, no como pendiente futuro o recepción confirmada.
-7. Al cerrar/reabrir, consultar estado real. Si el proceso de computador debe seguir vivo para avisar, decirlo antes de habilitar. Cerrar y minimizar son casos diferentes.
+7. El temporizador no sobrevive al cierre del proceso: no se guarda ni se reprograma al iniciar de nuevo. En Android se conserva únicamente el ID opaco de la invitación asociada a la publicación solicitada, para validar un toque que llegue mediante intent inicial; se consume una sola vez y se invalida al cancelar, reemplazar o desactivar. No persiste el consentimiento para futuros avisos. La entrega y permanencia de la notificación siguen bajo control del sistema operativo. Si el proceso termina antes de que el temporizador la solicite, la señal puede perderse.
 8. Si dos dispositivos no se coordinan, cada uno tiene sus avisos. No prometer deduplicación global; evitar activar ambos por defecto.
 
 **Contrato inicial de cierre de guía:** cerrar la app descarta la guía; no registrar éxito ni retomarla como terminada. Si una versión posterior ofrece retomar, debe distinguirse. Un reinicio no recupera una cola de señales antiguas.
@@ -77,11 +77,12 @@ Reglas:
 | Presentación | Vista actual, propuesta mostrada, accesibilidad y estado del canal | Mostrar controles/estado comprensibles |
 | Interacción | Sin guía/guía activa; cierre por final/detención | Evitar guías duplicadas y falsos cierres |
 | Canal | Capacidad real, permiso y resultado de solicitar/cancelar señal | No inventar programación ni entrega |
-| Invitación/pendiente | Identificador/generación, hora programada, validez de la acción, relación con interacción y estado de entrega conocido/desconocido | Separar programación futura de invitación aún accionable; reemplazar/cancelar sin invalidar por el mero paso de la hora |
-| Preferencias | Avisos habilitados en este dispositivo; modalidad si existe | Control explícito y persistencia mínima |
+| Temporizador | ID vigente y tiempo de disparo en memoria | Preparar una única señal durante la sesión; no recuperar ni reprogramar tras cerrar |
+| Invitación Android | Un ID opaco local de la invitación cuya publicación se solicitó; se consume al validar el intent y se borra al cancelar/reemplazar/desactivar | Validar el toque inicial sin restaurar el temporizador, una cola ni el consentimiento para avisos futuros |
+| Preferencias | Apodo, avatar y opciones locales de acceso; habilitación de avisos solo durante la sesión | Personalizar presentación y conservar la elección explícita de acceso; no persistir salud ni historial |
 | Contenido | Identificador y texto de C1/C2, adaptación y límites | Cambiar propuesta sin un catálogo extenso |
 
-Separar reglas de interacción del adaptador de notificaciones permite compartir comportamiento conceptual aunque los destinos difieran. No significa que toda implementación pueda compartirse. No guardar historiales clínicos, títulos de tareas, capturas o datos de otras apps. Si se instrumentan eventos, son datos del software, no movimiento; durante la demo usar casos sintéticos y registro técnico mínimo. Almacenar localmente no elimina por sí solo obligaciones de privacidad.
+Separar reglas de interacción del adaptador de notificaciones permite compartir comportamiento conceptual aunque los destinos difieran. No significa que toda implementación pueda compartirse. El ID Android persistido es un dato técnico de un solo pendiente, no un historial: no incluye título de tarea, identidad, salud ni conducta. Los conteos de actividad permanecen solo en memoria durante la sesión. No guardar historiales clínicos, títulos de tareas, capturas o datos de otras apps. Si se instrumentan eventos, son datos del software, no movimiento; durante la demo usar casos sintéticos y registro técnico mínimo. Almacenar localmente no elimina por sí solo obligaciones de privacidad.
 
 ## 6. Disposición y acabado con criterios concretos
 
@@ -106,13 +107,13 @@ Registro mínimo: destino/versión, caso, resultado observado, evidencia si apor
 | AC05 | Posponer y luego rechazar/iniciar | Se cancela su pendiente y no reaparece como nueva obligación |
 | AC06 | Cancelar desde Inicio/desactivar | El estado visible y el canal propio coinciden; reabrir no restaura pendiente cancelado |
 | AC07 | Pendiente → abrir propuesta manual → pasar a otra app antes de su hora | Apertura consume/cancela; no se duplica interfaz ni se crea cola. Comprobar el canal; registrar si un banner ya entregado no puede impedirse/retirarse |
-| AC08 | Cerrar/reabrir; tocar aviso después de su hora y tocar aviso cancelado/reemplazado | Hora pasada por sí sola no invalida el primero; el segundo no restaura interacción. No completar automáticamente ni reprogramar atrasados; probar minimizar/suspender según promesa |
+| AC08 | Cerrar/reabrir; tocar aviso después de su hora y tocar aviso cancelado/reemplazado | Hora pasada por sí sola no invalida una invitación entregada; solo un ID vigente puede abrirla una vez. Android valida el intent inicial y `onNewIntent`; un ID consumido/cancelado/reemplazado no reabre la propuesta. No recuperar ni reprogramar el temporizador. El puente automatizado no sustituye la prueba en teléfono real |
 | AC09 | Guía detenida/terminada | Se distinguen y ninguna registra ejercicio corporal comprobado |
 | AC10 | Teclado/lector/texto ampliado | Se puede identificar, accionar y abandonar el flujo sin cortes ni controles inaccesibles detectados |
 | AC11 | Sin conexión | Contenido/flujo local disponible en los destinos donde se prometió; notificaciones se prueban por separado |
 | AC12 | Dos dispositivos y demo acelerada | No afirmar sincronización; programación de prueba identificada y cancelada al terminar |
 
-Pruebas automatizadas futuras: reglas de cancelación/reemplazo, estados y recorrido principal cuando eviten regresiones reales. Las comprobaciones del sistema operativo/lectores de pantalla exigen observación en destino; no sustituirlas por mocks. No escribir pruebas de cada detalle decorativo.
+Se añadieron pruebas de lógica/widget y del puente Flutter para estados, cancelación/reemplazo, cola del intent inicial y recepción de la llamada usada por `onNewIntent`; en este entorno no pudieron ejecutarse por el bloqueo del socket del runner. La persistencia/validación nativa y las comprobaciones del sistema operativo/lectores de pantalla exigen observación o prueba en Android; los mocks del puente no las sustituyen. No escribir pruebas de cada detalle decorativo.
 
 ## 8. Reparto y secuencia de trabajo al comenzar
 

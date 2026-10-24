@@ -4,7 +4,7 @@ Primera implementación creada durante la hackatón. Recorrido manual, dos propu
 
 La interfaz se actualizó con una composición editorial y un motivo gráfico propio, conservando el recorrido y los controles. La dirección visual es una hipótesis en evaluación; el análisis estático no sustituye pruebas en pantalla, teclado o lectores de pantalla. Véase [investigación de experiencia y accesibilidad](../docs/INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
 
-El apodo opcional solo se guarda en el dispositivo y personaliza el saludo de Inicio. Mi panorama presenta conteos de interacciones de la sesión actual con barras rotuladas y valores textuales accesibles; no guarda historial por fecha y no mide movimiento, sedentarismo, salud ni progreso. Una vista por día u hora requeriría decidir periodo, almacenamiento y privacidad antes de implementarse.
+El apodo, avatar y preferencias de acceso (contraste, movimiento reducido y escala de texto) se guardan localmente. La habilitación de avisos no se guarda como preferencia de la app. Mi panorama presenta conteos de interacciones de la sesión actual con barras rotuladas y valores textuales accesibles; esos eventos no se persisten y no miden movimiento, sedentarismo, salud ni progreso. Una vista por día u hora requeriría decidir periodo, almacenamiento y privacidad antes de implementarse.
 
 ## Ejecutar
 
@@ -29,8 +29,8 @@ Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspe
 
 - Linux: `notify-send` y `busctl`, servidor de sesión con acciones y permiso/acceso efectivo. La programación usa un Timer en el proceso; cerrar la app la pierde y suspender puede retrasarla. Al pulsar el aviso se solicita activar la ventana mediante un canal nativo; el compositor puede limitarlo.
 - Web: Notifications API si existe y el usuario la habilita. Requiere contexto/permisos compatibles y pestaña viva; el navegador puede retrasar timers ocultos. Algunos navegadores móviles rechazan el constructor aun con permiso: se muestra error en vez de prometer un service worker inexistente.
-- Android nativo: `MainActivity` implementa el permiso de notificaciones y la publicación/apertura de una invitación. El temporizador corre en la sesión Flutter: se requiere mantener la app abierta; no hay alarma exacta ni garantía de entrega en segundo plano. La prueba de APK y la entrega/toque en teléfono físico siguen pendientes en el entorno de Alex. En un equipo con Android SDK y dispositivo conectado, desde esta carpeta ejecutar `flutter devices` y luego `flutter run -d <device-id>`.
-- Preferencias y pendientes solo en memoria. Sin recurrencia, sincronización, cuenta, registro de salud ni detección corporal.
+- Android nativo: `MainActivity` implementa el permiso, publicación y apertura de una invitación. El temporizador sigue en memoria y requiere que el proceso de la app continúe activo hasta solicitar la notificación; el sistema puede retrasarlo al suspender la app. No hay alarma exacta, servicio en segundo plano ni garantía de entrega. Para validar un toque en arranque en frío se guarda localmente solo el ID opaco asociado a la invitación cuya publicación se solicitó; Flutter lo acepta si Android devuelve el mismo ID en el intent. Se consume al validar el intent y se elimina al cancelar, reemplazar o desactivar. No se guarda el temporizador ni se habilitan automáticamente futuros avisos. Si el proceso termina antes de solicitar la notificación, la señal puede perderse. La compilación APK y las pruebas de aviso/toque en teléfono físico no se han observado en este entorno.
+- Sin recurrencia, sincronización, cuenta, registro de salud ni detección corporal. Los contadores de Mi panorama existen solo mientras vive la sesión.
 
 ## Estructura
 

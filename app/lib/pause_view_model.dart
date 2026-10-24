@@ -44,6 +44,7 @@ class PauseActivity {
 class PauseViewModel extends ChangeNotifier {
   PauseViewModel({required this.channel}) {
     channel.onOpen = openFromReminder;
+    channel.onInitialOpen = openFromInitialReminder;
   }
 
   static const _proposals = [
@@ -82,6 +83,7 @@ class PauseViewModel extends ChangeNotifier {
   Timer? _timer;
   int _generation = 0;
   int? _invitationId;
+  final Set<int> _consumedInitialInvitationIds = <int>{};
   int _permissionRevision = 0;
   int _proposalsOpened = 0;
   int _guidesStarted = 0;
@@ -175,6 +177,19 @@ class PauseViewModel extends ChangeNotifier {
     openProposal();
   }
 
+  /// Accepts an initial Android intent only after its channel has matched and
+  /// consumed the opaque ID of a currently posted notification.
+  void openFromInitialReminder(int id) {
+    if (id <= 0 || _disposed || !_consumedInitialInvitationIds.add(id)) return;
+    if (_stage == PauseStage.proposal || _stage == PauseStage.guide) return;
+
+    _invalidateInvitation();
+    _proposalsOpened++;
+    _stage = PauseStage.proposal;
+    _message = null;
+    _notify();
+  }
+
   Future<void> setRemindersEnabled(bool enabled) async {
     if (_disposed) return;
     final revision = ++_permissionRevision;
@@ -225,7 +240,9 @@ class PauseViewModel extends ChangeNotifier {
 
     final postponingProposal = _stage == PauseStage.proposal;
     _invalidateInvitation();
-    final id = ++_generation;
+    final now = DateTime.now().microsecondsSinceEpoch;
+    final id = now > _generation ? now : _generation + 1;
+    _generation = id;
     _invitationId = id;
     _reminderAt = DateTime.now().add(delay);
     _stage = PauseStage.home;
@@ -305,6 +322,7 @@ class PauseViewModel extends ChangeNotifier {
     _disposed = true;
     _permissionRevision++;
     channel.onOpen = null;
+    channel.onInitialOpen = null;
     _invalidateInvitation();
     unawaited(_channelWork.whenComplete(channel.dispose));
     super.dispose();

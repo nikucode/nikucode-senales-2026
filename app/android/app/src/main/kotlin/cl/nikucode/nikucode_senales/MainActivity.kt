@@ -19,10 +19,14 @@ class MainActivity : FlutterActivity() {
         private const val NOTIFICATION_CHANNEL_ID = "marea_pause_invites"
         private const val PERMISSION_REQUEST = 8402
         private const val EXTRA_REMINDER_ID = "nikucode.reminder_id"
+        private const val INVITATION_PREFS = "nikucode.reminder_state"
+        private const val ACTIVE_INVITATION_ID = "active_invitation_id"
     }
 
     private var bridge: MethodChannel? = null
     private var permissionResult: MethodChannel.Result? = null
+    private var pendingReminderId: Long? = null
+    private var pendingReminderDelivery = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -31,20 +35,46 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "requestPermission" -> requestNotificationPermission(result)
                 "showReminder" -> {
-                    val id = call.arguments as? Int
-                    if (id == null) result.error("invalid_id", "Missing reminder id", null)
-                    else {
-                        showReminder(id)
-                        result.success(true)
+                    val id = (call.arguments as? Number)?.toLong()
+                    if (id == null || id <= 0L) {
+                        result.error("invalid_id", "Missing reminder id", null)
+                    } else {
+                        try {
+                            showReminder(id)
+                            result.success(true)
+                        } catch (error: Exception) {
+                            result.error("show_failed", error.message, null)
+                        }
                     }
                 }
                 "cancelReminders" -> {
-                    notificationManager().cancelAll()
-                    result.success(true)
+                    if (!clearActiveInvitation()) {
+                        result.error(
+                            "cancel_failed",
+                            "Could not invalidate the invitation",
+                            null,
+                        )
+                    } else {
+                        notificationManager().cancelAll()
+                        result.success(true)
+                    }
+                }
+                "consumeInitialReminder" -> {
+                    val pending = pendingReminderId
+                    if (pending != null) {
+                        pendingReminderId = null
+                        result.success(pending)
+                    } else {
+                        val source = intent
+                        val id = consumeValidInvitation(source)
+                        clearReminderExtra(source)
+                        result.success(id)
+                    }
                 }
                 else -> result.notImplemented()
             }
         }
+        deliverPendingReminder()
     }
 
     private fun requestNotificationPermission(result: MethodChannel.Result) {
@@ -87,8 +117,11 @@ class MainActivity : FlutterActivity() {
     private fun notificationManager(): NotificationManager =
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private fun showReminder(id: Int) {
+    private fun showReminder(id: Long) {
         val manager = notificationManager()
+        if (!notificationsAllowed()) {
+            throw IllegalStateException("Notifications are unavailable or permission was denied")
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             manager.createNotificationChannel(
                 NotificationChannel(
@@ -103,6 +136,7 @@ class MainActivity : FlutterActivity() {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(EXTRA_REMINDER_ID, id)
         }
+        val notificationId = platformNotificationId(id)
         val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or
             (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE
@@ -111,7 +145,7 @@ class MainActivity : FlutterActivity() {
             })
         val pendingIntent = PendingIntent.getActivity(
             this,
-            id,
+            notificationId,
             openApp,
             pendingIntentFlags,
         )
@@ -129,14 +163,92 @@ class MainActivity : FlutterActivity() {
             .setContentIntent(pendingIntent)
             .build()
 
-        manager.notify(id, notification)
+        // Persist only this opaque invitation ID, never its timer or reminder
+        // preference. A tap is accepted only when Android returns this ID.
+        if (!invitationPreferences().edit().putLong(ACTIVE_INVITATION_ID, id).commit()) {
+            throw IllegalStateException("Could not record the active invitation ID")
+        }
+        try {
+            manager.notify(notificationId, notification)
+        } catch (error: Exception) {
+            clearActiveInvitation()
+            throw error
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.hasExtra(EXTRA_REMINDER_ID)) {
-            bridge?.invokeMethod("reminderOpened", intent.getIntExtra(EXTRA_REMINDER_ID, -1))
+        val id = consumeValidInvitation(intent)
+        clearReminderExtra(intent)
+        if (id == null) return
+        pendingReminderId = id
+        deliverPendingReminder()
+    }
+
+    private fun deliverPendingReminder() {
+        val id = pendingReminderId ?: return
+        val activeBridge = bridge ?: return
+        if (pendingReminderDelivery) return
+        pendingReminderDelivery = true
+        activeBridge.invokeMethod("reminderOpened", id, object : MethodChannel.Result {
+            override fun success(result: Any?) {
+                if (pendingReminderId == id) pendingReminderId = null
+                finishPendingReminderDelivery(id)
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                finishPendingReminderDelivery(id)
+            }
+
+            override fun notImplemented() {
+                finishPendingReminderDelivery(id)
+            }
+        })
+    }
+
+    private fun finishPendingReminderDelivery(id: Long) {
+        pendingReminderDelivery = false
+        if (pendingReminderId != null && pendingReminderId != id) {
+            deliverPendingReminder()
         }
+    }
+
+    private fun consumeValidInvitation(source: Intent): Long? {
+        if (!source.hasExtra(EXTRA_REMINDER_ID)) return null
+        val id = source.getLongExtra(EXTRA_REMINDER_ID, 0L)
+        if (id <= 0L) return null
+
+        val preferences = invitationPreferences()
+        if (preferences.getLong(ACTIVE_INVITATION_ID, 0L) != id) return null
+        if (!notificationsAllowed()) {
+            clearActiveInvitation()
+            notificationManager().cancel(platformNotificationId(id))
+            return null
+        }
+        if (!preferences.edit().remove(ACTIVE_INVITATION_ID).commit()) return null
+
+        notificationManager().cancel(platformNotificationId(id))
+        return id
+    }
+
+    private fun clearReminderExtra(source: Intent) {
+        if (source.hasExtra(EXTRA_REMINDER_ID)) {
+            setIntent(Intent(source).apply { removeExtra(EXTRA_REMINDER_ID) })
+        }
+    }
+
+    private fun invitationPreferences() =
+        getSharedPreferences(INVITATION_PREFS, Context.MODE_PRIVATE)
+
+    private fun clearActiveInvitation(): Boolean =
+        invitationPreferences().edit().remove(ACTIVE_INVITATION_ID).commit()
+
+    private fun platformNotificationId(id: Long): Int =
+        (id xor (id ushr 32)).toInt() and Int.MAX_VALUE
+
+    override fun onDestroy() {
+        bridge = null
+        super.onDestroy()
     }
 }
