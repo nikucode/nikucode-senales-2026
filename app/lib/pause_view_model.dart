@@ -97,6 +97,7 @@ class PauseViewModel extends ChangeNotifier {
   final LanPause? lan;
   PauseStage _stage = PauseStage.home;
   int _proposalIndex = 0;
+  int _guideStepIndex = 0;
   bool _remindersEnabled = false;
   DateTime? _reminderAt;
   String? _message;
@@ -119,6 +120,9 @@ class PauseViewModel extends ChangeNotifier {
   PauseStage get stage => _stage;
   int get proposalIndex => _proposalIndex;
   MovementProposal get proposal => _proposals[_proposalIndex];
+  int get guideStepIndex => _guideStepIndex;
+  int get guideStepCount => proposal.guideSteps.length;
+  String get currentGuideStep => proposal.guideSteps[_guideStepIndex];
   bool get remindersEnabled => _remindersEnabled;
   DateTime? get reminderAt => _reminderAt;
   String? get message => _message;
@@ -186,16 +190,34 @@ class PauseViewModel extends ChangeNotifier {
   void changeProposal() {
     if (_disposed || _stage != PauseStage.proposal) return;
     _proposalIndex = (_proposalIndex + 1) % _proposals.length;
+    _guideStepIndex = 0;
     _notify();
   }
 
   void startGuide() {
     if (_disposed || _stage != PauseStage.proposal) return;
     _invalidateInvitation();
+    _guideStepIndex = 0;
     _guidesStarted++;
     history.record(InteractionKind.guideStarted);
     _stage = PauseStage.guide;
     _message = null;
+    _notify();
+  }
+
+  void nextGuideStep() {
+    if (_disposed ||
+        _stage != PauseStage.guide ||
+        _guideStepIndex >= guideStepCount - 1) {
+      return;
+    }
+    _guideStepIndex++;
+    _notify();
+  }
+
+  void previousGuideStep() {
+    if (_disposed || _stage != PauseStage.guide || _guideStepIndex == 0) return;
+    _guideStepIndex--;
     _notify();
   }
 
@@ -221,7 +243,9 @@ class PauseViewModel extends ChangeNotifier {
     _proposalsDismissed++;
     history.record(InteractionKind.dismissed);
     _stage = PauseStage.home;
-    _message = null;
+    _message =
+        'Está bien. Puedes volver a tu tarea. '
+        'No tienes que explicar por qué.';
     _notify();
   }
 

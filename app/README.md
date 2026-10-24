@@ -1,6 +1,6 @@
 # nikucode · pausa
 
-Primera implementación creada durante la hackatón. Recorrido manual, dos propuestas modificables, guía detenible, cierres diferenciados y recordatorios puntuales con control explícito.
+Primera implementación creada durante la hackatón. Recorrido manual, dos propuestas modificables, una guía de tres indicaciones que se muestran una por una con avance y retroceso manuales, cierres diferenciados y recordatorios puntuales con control explícito.
 
 La interfaz se actualizó con una composición editorial y un motivo gráfico propio, conservando el recorrido y los controles. La dirección visual es una hipótesis en evaluación; el análisis estático no sustituye pruebas en pantalla, teclado o lectores de pantalla. Véase [investigación de experiencia y accesibilidad](../docs/INVESTIGACION_DISENO_EXPERIENCIA_Y_MODELO_ACCESO.md).
 
@@ -34,7 +34,7 @@ Versiones observadas en el entorno de Alex: Flutter3.47.7, Dart3.13.5. El pubspe
 
 ## Pausas entre Android y Omarchy
 
-Con los equipos emparejados, **Avisos, si los quieres** programa la misma invitación para Android y Omarchy: 5, 15 o 30 minutos, o la prueba de 10 segundos. Android guarda la hora y muestra su aviso desde el servicio de conexión; Linux guarda la señal y muestra el mismo título y texto con **Iniciar pausa** y **Posponer 10 min**. Cancelar o reemplazar desde Android retira la programación pendiente en ambos dispositivos; posponer desde Omarchy programa el siguiente aviso también en Android. La ventana de descanso reutiliza las mismas propuestas de la app y muestra un temporizador de 3 minutos, ajustable a 1 o 5. Finalizar y detener se sincronizan como interacciones, nunca como movimiento verificado.
+Con los equipos emparejados, **Avisos, si los quieres** programa la misma invitación para Android y Omarchy: 5, 15 o 30 minutos, o la prueba de 10 segundos. Android guarda la hora y muestra su aviso desde el servicio de conexión; Linux guarda la señal y muestra el mismo título y texto con **Elegir una pausa**, **Posponer 10 min** y **Ahora no**. Cancelar o reemplazar desde Android retira la programación pendiente en ambos dispositivos; posponer desde Omarchy programa el siguiente aviso también en Android. La ventana de pausa usa la misma guía gradual que Android, sin cuenta regresiva ni selector de duración. Se puede retroceder, detener en cualquier paso y cerrar en el último, sin completar un tiempo obligatorio. Finalizar y detener se sincronizan como interacciones, nunca como movimiento verificado.
 
 La conexión usa TLS local. Linux anuncia el computador por Avahi y Android lo descubre por NSD. Elige el equipo en Android y compara en ambos dispositivos la clave de 16 caracteres de la conexión. Confirma en las dos pantallas antes de que venza la solicitud. Linux fija el certificado y guarda la credencial; después reconecta con la dirección y el puerto anunciados, sin volver a emparejar. El cliente Linux abre la conexión hacia Android, por lo que no se añade una regla de entrada al cortafuegos de Omarchy. Las credenciales del emparejamiento anterior continúan siendo válidas.
 

@@ -65,8 +65,8 @@ class MainActivity : FlutterActivity() {
             } else Notification.Builder(context)
             val notification = builder
                 .setSmallIcon(context.applicationInfo.icon)
-                .setContentTitle("¿Un momento para moverte?")
-                .setContentText("Hay una propuesta breve. Tú eliges el momento.")
+                .setContentTitle("¿Es un buen momento para una pausa?")
+                .setContentText("Puedes abrir una propuesta o dejar pasar esta señal; no tienes que responder.")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .build()

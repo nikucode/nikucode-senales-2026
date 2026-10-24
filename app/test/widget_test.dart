@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nikucode_senales/app_preferences.dart';
 import 'package:nikucode_senales/app_usage.dart';
+import 'package:nikucode_senales/lan_pause.dart';
 import 'package:nikucode_senales/main.dart';
 import 'package:nikucode_senales/marea_tools.dart';
 import 'package:nikucode_senales/pause_view_model.dart';
@@ -64,10 +65,48 @@ Future<void> _mountApp(
   WidgetTester tester,
   PauseViewModel model, {
   AppPreferencesController? preferences,
+  LanPause? lan,
 }) async {
   final controller = preferences ?? AppPreferencesController.memory();
   await controller.setReduceMotion(true);
-  await tester.pumpWidget(PauseApp(viewModel: model, preferences: controller));
+  await tester.pumpWidget(
+    PauseApp(viewModel: model, preferences: controller, lan: lan),
+  );
+}
+
+class _FakeDesktopLanPause extends LanPause {
+  final recorded = <String>[];
+
+  @override
+  bool get available => true;
+  @override
+  bool get isPhone => false;
+  @override
+  bool get paired => true;
+  @override
+  bool get canSchedule => false;
+  @override
+  String get status => 'Conectado';
+  @override
+  String? get pendingLabel => null;
+  @override
+  Future<LanPairingInfo?> pairingInfo() async => null;
+  @override
+  Future<void> pair(String address, int port, String code, String pin) async {}
+  @override
+  Future<void> unpair() async {}
+  @override
+  Future<void> schedule(Duration delay) async {}
+  @override
+  Future<void> startNow() async {}
+  @override
+  Future<void> cancelPending() async {}
+  @override
+  Future<void> startService() async {}
+  @override
+  Future<void> recordSession(String id, String kind) async {
+    recorded.add('$id:$kind');
+  }
 }
 
 void main() {
@@ -139,6 +178,7 @@ void main() {
 
       await tester.tap(find.text('Ver una pausa'));
       await tester.pumpAndSettle();
+      expect(find.text('¿Es un buen momento para una pausa?'), findsOneWidget);
       expect(find.text('Caminar un momento'), findsOneWidget);
       expect(find.textContaining('Si puedes caminar'), findsOneWidget);
 
@@ -151,16 +191,27 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(find.text('Empezar'));
+      await tester.tap(find.text('Empezar ahora'));
       await tester.pumpAndSettle();
       expect(find.textContaining('Si este momento te sirve'), findsOneWidget);
+      expect(find.text('Paso 1 de 3'), findsOneWidget);
+      expect(find.text('Empieza a tu manera.'), findsNothing);
+      expect(find.textContaining('dejar la pantalla'), findsNothing);
+      await tester.ensureVisible(find.text('Siguiente'));
+      await tester.tap(find.text('Siguiente'));
+      await tester.pumpAndSettle();
+      expect(find.text('Paso 2 de 3'), findsOneWidget);
       expect(find.text('Empieza a tu manera.'), findsOneWidget);
-      expect(find.textContaining('dejar la pantalla'), findsOneWidget);
+      expect(find.textContaining('Si este momento te sirve'), findsNothing);
+      await tester.tap(find.text('Anterior'));
+      await tester.pumpAndSettle();
+      expect(find.text('Paso 1 de 3'), findsOneWidget);
+      expect(find.text('Empieza a tu manera.'), findsNothing);
       expect(find.textContaining('duración'), findsNothing);
       expect(find.textContaining('repeticiones'), findsNothing);
       expect(find.textContaining('temporizador'), findsNothing);
-      await tester.ensureVisible(find.text('Detener y volver'));
-      await tester.tap(find.text('Detener y volver'));
+      await tester.ensureVisible(find.text('Detener guía'));
+      await tester.tap(find.text('Detener guía'));
       await tester.pumpAndSettle();
       expect(find.text('Guía detenida'), findsOneWidget);
       expect(find.text('Volver a mi tarea'), findsOneWidget);
@@ -174,9 +225,92 @@ void main() {
       await tester.pumpAndSettle();
       expect(model.stage, PauseStage.home);
       expect(find.text('Ver una pausa'), findsOneWidget);
+      expect(
+        find.text(
+          'Está bien. Puedes volver a tu tarea. '
+          'No tienes que explicar por qué.',
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Omarchy pause invitation shares the explicit, easy-exit flow', (
+    tester,
+  ) async {
+    final lan = _FakeDesktopLanPause();
+    final model = PauseViewModel(
+      channel: UnavailableReminderChannel(),
+      lan: lan,
+    );
+    await _mountApp(tester, model, lan: lan);
+    lan.onStartPause!('synthetic-session');
+    await tester.pumpAndSettle();
+
+    expect(find.text('¿Es un buen momento para una pausa?'), findsOneWidget);
+    expect(find.text('Empezar ahora'), findsOneWidget);
+    expect(find.text('Ahora no'), findsOneWidget);
+    await tester.tap(find.text('Ahora no'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Guía terminada'), findsNothing);
+    expect(find.text('Guía detenida'), findsNothing);
+    expect(
+      find.textContaining('No tienes que explicar por qué.'),
+      findsOneWidget,
+    );
+    await tester.pump();
+    expect(lan.recorded, contains('synthetic-session:dismissed'));
+    expect(model.activity.guidesStarted, 0);
+    lan.onStartPause!('synthetic-guide');
+    await tester.pumpAndSettle();
+    expect(find.byType(ChoiceChip), findsNothing);
+    expect(find.textContaining('Duración de la guía'), findsNothing);
+    await tester.ensureVisible(find.text('Empezar ahora'));
+    await tester.tap(find.text('Empezar ahora'));
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 1 de 3'), findsOneWidget);
+    expect(find.text('03:00'), findsNothing);
+    expect(find.text('Empieza a caminar a tu propio ritmo.'), findsNothing);
+    await tester.ensureVisible(find.text('Detener guía'));
+    await tester.tap(find.text('Detener guía'));
+    await tester.pumpAndSettle();
+    expect(find.text('Guía detenida'), findsOneWidget);
+    expect(lan.recorded, contains('synthetic-guide:guideStopped'));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('guía gradual conserva controles con texto al 200%', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final preferences = AppPreferencesController.memory();
+    await preferences.setTextScale(2);
+    final model = PauseViewModel(channel: UnavailableReminderChannel());
+    await _mountApp(tester, model, preferences: preferences);
+    model.openProposal();
+    model.startGuide();
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 1 de 3'), findsOneWidget);
+    await tester.ensureVisible(find.text('Siguiente'));
+    await tester.tap(find.text('Siguiente'));
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 2 de 3'), findsOneWidget);
+    expect(find.textContaining('aparta un momento la atención'), findsNothing);
+    await tester.ensureVisible(find.text('Anterior'));
+    await tester.tap(find.text('Anterior'));
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 1 de 3'), findsOneWidget);
+    await tester.ensureVisible(find.text('Detener guía'));
+    await tester.tap(find.text('Detener guía'));
+    await tester.pumpAndSettle();
+    expect(find.text('Guía detenida'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('bienvenida usa, actualiza y borra el apodo local', (
     tester,
@@ -299,13 +433,32 @@ void main() {
       find.textContaining('aparta un momento la atención de la tarea'),
       findsOneWidget,
     );
+    expect(find.text('Paso 1 de 3'), findsOneWidget);
+    expect(find.text('Empieza a caminar a tu propio ritmo.'), findsNothing);
+    expect(find.textContaining('Puedes dejar la pantalla'), findsNothing);
+    await tester.pump(const Duration(seconds: 30));
+    expect(find.text('Paso 1 de 3'), findsOneWidget);
+    await tester.ensureVisible(find.text('Siguiente'));
+    await tester.tap(find.text('Siguiente'));
+    await tester.pump();
+    expect(find.textContaining('aparta un momento la atención'), findsNothing);
+    expect(find.text('Paso 2 de 3'), findsOneWidget);
     expect(find.text('Empieza a caminar a tu propio ritmo.'), findsOneWidget);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Siguiente'));
+    await tester.pumpAndSettle();
+    expect(find.text('Paso 3 de 3'), findsOneWidget);
+    expect(find.text('Empieza a caminar a tu propio ritmo.'), findsNothing);
     expect(find.textContaining('Puedes dejar la pantalla'), findsOneWidget);
     expect(find.textContaining('duración'), findsNothing);
     expect(find.textContaining('repeticiones'), findsNothing);
     expect(find.textContaining('temporizador'), findsNothing);
     expect(find.text('Cerrar guía'), findsOneWidget);
-    expect(find.text('Detener y volver'), findsOneWidget);
+    expect(find.text('Detener guía'), findsOneWidget);
+    await tester.ensureVisible(find.text('Cerrar guía'));
+    await tester.tap(find.text('Cerrar guía'));
+    await tester.pumpAndSettle();
+    expect(find.text('Guía terminada'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

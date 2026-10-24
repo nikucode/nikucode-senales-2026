@@ -819,11 +819,12 @@ class LinuxLanPause extends LanPause {
         '--wait',
         '--expire-time=30000',
         '--app-name=nikucode',
-        '--action=default=Abrir pausa',
-        '--action=start=Iniciar pausa',
+        '--action=default=Abrir propuesta',
+        '--action=start=Elegir una pausa',
         '--action=postpone=Posponer 10 min',
-        '¿Un momento para moverte?',
-        'Hay una propuesta breve. Tú eliges el momento.',
+        '--action=skip=Ahora no',
+        '¿Es un buen momento para una pausa?',
+        'Puedes abrir una propuesta o dejar pasar esta señal; no tienes que responder.',
       ]);
       final answer = await process.stdout.transform(utf8.decoder).join();
       await process.exitCode;
@@ -839,6 +840,9 @@ class LinuxLanPause extends LanPause {
           notificationId: DateTime.now().microsecondsSinceEpoch,
           generation: session['generation'] as int?,
         );
+      } else if (answer.trim() == 'skip') {
+        session['state'] = 'dismissed';
+        await _record(id, 'dismissed');
       } else if (answer.trim() == 'start' || answer.trim() == 'default') {
         session['state'] = 'started';
         _activeSession = id;

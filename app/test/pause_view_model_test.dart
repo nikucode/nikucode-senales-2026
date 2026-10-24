@@ -161,6 +161,27 @@ void main() {
     await tester.pump();
   });
 
+  testWidgets('declining a proposal returns without implying movement', (
+    tester,
+  ) async {
+    final model = PauseViewModel(channel: FakeChannel());
+    model.openProposal();
+    model.dismissProposal();
+
+    expect(model.stage, PauseStage.home);
+    expect(
+      model.message,
+      'Está bien. Puedes volver a tu tarea. '
+      'No tienes que explicar por qué.',
+    );
+    expect(model.activity.proposalsDismissed, 1);
+    expect(model.activity.guidesStarted, 0);
+    expect(model.activity.guidesFinished, 0);
+    expect(model.activity.guidesStopped, 0);
+    model.dispose();
+    await tester.pump();
+  });
+
   testWidgets('cancellation failure is reported without a success message', (
     tester,
   ) async {
@@ -460,6 +481,37 @@ void main() {
     model.dismissProposal();
     channel.callback!(channel.shown.single);
     expect(model.stage, PauseStage.home);
+    model.dispose();
+    await tester.pump();
+  });
+
+  testWidgets('guide navigation is bounded and restarts at the first step', (
+    tester,
+  ) async {
+    final model = PauseViewModel(channel: FakeChannel());
+    model.openProposal();
+    model.startGuide();
+    expect(model.guideStepIndex, 0);
+    model.previousGuideStep();
+    expect(model.guideStepIndex, 0);
+    model.nextGuideStep();
+    expect(model.guideStepIndex, 1);
+    model.previousGuideStep();
+    expect(model.guideStepIndex, 0);
+    model.nextGuideStep();
+    model.nextGuideStep();
+    model.nextGuideStep();
+    expect(model.guideStepIndex, 2);
+    expect(model.stage, PauseStage.guide);
+    model.stopGuide();
+    model.nextGuideStep();
+    expect(model.guideStepIndex, 2);
+    model.goHome();
+    model.openProposal();
+    model.changeProposal();
+    model.startGuide();
+    expect(model.guideStepIndex, 0);
+    expect(model.activity.guidesFinished, 0);
     model.dispose();
     await tester.pump();
   });
