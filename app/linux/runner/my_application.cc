@@ -10,6 +10,7 @@
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
+  gboolean daemon_mode;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
@@ -19,6 +20,7 @@ static void desktop_method_cb(FlMethodChannel* channel,
                               FlMethodCall* method_call,
                               gpointer user_data) {
   if (g_strcmp0(fl_method_call_get_name(method_call), "present") == 0) {
+    gtk_widget_show(GTK_WIDGET(user_data));
     gtk_window_present(GTK_WINDOW(user_data));
     fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else {
@@ -28,7 +30,9 @@ static void desktop_method_cb(FlMethodChannel* channel,
 
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
-  gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
+  if (!self->daemon_mode) {
+    gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
+  }
 }
 
 // Implements GApplication::activate.
@@ -36,6 +40,10 @@ static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
+  if (self->daemon_mode) {
+    g_signal_connect(window, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete),
+                     nullptr);
+  }
 
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
@@ -104,6 +112,11 @@ static gboolean my_application_local_command_line(GApplication* application,
   MyApplication* self = MY_APPLICATION(application);
   // Strip out the first argument as it is the binary name.
   self->dart_entrypoint_arguments = g_strdupv(*arguments + 1);
+  self->daemon_mode = FALSE;
+  for (char** argument = self->dart_entrypoint_arguments; *argument != nullptr;
+       ++argument) {
+    if (g_strcmp0(*argument, "--daemon") == 0) self->daemon_mode = TRUE;
+  }
 
   g_autoptr(GError) error = nullptr;
   if (!g_application_register(application, nullptr, &error)) {
@@ -111,6 +124,8 @@ static gboolean my_application_local_command_line(GApplication* application,
     *exit_status = 1;
     return TRUE;
   }
+
+  if (self->daemon_mode) g_application_hold(application);
 
   g_application_activate(application);
   *exit_status = 0;

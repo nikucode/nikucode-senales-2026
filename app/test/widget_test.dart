@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nikucode_senales/app_preferences.dart';
+import 'package:nikucode_senales/app_usage.dart';
 import 'package:nikucode_senales/main.dart';
+import 'package:nikucode_senales/marea_tools.dart';
 import 'package:nikucode_senales/pause_view_model.dart';
 import 'package:nikucode_senales/reminder_channel.dart';
 import 'package:nikucode_senales/reminder_channel_stub.dart';
@@ -28,6 +30,36 @@ class _FakeChannel extends ReminderChannel {
   void dispose() => callback = null;
 }
 
+class _FakeUsage extends AppUsageGateway {
+  DateTime? lastMonday;
+
+  @override
+  bool get supported => true;
+
+  @override
+  Future<bool> hasAccess() async => true;
+
+  @override
+  Future<List<DailyAppUsage>> loadWeek(DateTime monday) async {
+    lastMonday = monday;
+    return [
+      for (var index = 0; index < 7; index++)
+        DailyAppUsage(
+          date: DateTime(monday.year, monday.month, monday.day + index),
+          apps: index == 0
+              ? const [
+                  AppUsageEntry(
+                    packageName: 'example.app',
+                    label: 'App de prueba',
+                    milliseconds: Duration.millisecondsPerHour,
+                  ),
+                ]
+              : const [],
+        ),
+    ];
+  }
+}
+
 Future<void> _mountApp(
   WidgetTester tester,
   PauseViewModel model, {
@@ -39,6 +71,28 @@ Future<void> _mountApp(
 }
 
 void main() {
+  testWidgets('Mi panorama selecciona día y cambia de semana', (tester) async {
+    final model = PauseViewModel(channel: UnavailableReminderChannel());
+    final preferences = AppPreferencesController.memory();
+    final usage = _FakeUsage();
+    await _mountApp(tester, model, preferences: preferences);
+    final context = tester.element(find.text('Ver una pausa'));
+    showMareaPanorama(context, model, preferences, usage: usage);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tiempo de uso de apps'), findsOneWidget);
+    await tester.tap(find.text('L').last);
+    await tester.pumpAndSettle();
+    expect(find.text('App de prueba'), findsOneWidget);
+    expect(find.text('1 h'), findsWidgets);
+
+    final currentMonday = usage.lastMonday;
+    await tester.tap(find.byTooltip('Semana anterior'));
+    await tester.pumpAndSettle();
+    expect(usage.lastMonday!.isBefore(currentMonday!), isTrue);
+    expect(find.text('Interacciones de la semana'), findsOneWidget);
+  });
+
   testWidgets('access preferences reach dialogs and update open sheets', (
     tester,
   ) async {
@@ -62,13 +116,13 @@ void main() {
     await tester.ensureVisible(find.text('Mi panorama'));
     await tester.tap(find.text('Mi panorama'));
     await tester.pumpAndSettle();
-    var sheet = tester.element(find.text('Interacciones de esta sesión'));
+    var sheet = tester.element(find.text('Interacciones de la semana'));
     expect(MediaQuery.textScalerOf(sheet).scale(10), 16);
     expect(ModalRoute.of(sheet)!.transitionDuration, Duration.zero);
     await preferences.setTextScale(1.2);
     await preferences.setHighContrast(false);
     await tester.pumpAndSettle();
-    sheet = tester.element(find.text('Interacciones de esta sesión'));
+    sheet = tester.element(find.text('Interacciones de la semana'));
     expect(MediaQuery.textScalerOf(sheet).scale(10), 12);
     expect(Theme.of(sheet).scaffoldBackgroundColor, deepWater);
     expect(tester.takeException(), isNull);
@@ -180,7 +234,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mi panorama muestra conteos accesibles de esta sesión', (
+  testWidgets('Mi panorama muestra conteos accesibles de la semana', (
     tester,
   ) async {
     final model = PauseViewModel(channel: UnavailableReminderChannel());
@@ -211,10 +265,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(
-        find.textContaining('No guarda historial por hora o día.'),
-        findsOneWidget,
-      );
+      expect(find.text('Borrar historial de interacciones'), findsOneWidget);
       await tester.ensureVisible(find.text('Cerrar panorama'));
       await tester.tap(find.text('Cerrar panorama'));
       await tester.pumpAndSettle();
@@ -225,7 +276,7 @@ void main() {
       await tester.tap(find.text('Mi panorama'));
       await tester.pumpAndSettle();
       expect(
-        find.text('Aún no hay interacciones registradas en esta sesión.'),
+        find.text('Aún no hay interacciones registradas en esta semana.'),
         findsOneWidget,
       );
       expect(find.bySemanticsLabel('Propuestas abiertas: 0'), findsOneWidget);

@@ -1,22 +1,30 @@
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import 'app_preferences.dart';
+import 'interaction_history.dart';
+import 'lan_pause.dart';
+import 'lan_pause_factory.dart';
+import 'lan_pause_ui.dart';
 import 'marea_tools.dart';
 import 'pause_view_model.dart';
 import 'reminder_channel_factory.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> arguments) async {
   WidgetsFlutterBinding.ensureInitialized();
   final reminderChannel = createReminderChannel();
   final preferences = await AppPreferencesController.load();
-  runApp(
-    PauseApp(
-      viewModel: PauseViewModel(channel: reminderChannel),
-      preferences: preferences,
-    ),
-  );
+  final history = await InteractionHistory.load();
+  final lan = await createLanPause(history);
+  final viewModel = PauseViewModel(channel: reminderChannel, history: history);
+  runApp(PauseApp(viewModel: viewModel, preferences: preferences, lan: lan));
+  if (arguments.contains('--daemon')) {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(lan.startService()),
+    );
+  }
 }
 
 const deepWater = Color(0xFF081B23);
@@ -37,9 +45,15 @@ IconData _avatarFor(int index) => switch (index.clamp(0, 3)) {
 };
 
 class PauseApp extends StatefulWidget {
-  const PauseApp({super.key, required this.viewModel, this.preferences});
+  const PauseApp({
+    super.key,
+    required this.viewModel,
+    this.preferences,
+    this.lan,
+  });
   final PauseViewModel viewModel;
   final AppPreferencesController? preferences;
+  final LanPause? lan;
   @override
   State<PauseApp> createState() => _PauseAppState();
 }
@@ -47,9 +61,65 @@ class PauseApp extends StatefulWidget {
 class _PauseAppState extends State<PauseApp> {
   late final AppPreferencesController _preferences =
       widget.preferences ?? AppPreferencesController.memory();
+  late final LanPause _lan = widget.lan ?? NoLanPause();
+  String? _desktopSessionId;
+  PauseStage _lastStage = PauseStage.home;
+  Timer? _guideTimer;
+  int _guideMinutes = 3;
+  int _remainingSeconds = 180;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastStage = widget.viewModel.stage;
+    widget.viewModel.addListener(_onViewModelChanged);
+    _lan.onStartPause = (id) {
+      if (!mounted) return;
+      _desktopSessionId = id;
+      _guideTimer?.cancel();
+      setState(() => _remainingSeconds = _guideMinutes * 60);
+      widget.viewModel.openProposal();
+    };
+  }
+
+  void _onViewModelChanged() {
+    final stage = widget.viewModel.stage;
+    if (stage == _lastStage) return;
+    _lastStage = stage;
+    final id = _desktopSessionId;
+    if (id == null) return;
+    if (stage == PauseStage.guide) {
+      unawaited(_lan.recordSession(id, 'guideStarted'));
+      setState(() => _remainingSeconds = _guideMinutes * 60);
+      _guideTimer?.cancel();
+      _guideTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted || _remainingSeconds <= 0) return;
+        setState(() => _remainingSeconds--);
+      });
+    } else if (stage == PauseStage.finished ||
+        stage == PauseStage.stopped ||
+        stage == PauseStage.home) {
+      _guideTimer?.cancel();
+      if (stage == PauseStage.finished || stage == PauseStage.stopped) {
+        unawaited(
+          _lan.recordSession(
+            id,
+            stage == PauseStage.finished ? 'guideFinished' : 'guideStopped',
+          ),
+        );
+      } else {
+        unawaited(_lan.recordSession(id, 'dismissed'));
+      }
+      _desktopSessionId = null;
+    }
+  }
 
   @override
   void dispose() {
+    _guideTimer?.cancel();
+    widget.viewModel.removeListener(_onViewModelChanged);
+    _lan.onStartPause = null;
+    _lan.dispose();
     widget.viewModel.dispose();
     _preferences.dispose();
     super.dispose();
@@ -57,7 +127,7 @@ class _PauseAppState extends State<PauseApp> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: _preferences,
+    listenable: Listenable.merge([_preferences, _lan]),
     builder: (context, _) => MaterialApp(
       title: 'nikucode · pausa',
       debugShowCheckedModeBanner: false,
@@ -80,7 +150,18 @@ class _PauseAppState extends State<PauseApp> {
           child: child!,
         );
       },
-      home: PauseHome(viewModel: widget.viewModel, preferences: _preferences),
+      home: PauseHome(
+        viewModel: widget.viewModel,
+        preferences: _preferences,
+        lan: _lan,
+        desktopSession: _desktopSessionId != null,
+        guideMinutes: _guideMinutes,
+        remainingSeconds: _remainingSeconds,
+        onGuideMinutesChanged: (value) => setState(() {
+          _guideMinutes = value;
+          _remainingSeconds = value * 60;
+        }),
+      ),
     ),
   );
 }
@@ -154,9 +235,19 @@ class PauseHome extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.preferences,
+    this.lan,
+    this.desktopSession = false,
+    this.guideMinutes = 3,
+    this.remainingSeconds = 180,
+    this.onGuideMinutesChanged,
   });
   final PauseViewModel viewModel;
   final AppPreferencesController preferences;
+  final LanPause? lan;
+  final bool desktopSession;
+  final int guideMinutes;
+  final int remainingSeconds;
+  final ValueChanged<int>? onGuideMinutesChanged;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -217,6 +308,12 @@ class PauseHome extends StatelessWidget {
                                     child: _PausePanel(
                                       vm: viewModel,
                                       preferences: preferences,
+                                      lan: lan,
+                                      desktopSession: desktopSession,
+                                      guideMinutes: guideMinutes,
+                                      remainingSeconds: remainingSeconds,
+                                      onGuideMinutesChanged:
+                                          onGuideMinutesChanged,
                                     ),
                                   ),
                                 ),
@@ -336,9 +433,22 @@ class _TopLine extends StatelessWidget {
 }
 
 class _PausePanel extends StatelessWidget {
-  const _PausePanel({required this.vm, required this.preferences});
+  const _PausePanel({
+    required this.vm,
+    required this.preferences,
+    this.lan,
+    required this.desktopSession,
+    required this.guideMinutes,
+    required this.remainingSeconds,
+    this.onGuideMinutesChanged,
+  });
   final PauseViewModel vm;
   final AppPreferencesController preferences;
+  final LanPause? lan;
+  final bool desktopSession;
+  final int guideMinutes;
+  final int remainingSeconds;
+  final ValueChanged<int>? onGuideMinutesChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -365,6 +475,21 @@ class _PausePanel extends StatelessWidget {
           icon: const Icon(Icons.notifications_none_rounded),
           label: const Text('Avisos, si los quieres'),
         ),
+        if (lan?.available == true) ...[
+          const SizedBox(height: 6),
+          OutlinedButton.icon(
+            onPressed: () => showLanPauseDialog(context, lan!),
+            icon: const Icon(Icons.devices_rounded),
+            label: const Text('Pausas en Omarchy'),
+          ),
+          Text(
+            lan!.status,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: mist, fontSize: 13),
+          ),
+          if (lan?.pendingLabel != null)
+            Text(lan!.pendingLabel!, textAlign: TextAlign.center),
+        ],
         const SizedBox(height: 6),
         Wrap(
           alignment: WrapAlignment.center,
@@ -390,6 +515,22 @@ class _PausePanel extends StatelessWidget {
         _Title(vm.proposal.title),
         const SizedBox(height: 9),
         Text(vm.proposal.instruction, textAlign: TextAlign.center),
+        if (desktopSession) ...[
+          const SizedBox(height: 12),
+          Text('Duración de la guía: $guideMinutes min'),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            children: [
+              for (final minutes in [1, 3, 5])
+                ChoiceChip(
+                  label: Text('$minutes min'),
+                  selected: guideMinutes == minutes,
+                  onSelected: (_) => onGuideMinutesChanged?.call(minutes),
+                ),
+            ],
+          ),
+        ],
         const SizedBox(height: 23),
         FilledButton(onPressed: vm.startGuide, child: const Text('Empezar')),
         const SizedBox(height: 8),
@@ -407,13 +548,26 @@ class _PausePanel extends StatelessWidget {
         const _Eyebrow('SIN PRISA'),
         const SizedBox(height: 10),
         const _Title('A tu ritmo'),
+        if (desktopSession) ...[
+          const SizedBox(height: 8),
+          Semantics(
+            liveRegion: remainingSeconds == 0,
+            label: remainingSeconds == 0
+                ? 'Tiempo terminado. Puedes finalizar cuando quieras.'
+                : 'Tiempo restante: ${remainingSeconds ~/ 60} minutos y ${remainingSeconds % 60} segundos',
+            child: Text(
+              '${(remainingSeconds ~/ 60).toString().padLeft(2, '0')}:${(remainingSeconds % 60).toString().padLeft(2, '0')}',
+              style: const TextStyle(fontSize: 42, color: seaGlass),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
         for (var i = 0; i < vm.proposal.guideSteps.length; i++)
           _GuideStep(number: i + 1, text: vm.proposal.guideSteps[i]),
         const SizedBox(height: 18),
         FilledButton(
           onPressed: vm.finishGuide,
-          child: const Text('Cerrar guía'),
+          child: Text(desktopSession ? 'Finalizar' : 'Cerrar guía'),
         ),
         const SizedBox(height: 8),
         TextButton(

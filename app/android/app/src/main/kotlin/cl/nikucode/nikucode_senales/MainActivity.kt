@@ -5,10 +5,20 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
+import android.os.Process
+import android.provider.Settings
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -16,6 +26,8 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "cl.nikucode/reminders"
+        private const val USAGE_CHANNEL = "cl.nikucode/usage"
+        private const val LAN_CHANNEL = "cl.nikucode/lan"
         private const val NOTIFICATION_CHANNEL_ID = "marea_pause_invites"
         private const val PERMISSION_REQUEST = 8402
         private const val EXTRA_REMINDER_ID = "nikucode.reminder_id"
@@ -24,6 +36,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private var bridge: MethodChannel? = null
+    private var usageBridge: MethodChannel? = null
+    private var lanBridge: MethodChannel? = null
+    private var lanServer: LanPauseServer? = null
     private var permissionResult: MethodChannel.Result? = null
     private var pendingReminderId: Long? = null
     private var pendingReminderDelivery = false
@@ -83,7 +98,145 @@ class MainActivity : FlutterActivity() {
                 result.error("reminder_operation_failed", error.message, null)
             }
         }
+        usageBridge = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, USAGE_CHANNEL)
+        usageBridge?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "hasAccess" -> result.success(hasUsageAccess())
+                "openAccessSettings" -> {
+                    try {
+                        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                        result.success(null)
+                    } catch (error: Exception) {
+                        result.error("settings_unavailable", error.message, null)
+                    }
+                }
+                "loadWeek" -> {
+                    val start = (call.arguments as? Number)?.toLong()
+                    if (start == null) {
+                        result.error("invalid_week", "Missing week start", null)
+                    } else if (!hasUsageAccess()) {
+                        result.error("usage_access_denied", "Usage access is not enabled", null)
+                    } else {
+                        Thread {
+                            try {
+                                val days = loadUsageWeek(start)
+                                runOnUiThread { result.success(days) }
+                            } catch (error: Exception) {
+                                runOnUiThread { result.error("usage_unavailable", error.message, null) }
+                            }
+                        }.start()
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+        lanBridge = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LAN_CHANNEL)
+        lanServer = LanPauseServer(this, lanBridge!!)
+        lanBridge?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "pairingInfo" -> {
+                    try {
+                        result.success(lanServer?.pairingInfo())
+                    } catch (error: Exception) {
+                        result.error("pairing_unavailable", error.message, null)
+                    }
+                }
+                "isPaired" -> result.success(
+                    getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
+                        .getString("token", null) != null,
+                )
+                "unpair" -> {
+                    val removed = getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
+                        .edit().remove("token").commit()
+                    if (removed) lanServer?.revoke()
+                    result.success(removed)
+                }
+                else -> result.notImplemented()
+            }
+        }
         deliverPendingReminder()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lanServer?.start()
+    }
+
+    override fun onStop() {
+        lanServer?.stop()
+        super.onStop()
+    }
+
+    private fun hasUsageAccess(): Boolean {
+        val ops = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        return ops.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            packageName,
+        ) == AppOpsManager.MODE_ALLOWED
+    }
+
+    private fun loadUsageWeek(startMillis: Long): List<Map<String, Any>> {
+        val manager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = startMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+        val now = System.currentTimeMillis()
+        return (0 until 7).map {
+            val start = calendar.timeInMillis
+            val date = formatter.format(calendar.time)
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+            val end = calendar.timeInMillis
+            val byPackage = mutableMapOf<String, Long>()
+            if (start < now) {
+                val stats = manager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY,
+                    start,
+                    minOf(end, now),
+                ) ?: throw IllegalStateException("Usage data unavailable while device is locked")
+                for (usage in stats) {
+                    if (usage.firstTimeStamp < start || usage.firstTimeStamp >= end) continue
+                    if (usage.totalTimeInForeground <= 0) continue
+                    byPackage[usage.packageName] =
+                        (byPackage[usage.packageName] ?: 0L) + usage.totalTimeInForeground
+                }
+            }
+            val apps = byPackage.entries.sortedByDescending { it.value }.map { (name, millis) ->
+                mapOf<String, Any>(
+                    "package" to name,
+                    "label" to applicationLabel(name),
+                    "milliseconds" to millis,
+                    "icon" to applicationIcon(name),
+                )
+            }
+            mapOf("date" to date, "apps" to apps)
+        }
+    }
+
+    private fun applicationLabel(name: String): String = try {
+        @Suppress("DEPRECATION")
+        packageManager.getApplicationLabel(packageManager.getApplicationInfo(name, 0)).toString()
+    } catch (_: Exception) {
+        name
+    }
+
+    private fun applicationIcon(name: String): ByteArray = try {
+        val drawable = packageManager.getApplicationIcon(name)
+        val bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, 48, 48)
+        drawable.draw(canvas)
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+        bitmap.recycle()
+        stream.toByteArray()
+    } catch (_: Exception) {
+        byteArrayOf()
     }
 
     private fun requestNotificationPermission(result: MethodChannel.Result) {
@@ -273,6 +426,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         bridge = null
+        usageBridge = null
         super.onDestroy()
     }
 }

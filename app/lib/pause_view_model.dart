@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'interaction_history.dart';
 import 'reminder_channel.dart';
 
 enum PauseStage { home, proposal, guide, finished, stopped }
@@ -42,7 +43,8 @@ class PauseActivity {
 
 /// State for the brief invitation flow; it never infers bodily movement.
 class PauseViewModel extends ChangeNotifier {
-  PauseViewModel({required this.channel}) {
+  PauseViewModel({required this.channel, InteractionHistory? history})
+    : history = history ?? InteractionHistory.memory() {
     channel.onOpen = openFromReminder;
     channel.onValidatedOpen = openFromValidatedReminder;
     channel.onOpenError = _reportOpenError;
@@ -76,6 +78,7 @@ class PauseViewModel extends ChangeNotifier {
   ];
 
   final ReminderChannel channel;
+  final InteractionHistory history;
   PauseStage _stage = PauseStage.home;
   int _proposalIndex = 0;
   bool _remindersEnabled = false;
@@ -118,6 +121,7 @@ class PauseViewModel extends ChangeNotifier {
     if (_disposed || _stage == PauseStage.guide) return;
     _invalidateInvitation();
     _proposalsOpened++;
+    history.record(InteractionKind.proposalOpened);
     _stage = PauseStage.proposal;
     _message = null;
     _notify();
@@ -133,6 +137,7 @@ class PauseViewModel extends ChangeNotifier {
     if (_disposed || _stage != PauseStage.proposal) return;
     _invalidateInvitation();
     _guidesStarted++;
+    history.record(InteractionKind.guideStarted);
     _stage = PauseStage.guide;
     _message = null;
     _notify();
@@ -141,6 +146,7 @@ class PauseViewModel extends ChangeNotifier {
   void finishGuide() {
     if (_disposed || _stage != PauseStage.guide) return;
     _guidesFinished++;
+    history.record(InteractionKind.guideFinished);
     _stage = PauseStage.finished;
     _notify();
   }
@@ -148,6 +154,7 @@ class PauseViewModel extends ChangeNotifier {
   void stopGuide() {
     if (_disposed || _stage != PauseStage.guide) return;
     _guidesStopped++;
+    history.record(InteractionKind.guideStopped);
     _stage = PauseStage.stopped;
     _notify();
   }
@@ -156,6 +163,7 @@ class PauseViewModel extends ChangeNotifier {
     if (_disposed || _stage != PauseStage.proposal) return;
     _invalidateInvitation();
     _proposalsDismissed++;
+    history.record(InteractionKind.dismissed);
     _stage = PauseStage.home;
     _message = null;
     _notify();
@@ -194,6 +202,7 @@ class PauseViewModel extends ChangeNotifier {
 
     _invalidateInvitation();
     _proposalsOpened++;
+    history.record(InteractionKind.proposalOpened);
     _stage = PauseStage.proposal;
     _message = null;
     _notify();
@@ -271,7 +280,10 @@ class PauseViewModel extends ChangeNotifier {
     _invitationId = id;
     _reminderAt = DateTime.now().add(delay);
     _stage = PauseStage.home;
-    if (postponingProposal) _postponements++;
+    if (postponingProposal) {
+      _postponements++;
+      history.record(InteractionKind.postponed);
+    }
     _message =
         'Temporizador local preparado. La app debe seguir abierta; todavía '
         'no se ha solicitado mostrar el aviso.';
