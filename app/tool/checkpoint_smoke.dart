@@ -157,7 +157,7 @@ Future<void> main() async {
       model.stage == PauseStage.proposal,
       'valid delivered action opens proposal',
     );
-    check(renderedText().contains('Empezar'), 'proposal action rendered');
+    check(renderedText().contains('Empezar ahora'), 'proposal action rendered');
     check(
       renderedText().contains('Caminar un momento') &&
           renderedText().contains('Ahora no') &&
@@ -177,8 +177,35 @@ Future<void> main() async {
     );
     model.startGuide();
     await frame();
-    check(renderedText().contains('Cerrar guía'), 'guide controls rendered');
+    check(
+      renderedText().contains('Paso 1 de 3') &&
+          renderedText().contains('Siguiente') &&
+          !renderedText().contains('Cerrar guía'),
+      'guide starts at the first step without a timed finish',
+    );
     await capture('desktop_guide', const Size(1200, 900));
+    model.nextGuideStep();
+    await frame();
+    check(
+      renderedText().contains('Paso 2 de 3') &&
+          renderedText().contains('Anterior'),
+      'guide advances one step and offers a way back',
+    );
+    model.previousGuideStep();
+    await frame();
+    check(
+      renderedText().contains('Paso 1 de 3'),
+      'guide can return to first step',
+    );
+    model.nextGuideStep();
+    model.nextGuideStep();
+    await frame();
+    check(
+      renderedText().contains('Paso 3 de 3') &&
+          renderedText().contains('Cerrar guía'),
+      'guide can close only from the last step',
+    );
+    await capture('desktop_guide_last', const Size(1200, 900));
     model.finishGuide();
     await frame();
     check(

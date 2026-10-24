@@ -50,7 +50,7 @@ Para preparar el servicio en Omarchy, desde `app/`:
 bash linux/install-companion.sh
 ```
 
-Este script compila Linux, copia el paquete a `~/.local/lib/nikucode-pausa` e instala y reinicia `nikucode-pausa.service` como servicio de usuario de la sesión gráfica. Requiere `avahi-daemon`, `avahi-browse`, `avahi-publish-service` y `notify-send`. En Android abre **Pausas en Omarchy**, elige el computador y compara la clave. En Linux pulsa **Revisar clave** en la notificación o abre la app y confirma. Después puedes cerrar la ventana Linux: el servicio seguirá atendiendo avisos; al pulsar la tarjeta de una señal o elegir **Iniciar pausa**, se abrirá la app con la propuesta de pausa.
+Este script compila Linux, copia el paquete a `~/.local/lib/nikucode-pausa` e instala y reinicia `nikucode-pausa.service` como servicio de usuario de la sesión gráfica. Requiere `avahi-daemon`, `avahi-browse`, `avahi-publish-service` y `notify-send`. En Android abre **Pausas en Omarchy**, elige el computador y compara la clave. En Linux pulsa **Revisar clave** en la notificación o abre la app y confirma. Después puedes cerrar la ventana Linux: el servicio seguirá atendiendo avisos; al pulsar la tarjeta de una señal o elegir **Elegir una pausa**, se abrirá la app con la propuesta de pausa.
 
 La red debe permitir que ambos dispositivos se alcancen; algunas redes de invitados aíslan clientes WiFi. El servicio se inicia tras entrar en la sesión gráfica, no cuando el computador está apagado. Una pausa que haya vencido hace más de 30 minutos durante suspensión o apagado se marca como perdida. El instalador y el recorrido real deben verificarse en el Omarchy y móvil de destino.
 

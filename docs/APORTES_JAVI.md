@@ -1,5 +1,12 @@
 # Registro de contribuciones · Javier González
 
+## 2026-10-24 · Integración de la guía gradual de Alex
+
+- **Procedencia:** la rama `alex/guia-gradual-android-linux`, commit `d328482`, avanzó directamente desde `8551172` y se incorporó por fast-forward a la rama local de Javi. El código de guía gradual, textos de aviso y accesibilidad de ese commit es aporte de Alex.
+- **Ajuste de integración:** se actualizó la instrucción de Omarchy en `app/README.md` y el comprobador visual sin sockets para recorrer los tres pasos, retroceder y cerrar solo desde el último.
+- **Comprobación observada:** `flutter analyze --no-pub`, build Linux release, compilación aislada de Kotlin y comprobador headless (23 verificaciones, nueve capturas) pasaron. Flutter Test, ADB, Gradle y el bus de servicio Linux no pudieron abrir los sockets necesarios en este entorno; ningún recorrido físico de emparejamiento o aviso se da por validado.
+- **Siguiente paso:** actualizar el servicio Omarchy y el APK desde una terminal de Javi, ejecutar la suite y probar señal de 10 segundos, apertura desde la notificación y guía en ambos equipos. La integración sigue local en la rama de Javi.
+
 ## 2026-10-24 · Una señal en Android y Omarchy
 
 - **Tarea:** al elegir «Probar señal en 10 segundos» en Android, recibir la misma invitación en el móvil y Omarchy.
