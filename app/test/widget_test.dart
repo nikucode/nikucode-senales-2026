@@ -148,7 +148,7 @@ void main() {
     await tester.ensureVisible(find.text('Borrar perfil local'));
     await tester.tap(find.text('Borrar perfil local'));
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
     expect(find.text('Haz espacio para moverte'), findsOneWidget);
     expect(find.textContaining('Hola,'), findsNothing);
@@ -177,45 +177,47 @@ void main() {
     model.goHome();
     await _mountApp(tester, model);
     final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
+    try {
+      await tester.ensureVisible(find.text('Mi panorama'));
+      await tester.tap(find.text('Mi panorama'));
+      await tester.pumpAndSettle();
+      expect(find.text('Propuestas abiertas'), findsOneWidget);
+      expect(find.text('Guías iniciadas'), findsOneWidget);
+      expect(find.text('Guías terminadas'), findsOneWidget);
+      expect(find.bySemanticsLabel('Propuestas abiertas: 2'), findsOneWidget);
+      expect(find.bySemanticsLabel('Guías iniciadas: 1'), findsOneWidget);
+      expect(find.bySemanticsLabel('Guías terminadas: 1'), findsOneWidget);
+      expect(find.bySemanticsLabel('Guías detenidas: 0'), findsOneWidget);
+      expect(find.bySemanticsLabel('Pospuestas: 0'), findsOneWidget);
+      expect(find.bySemanticsLabel('Cerradas por ahora: 1'), findsOneWidget);
+      expect(
+        find.textContaining(
+          'No mide movimiento, sedentarismo, salud ni progreso.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('No guarda historial por hora o día.'),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('Cerrar panorama'));
+      await tester.tap(find.text('Cerrar panorama'));
+      await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Mi panorama'));
-    await tester.tap(find.text('Mi panorama'));
-    await tester.pumpAndSettle();
-    expect(find.text('Propuestas abiertas'), findsOneWidget);
-    expect(find.text('Guías iniciadas'), findsOneWidget);
-    expect(find.text('Guías terminadas'), findsOneWidget);
-    expect(find.bySemanticsLabel('Propuestas abiertas: 2'), findsOneWidget);
-    expect(find.bySemanticsLabel('Guías iniciadas: 1'), findsOneWidget);
-    expect(find.bySemanticsLabel('Guías terminadas: 1'), findsOneWidget);
-    expect(find.bySemanticsLabel('Guías detenidas: 0'), findsOneWidget);
-    expect(find.bySemanticsLabel('Pospuestas: 0'), findsOneWidget);
-    expect(find.bySemanticsLabel('Cerradas por ahora: 1'), findsOneWidget);
-    expect(
-      find.textContaining(
-        'No mide movimiento, sedentarismo, salud ni progreso.',
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('No guarda historial por hora o día.'),
-      findsOneWidget,
-    );
-    await tester.ensureVisible(find.text('Cerrar panorama'));
-    await tester.tap(find.text('Cerrar panorama'));
-    await tester.pumpAndSettle();
-
-    final resetModel = PauseViewModel(channel: UnavailableReminderChannel());
-    await _mountApp(tester, resetModel);
-    await tester.ensureVisible(find.text('Mi panorama'));
-    await tester.tap(find.text('Mi panorama'));
-    await tester.pumpAndSettle();
-    expect(
-      find.text('Aún no hay interacciones registradas en esta sesión.'),
-      findsOneWidget,
-    );
-    expect(find.bySemanticsLabel('Propuestas abiertas: 0'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      final resetModel = PauseViewModel(channel: UnavailableReminderChannel());
+      await _mountApp(tester, resetModel);
+      await tester.ensureVisible(find.text('Mi panorama'));
+      await tester.tap(find.text('Mi panorama'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Aún no hay interacciones registradas en esta sesión.'),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel('Propuestas abiertas: 0'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('guía de caminar mantiene la indicación condicional', (
