@@ -13,6 +13,12 @@ class LanPairingInfo {
   final String pin;
 }
 
+class LanDesktop {
+  const LanDesktop(this.id, this.name);
+  final String id;
+  final String name;
+}
+
 /// The connection is optional; local pause controls remain available.
 abstract class LanPause extends ChangeNotifier {
   bool get available;
@@ -21,14 +27,28 @@ abstract class LanPause extends ChangeNotifier {
   bool get canSchedule;
   String get status;
   String? get pendingLabel;
+  List<LanDesktop> get desktops => const [];
+  String? get verificationCode => null;
+  bool get pairingPending => false;
+  bool get confirming => false;
+  bool get serviceRunning => true;
+  DateTime? get sharedReminderAt => null;
+  int? get sharedReminderId => null;
+  Future<void> scanDesktops() async {}
+  Future<void> stopScan() async {}
+  Future<void> requestPair(String id) async {}
+  Future<void> confirmPair() async {}
+  Future<void> rejectPair() async {}
   Future<LanPairingInfo?> pairingInfo();
   Future<void> pair(String address, int port, String code, String pin);
   Future<void> unpair();
   Future<void> schedule(Duration delay);
+  Future<void> scheduleSharedReminder(DateTime dueAt, int invitationId) async {}
   Future<void> startNow();
   Future<void> cancelPending();
   Future<void> startService();
   void Function(String id)? onStartPause;
+  void Function()? onPairingRequested;
   Future<void> recordSession(String id, String kind);
 }
 

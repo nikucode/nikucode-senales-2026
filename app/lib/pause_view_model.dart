@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'interaction_history.dart';
+import 'lan_pause.dart';
 import 'reminder_channel.dart';
 
 enum PauseStage { home, proposal, guide, finished, stopped }
@@ -43,11 +44,25 @@ class PauseActivity {
 
 /// State for the brief invitation flow; it never infers bodily movement.
 class PauseViewModel extends ChangeNotifier {
-  PauseViewModel({required this.channel, InteractionHistory? history})
+  PauseViewModel({required this.channel, InteractionHistory? history, this.lan})
     : history = history ?? InteractionHistory.memory() {
     channel.onOpen = openFromReminder;
     channel.onValidatedOpen = openFromValidatedReminder;
     channel.onOpenError = _reportOpenError;
+    lan?.addListener(_syncSharedFromLan);
+    final pendingId = lan?.sharedReminderId;
+    final pendingAt = lan?.sharedReminderAt;
+    if (pendingId != null &&
+        pendingAt != null &&
+        pendingAt.isAfter(DateTime.now())) {
+      _remindersEnabled = true;
+      _invitationId = pendingId;
+      _reminderAt = pendingAt;
+      _timer = Timer(
+        pendingAt.difference(DateTime.now()),
+        () => _clearSharedPending(pendingId),
+      );
+    }
   }
 
   static const _proposals = [
@@ -79,6 +94,7 @@ class PauseViewModel extends ChangeNotifier {
 
   final ReminderChannel channel;
   final InteractionHistory history;
+  final LanPause? lan;
   PauseStage _stage = PauseStage.home;
   int _proposalIndex = 0;
   bool _remindersEnabled = false;
@@ -98,6 +114,7 @@ class PauseViewModel extends ChangeNotifier {
   int _postponements = 0;
   bool _disposed = false;
   Future<void> _channelWork = Future<void>.value();
+  Future<void> _lanWork = Future<void>.value();
 
   PauseStage get stage => _stage;
   int get proposalIndex => _proposalIndex;
@@ -106,8 +123,47 @@ class PauseViewModel extends ChangeNotifier {
   DateTime? get reminderAt => _reminderAt;
   String? get message => _message;
   bool get hasPendingReminder => _timer != null;
-  String get channelScope => channel.scopeLabel;
+  String get channelScope => sharedReminders
+      ? 'Android y Omarchy recibirán la misma invitación. La conexión local '
+            'debe seguir activa; el aviso puede retrasarse si un equipo se desconecta.'
+      : receivesSharedReminders
+      ? 'Este equipo recibe los avisos programados desde Android. Abre la app '
+            'móvil para elegir o cancelar una señal.'
+      : channel.scopeLabel;
   bool get channelSupported => channel.supported;
+  bool get sharedReminders => lan?.canSchedule == true;
+  bool get receivesSharedReminders =>
+      lan?.paired == true && lan?.isPhone == false;
+
+  void _syncSharedFromLan() {
+    if (_disposed || !sharedReminders) return;
+    final pendingId = lan?.sharedReminderId;
+    final pendingAt = lan?.sharedReminderAt;
+    if (pendingId == null ||
+        pendingAt == null ||
+        pendingId == _invitationId ||
+        !pendingAt.isAfter(DateTime.now())) {
+      return;
+    }
+    _timer?.cancel();
+    _invitationId = pendingId;
+    _reminderAt = pendingAt;
+    _remindersEnabled = true;
+    _timer = Timer(
+      pendingAt.difference(DateTime.now()),
+      () => _clearSharedPending(pendingId),
+    );
+    _message = 'La señal se pospuso en Omarchy y se actualizó en Android.';
+    _notify();
+  }
+
+  void _clearSharedPending(int id) {
+    if (id != _invitationId || _disposed) return;
+    _timer = null;
+    _reminderAt = null;
+    _notify();
+  }
+
   PauseActivity get activity => PauseActivity(
     proposalsOpened: _proposalsOpened,
     guidesStarted: _guidesStarted,
@@ -218,11 +274,19 @@ class PauseViewModel extends ChangeNotifier {
     if (_disposed) return;
     final revision = ++_permissionRevision;
     if (!enabled || !channel.supported) {
+      final cancelShared = hasPendingReminder && sharedReminders;
       _remindersEnabled = false;
       _invalidateInvitation();
       _message = enabled
           ? 'Este dispositivo no tiene un canal de avisos disponible.'
           : 'Avisos desactivados en esta sesión.';
+      if (cancelShared) {
+        try {
+          await _enqueueLan(lan!.cancelPending);
+        } catch (_) {
+          _message = 'No se pudo retirar la señal de Omarchy.';
+        }
+      }
       _notify();
       return;
     }
@@ -232,15 +296,35 @@ class PauseViewModel extends ChangeNotifier {
       granted = await channel.requestPermission();
     } catch (_) {
       if (_disposed || revision != _permissionRevision) return;
+      final cancelShared = hasPendingReminder && sharedReminders;
       _remindersEnabled = false;
       _invalidateInvitation();
       _message = 'No se pudo comprobar el permiso. No se programará un aviso.';
+      if (cancelShared) {
+        try {
+          await _enqueueLan(lan!.cancelPending);
+        } catch (_) {
+          _message = 'No se pudo retirar la señal de Omarchy.';
+        }
+      }
       _notify();
       return;
     }
     if (_disposed || revision != _permissionRevision) return;
     _remindersEnabled = granted;
-    if (!granted) _invalidateInvitation();
+    if (!granted) {
+      final cancelShared = hasPendingReminder && sharedReminders;
+      _invalidateInvitation();
+      if (cancelShared) {
+        try {
+          await _enqueueLan(lan!.cancelPending);
+        } catch (_) {
+          _message = 'No se pudo retirar la señal de Omarchy.';
+          _notify();
+          return;
+        }
+      }
+    }
     _message = granted
         ? 'Avisos habilitados en esta sesión.'
         : 'Sin permiso para avisos. Puedes abrir una pausa cuando quieras.';
@@ -274,31 +358,82 @@ class PauseViewModel extends ChangeNotifier {
       _notify();
       return;
     }
+    final shared = sharedReminders;
+    if (shared) {
+      try {
+        await _enqueueLan(lan!.cancelPending);
+      } catch (_) {
+        _message = 'No se pudo retirar la programación anterior de Omarchy.';
+        _notify();
+        return;
+      }
+      if (_disposed || revision != _generation) return;
+    }
     final now = DateTime.now().microsecondsSinceEpoch;
     final id = now > _generation ? now : _generation + 1;
     _generation = id;
     _invitationId = id;
-    _reminderAt = DateTime.now().add(delay);
+    final dueAt = DateTime.now().add(delay);
+    _reminderAt = dueAt;
+    if (shared) {
+      try {
+        await _enqueueLan(() => lan!.scheduleSharedReminder(dueAt, id));
+      } catch (_) {
+        _invitationId = null;
+        _reminderAt = null;
+        _message =
+            'No se pudo programar la señal compartida. Inténtalo de nuevo.';
+        _notify();
+        return;
+      }
+      if (_disposed || id != _generation) return;
+      _message = 'Se programó la misma señal para Android y Omarchy.';
+    } else {
+      _message =
+          'Temporizador local preparado. La app debe seguir abierta; todavía '
+          'no se ha solicitado mostrar el aviso.';
+    }
     _stage = PauseStage.home;
     if (postponingProposal) {
       _postponements++;
       history.record(InteractionKind.postponed);
     }
-    _message =
-        'Temporizador local preparado. La app debe seguir abierta; todavía '
-        'no se ha solicitado mostrar el aviso.';
-    _timer = Timer(delay, () => unawaited(_deliver(id)));
+    final remaining = dueAt.difference(DateTime.now());
+    _timer = Timer(remaining.isNegative ? Duration.zero : remaining, () {
+      if (shared) {
+        _clearSharedPending(id);
+      } else {
+        unawaited(_deliver(id));
+      }
+    });
     _notify();
   }
 
   Future<void> cancelReminder() async {
     if (_disposed) return;
+    final cancelShared = hasPendingReminder && sharedReminders;
     final cancellation = _invalidateInvitation();
     final revision = _generation;
     _message = 'Se está solicitando retirar el aviso del sistema.';
     _notify();
     final cancelled = await cancellation;
-    if (_disposed || revision != _generation || !cancelled) return;
+    if (_disposed || revision != _generation) return;
+    if (cancelShared) {
+      try {
+        await _enqueueLan(lan!.cancelPending);
+      } catch (_) {
+        _message = 'Se retiró el aviso de Android, pero Omarchy no confirmó la cancelación.';
+        _notify();
+        return;
+      }
+    }
+    if (!cancelled) {
+      _message = cancelShared
+          ? 'La señal compartida se retiró, pero Android no confirmó el cierre del aviso.'
+          : 'No se pudo confirmar la retirada del aviso del sistema.';
+      _notify();
+      return;
+    }
     _message = 'Temporizador cancelado y retirada solicitada al sistema.';
     _notify();
   }
@@ -357,6 +492,12 @@ class PauseViewModel extends ChangeNotifier {
     return work;
   }
 
+  Future<void> _enqueueLan(Future<void> Function() operation) {
+    final work = _lanWork.then((_) => operation());
+    _lanWork = work.catchError((Object _) {});
+    return work;
+  }
+
   void _notify() {
     if (!_disposed) notifyListeners();
   }
@@ -365,11 +506,18 @@ class PauseViewModel extends ChangeNotifier {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    lan?.removeListener(_syncSharedFromLan);
     _permissionRevision++;
     channel.onOpen = null;
     channel.onValidatedOpen = null;
     channel.onOpenError = null;
-    _invalidateInvitation();
+    if (sharedReminders) {
+      _timer?.cancel();
+      _timer = null;
+      _invitationId = null;
+    } else {
+      _invalidateInvitation();
+    }
     unawaited(_channelWork.whenComplete(channel.dispose));
     super.dispose();
   }

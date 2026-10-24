@@ -1,183 +1,201 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'lan_pause.dart';
 
 Future<void> showLanPauseDialog(BuildContext context, LanPause lan) async {
-  final info = await lan.pairingInfo();
-  if (!context.mounted) return;
-  final address = TextEditingController();
-  final port = TextEditingController();
-  final code = TextEditingController();
-  final pin = TextEditingController();
   String? error;
-  await showDialog<void>(
-    context: context,
-    builder: (dialogContext) => StatefulBuilder(
-      builder: (context, setState) => ListenableBuilder(
-        listenable: lan,
-        builder: (context, _) => AlertDialog(
-          scrollable: true,
-          title: const Text('Pausas en Omarchy'),
-          content: SizedBox(
-            width: 430,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (info != null) ...[
-                  const Text(
-                    'En el computador, abre esta app y escribe estos datos para emparejar:',
-                  ),
-                  const SizedBox(height: 10),
-                  SelectableText(
-                    'IP: ${info.address}\nPuerto: ${info.port}\nCertificado: ${info.code}\nPIN temporal: ${info.pin}',
-                  ),
-                  const Text(
-                    'Comprueba el certificado y escribe el PIN en el computador antes de dos minutos.',
-                  ),
-                ] else if (!lan.isPhone) ...[
-                  const Text(
-                    'Abre nikucode en Android, entra en Pausas en Omarchy y escribe los datos que muestra el móvil.',
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: address,
-                    decoration: const InputDecoration(
-                      labelText: 'IP del móvil',
-                    ),
-                  ),
-                  TextField(
-                    controller: port,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Puerto'),
-                  ),
-                  TextField(
-                    controller: code,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Certificado: 16 caracteres',
-                    ),
-                  ),
-                  TextField(
-                    controller: pin,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'PIN temporal: 16 caracteres',
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 14),
-                Text(lan.status),
-                if (lan.pendingLabel != null) Text(lan.pendingLabel!),
-                if (error != null)
-                  Text(
-                    error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                if (lan.canSchedule) ...[
-                  const SizedBox(height: 16),
-                  const Text('Nueva pausa en Omarchy'),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+  bool busy = false;
+  StateSetter? dialogSetState;
+  Future<void> update() async {
+    if (busy) return;
+    busy = true;
+    try {
+      await lan.scanDesktops();
+    } catch (failure) {
+      dialogSetState?.call(() => error = '$failure');
+    } finally {
+      busy = false;
+    }
+  }
+
+  unawaited(update());
+  final refresh = Timer.periodic(
+    const Duration(seconds: 2),
+    (_) => unawaited(update()),
+  );
+  try {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) {
+          dialogSetState = setState;
+          return ListenableBuilder(
+            listenable: lan,
+            builder: (context, _) {
+              Future<bool> action(Future<void> Function() work) async {
+                try {
+                  await work();
+                  if (dialogContext.mounted) setState(() => error = null);
+                  return true;
+                } catch (failure) {
+                  if (dialogContext.mounted) setState(() => error = '$failure');
+                  return false;
+                }
+              }
+
+              final code = lan.verificationCode;
+              final grouped = code
+                  ?.replaceAllMapped(RegExp(r'.{4}'), (match) => '${match[0]} ')
+                  .trim();
+              return AlertDialog(
+                scrollable: true,
+                title: const Text('Pausas en Omarchy'),
+                content: SizedBox(
+                  width: 430,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final minutes in [5, 15, 30])
-                        OutlinedButton(
-                          onPressed: () async {
-                            await lan.schedule(Duration(minutes: minutes));
-                            if (dialogContext.mounted) {
-                              Navigator.pop(dialogContext);
-                            }
-                          },
-                          child: Text('$minutes min'),
+                      Text(lan.status),
+                      if (lan.pendingLabel != null) Text(lan.pendingLabel!),
+                      if (lan.isPhone && lan.paired && !lan.serviceRunning)
+                        FilledButton(
+                          onPressed: () => action(lan.startService),
+                          child: const Text('Reactivar conexión'),
                         ),
-                      OutlinedButton(
-                        onPressed: () async {
-                          await lan.startNow();
-                          if (dialogContext.mounted) {
-                            Navigator.pop(dialogContext);
-                          }
-                        },
-                        child: const Text('Iniciar ahora'),
-                      ),
+                      if (error != null)
+                        Text(
+                          error!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      if (!lan.paired &&
+                          lan.isPhone &&
+                          !lan.pairingPending) ...[
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Selecciona tu computador en la misma WiFi:',
+                        ),
+                        if (lan.desktops.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              'Buscando Omarchy… Abre el servicio de nikucode en Linux.',
+                            ),
+                          ),
+                        for (final desktop in lan.desktops)
+                          ListTile(
+                            title: Text(desktop.name),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () =>
+                                action(() => lan.requestPair(desktop.id)),
+                          ),
+                        TextButton(
+                          onPressed: () => action(update),
+                          child: const Text('Buscar de nuevo'),
+                        ),
+                      ],
+                      if (!lan.paired && !lan.isPhone && !lan.pairingPending)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 14),
+                          child: Text(
+                            'Abre nikucode en Android y elige este computador.',
+                          ),
+                        ),
+                      if (!lan.paired && lan.pairingPending) ...[
+                        const SizedBox(height: 16),
+                        if (grouped == null)
+                          const Text(
+                            'Esperando conexión para mostrar la clave…',
+                          )
+                        else ...[
+                          const Text(
+                            'Compara los 16 caracteres en ambos equipos:',
+                          ),
+                          const SizedBox(height: 8),
+                          SelectableText(
+                            grouped,
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Confirma solo si la clave coincide exactamente.',
+                          ),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              if (lan.confirming)
+                                const Text('Esperando al otro dispositivo…')
+                              else
+                                FilledButton(
+                                  onPressed: () => action(lan.confirmPair),
+                                  child: const Text('Coincide, confirmar'),
+                                ),
+                              OutlinedButton(
+                                onPressed: () => action(lan.rejectPair),
+                                child: const Text('Rechazar'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                      if (lan.canSchedule) ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Programa o cancela las señales desde «Avisos, si los quieres» '
+                          'en la pantalla principal. La misma invitación aparecerá aquí '
+                          'y en Android.',
+                        ),
+                      ],
+                      if (lan.paired)
+                        TextButton(
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: dialogContext,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Desvincular dispositivos'),
+                                content: const Text(
+                                  'Se retirará el acceso en este dispositivo. '
+                                  'Si el otro está desconectado, desvincúlalo allí también.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Volver'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Desvincular'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirmed == true) await action(lan.unpair);
+                          },
+                          child: const Text('Desvincular'),
+                        ),
                     ],
                   ),
-                  if (lan.pendingLabel != null)
-                    TextButton(
-                      onPressed: () => lan.cancelPending(),
-                      child: const Text('Retirar solicitudes pendientes'),
-                    ),
-                ],
-                if (lan.paired)
+                ),
+                actions: [
                   TextButton(
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: dialogContext,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Desvincular dispositivos'),
-                          content: const Text(
-                            'Se retirará el acceso en este dispositivo. Si el otro está desconectado, desvincúlalo allí también para retirar sus pausas pendientes.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Volver'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Desvincular'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirmed != true) return;
-                      try {
-                        await lan.unpair();
-                        if (dialogContext.mounted) setState(() => error = null);
-                      } catch (failure) {
-                        if (dialogContext.mounted) {
-                          setState(() => error = '$failure');
-                        }
-                      }
-                    },
-                    child: const Text('Desvincular'),
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('Cerrar'),
                   ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cerrar'),
-            ),
-            if (!lan.isPhone)
-              FilledButton(
-                onPressed: () async {
-                  try {
-                    await lan.pair(
-                      address.text.trim(),
-                      int.tryParse(port.text.trim()) ?? 0,
-                      code.text,
-                      pin.text,
-                    );
-                    if (dialogContext.mounted) setState(() => error = null);
-                  } catch (failure) {
-                    if (dialogContext.mounted) {
-                      setState(() => error = '$failure');
-                    }
-                  }
-                },
-                child: const Text('Emparejar'),
-              ),
-          ],
-        ),
+                ],
+              );
+            },
+          );
+        },
       ),
-    ),
-  );
-  address.dispose();
-  port.dispose();
-  code.dispose();
-  pin.dispose();
+    );
+  } finally {
+    refresh.cancel();
+    await lan.stopScan();
+  }
 }

@@ -18,7 +18,11 @@ Future<void> main(List<String> arguments) async {
   final preferences = await AppPreferencesController.load();
   final history = await InteractionHistory.load();
   final lan = await createLanPause(history);
-  final viewModel = PauseViewModel(channel: reminderChannel, history: history);
+  final viewModel = PauseViewModel(
+    channel: reminderChannel,
+    history: history,
+    lan: lan,
+  );
   runApp(PauseApp(viewModel: viewModel, preferences: preferences, lan: lan));
   if (arguments.contains('--daemon')) {
     WidgetsBinding.instance.addPostFrameCallback(
@@ -80,6 +84,12 @@ class _PauseAppState extends State<PauseApp> {
       setState(() => _remainingSeconds = _guideMinutes * 60);
       widget.viewModel.openProposal();
     };
+    _lan.onPairingRequested = () {
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(showLanPauseDialog(context, _lan));
+      });
+    };
   }
 
   void _onViewModelChanged() {
@@ -119,8 +129,8 @@ class _PauseAppState extends State<PauseApp> {
     _guideTimer?.cancel();
     widget.viewModel.removeListener(_onViewModelChanged);
     _lan.onStartPause = null;
-    _lan.dispose();
     widget.viewModel.dispose();
+    _lan.dispose();
     _preferences.dispose();
     super.dispose();
   }
@@ -731,7 +741,11 @@ Future<void> _showReminders(
     listenable: vm,
     builder: (context, _) => AlertDialog(
       scrollable: true,
-      title: const Text('Avisos de este dispositivo'),
+      title: Text(
+        vm.sharedReminders
+            ? 'Avisos en Android y Omarchy'
+            : 'Avisos de este dispositivo',
+      ),
       content: SizedBox(
         width: 420,
         child: Column(
@@ -740,28 +754,29 @@ Future<void> _showReminders(
           children: [
             Text(vm.channelScope),
             const SizedBox(height: 12),
-            MergeSemantics(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text('Habilitar avisos en esta sesión'),
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: Switch(
-                      value: vm.remindersEnabled,
-                      onChanged: vm.channelSupported
-                          ? vm.setRemindersEnabled
-                          : null,
+            if (!vm.receivesSharedReminders)
+              MergeSemantics(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Habilitar avisos en esta sesión'),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Switch(
+                        value: vm.remindersEnabled,
+                        onChanged: vm.channelSupported
+                            ? vm.setRemindersEnabled
+                            : null,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            if (!vm.channelSupported)
+            if (!vm.receivesSharedReminders && !vm.channelSupported)
               const Text(
                 'El canal de avisos aún no está disponible aquí. Puedes abrir una pausa manualmente.',
               ),
-            if (vm.remindersEnabled) ...[
+            if (!vm.receivesSharedReminders && vm.remindersEnabled) ...[
               const SizedBox(height: 16),
               const Text('Elige un intervalo para la invitación'),
               const SizedBox(height: 12),

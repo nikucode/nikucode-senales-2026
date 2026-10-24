@@ -1,5 +1,33 @@
 # Registro de contribuciones · Javier González
 
+## 2026-10-24 · Una señal en Android y Omarchy
+
+- **Tarea:** al elegir «Probar señal en 10 segundos» en Android, recibir la misma invitación en el móvil y Omarchy.
+- **Cambio local:** el control de avisos de Android programa una única hora en la cola LAN y en el servicio nativo del móvil. Omarchy recibe esa hora, muestra el mismo título y texto, y puede posponer la siguiente señal en ambos equipos. Cancelar o reemplazar desde Android retira la programación anterior de los dos lados. Los controles LAN de intervalos separados desaparecieron de la interfaz.
+- **Comprobación:** `flutter analyze --no-pub`, compilación Linux release, compilación aislada de Kotlin y `git diff --check` pasaron. Se agregó una prueba del modelo para la señal compartida y su cancelación, pero Flutter Test no pudo iniciarse porque este entorno no permite abrir su socket local.
+- **Pendiente en dispositivos:** reinstalar Android, actualizar el servicio Linux y observar el aviso de 10 segundos en ambos. Los cambios no se subieron a Git.
+- **Clic en Omarchy:** se añadió la acción `default` a la notificación Linux. El clic en su tarjeta abre la ventana y muestra la propuesta de pausa, igual que «Iniciar pausa». El análisis Flutter y la compilación Linux release pasaron; falta comprobar el clic en la sesión gráfica real tras reinstalar el complemento.
+
+## 2026-10-24 · Corrección del handshake TLS Android–Omarchy
+
+- **Evidencia física:** Avahi publicó la solicitud dirigida al identificador correcto de Omarchy; el servicio Linux registró `HandshakeException: Connection terminated during handshake`. El logcat del móvil mostró `RSA routines:OPENSSL_internal:internal error` dentro de Conscrypt durante `SSLServerSocket.startHandshake()`.
+- **Causa y cambio:** la clave RSA v2 de AndroidKeystore autorizaba firma, pero no `ENCRYPTION_PADDING_NONE`. [La documentación de Android](https://developer.android.com/reference/android/security/keystore/KeyGenParameterSpec.Builder#setEncryptionPaddings(java.lang.String...)) y [un caso de Conscrypt con el mismo error](https://github.com/google/conscrypt/issues/718) indican que esta autorización se requiere para la operación RSA del handshake. La nueva identidad v3 la incluye. Se mantiene la identidad v2 si ya existe una credencial emparejada; una instalación todavía sin emparejar crea v3 y retira la clave fallida.
+- **Comprobación y límite:** los archivos Kotlin compilaron por separado con Android API 36, Flutter embedding y el compilador 2.2.21 en caché. Falta reinstalar el APK y repetir el emparejamiento físico; esta compilación no equivale a un build APK. Los cambios siguen locales.
+
+## 2026-10-24 · Diagnóstico del emparejamiento en Omarchy
+
+- **Observado en el equipo:** Android publicó la solicitud temporal por Avahi con `target` igual al identificador local de Omarchy y un `nonce` de 32 caracteres. El anuncio ya llega por IPv4, pero aún no se ha confirmado la conexión TLS ni el emparejamiento.
+- **Ajuste local:** Linux espera hasta 6 segundos por la resolución de Avahi y registra en el journal los errores de conexión. El instalador prepara el paquete completo en un directorio nuevo, detiene el servicio y cambia de versión conservando los archivos anteriores para ventanas aún abiertas. El journal había mostrado cierres `SIGBUS` durante las actualizaciones del paquete; copiar una biblioteca mapeada mientras el proceso sigue activo es una causa probable, todavía no confirmada por el core.
+- **Comprobación:** `flutter analyze --no-pub`, `flutter build linux --release --no-pub`, `bash -n linux/install-companion.sh` y `git diff --check` pasaron. Falta repetir el emparejamiento con el servicio Linux actualizado y revisar su journal si vuelve a fallar. Los cambios siguen locales.
+
+## 2026-10-24 · Emparejamiento local inspirado en Flux
+
+- **Tarea:** sustituir IP/puerto/PIN manuales por descubrimiento de Omarchy desde Android, clave de comparación en ambas pantallas y reconexión sin repetir el emparejamiento.
+- **Implementación local:** Avahi anuncia el computador; NSD lo descubre en Android. Una solicitud dirigida al identificador del computador hace que Linux abra TLS hacia el móvil. Ambos calculan una clave de 16 caracteres para esa conexión y confirman antes de guardar la credencial. El cliente Linux fija el certificado y consulta el puerto anunciado; la ventana y el servicio comparten estado por socket Unix privado. Android mueve su servidor y cola a un servicio de primer plano `connectedDevice`, con aviso persistente, migración de solicitudes previas y resultados para Mi panorama al abrir la app. Se conservaron las credenciales previas.
+- **Comprobaciones observadas:** `flutter analyze --no-pub` y la compilación Linux debug pasaron; un comprobador Dart de anuncios Avahi pasó. Los archivos Kotlin compilaron de forma independiente con un compilador en caché, Android API 36 y el embedding Flutter; esta comprobación no equivale a generar un APK.
+- **Límites:** Gradle sigue sin iniciar por la restricción de sockets del entorno; Flutter Test y ADB tampoco pueden abrir sus sockets. No se ha ejecutado el nuevo flujo en el teléfono ni se ha observado una pausa con la pantalla Android cerrada. Falta verificar NSD, Avahi, el aviso de primer plano y la restauración tras reinicio en los dispositivos reales.
+- **Estado Git:** cambios nuevos locales sobre `javi/panorama-pausas-locales`; no se han publicado.
+
 ## 2026-10-24 · Pausas Android–Omarchy por WiFi local
 
 - **Tarea:** implementar emparejamiento, programación puntual desde Android, aviso con iniciar/posponer en Omarchy, guía temporizada y sincronización de interacciones sin IA ni nube.

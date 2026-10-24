@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nikucode_senales/lan_pause.dart';
 import 'package:nikucode_senales/pause_view_model.dart';
 import 'package:nikucode_senales/reminder_channel.dart';
 
@@ -48,7 +49,99 @@ class FakeChannel extends ReminderChannel {
   void dispose() => disposed = true;
 }
 
+class FakeSharedLan extends LanPause {
+  DateTime? dueAt;
+  int? invitationId;
+  int cancellations = 0;
+
+  @override
+  bool get available => true;
+  @override
+  bool get isPhone => true;
+  @override
+  bool get paired => true;
+  @override
+  bool get canSchedule => true;
+  @override
+  String get status => 'Conectado';
+  @override
+  String? get pendingLabel => null;
+  @override
+  DateTime? get sharedReminderAt => dueAt;
+  @override
+  int? get sharedReminderId => invitationId;
+  @override
+  Future<LanPairingInfo?> pairingInfo() async => null;
+  @override
+  Future<void> pair(String address, int port, String code, String pin) async {}
+  @override
+  Future<void> unpair() async {}
+  @override
+  Future<void> schedule(Duration delay) async {}
+  @override
+  Future<void> scheduleSharedReminder(DateTime nextDueAt, int id) async {
+    dueAt = nextDueAt;
+    invitationId = id;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> startNow() async {}
+  @override
+  Future<void> cancelPending() async {
+    cancellations++;
+    dueAt = null;
+    invitationId = null;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> startService() async {}
+  @override
+  Future<void> recordSession(String id, String kind) async {}
+}
+
 void main() {
+  testWidgets(
+    'paired signal is queued for both devices without local Dart delivery',
+    (tester) async {
+      final channel = FakeChannel();
+      final lan = FakeSharedLan();
+      final model = PauseViewModel(channel: channel, lan: lan);
+      await model.setRemindersEnabled(true);
+      await model.scheduleReminder(const Duration(seconds: 10));
+
+      expect(model.sharedReminders, isTrue);
+      expect(lan.dueAt, isNotNull);
+      expect(lan.invitationId, isNotNull);
+      expect(model.reminderAt, lan.dueAt);
+      await tester.pump(const Duration(seconds: 10));
+      expect(channel.shown, isEmpty);
+      expect(model.hasPendingReminder, isFalse);
+      model.dispose();
+    },
+  );
+
+  testWidgets('replacing a paired signal cancels its previous LAN schedule', (
+    tester,
+  ) async {
+    final channel = FakeChannel();
+    final lan = FakeSharedLan();
+    final model = PauseViewModel(channel: channel, lan: lan);
+    await model.setRemindersEnabled(true);
+    await model.scheduleReminder(const Duration(minutes: 5));
+    final firstId = lan.invitationId;
+
+    await model.scheduleReminder(const Duration(seconds: 10));
+    expect(lan.cancellations, 2);
+    expect(lan.invitationId, isNot(firstId));
+    await model.cancelReminder();
+    expect(lan.cancellations, 3);
+    expect(lan.dueAt, isNull);
+    model.dispose();
+    await tester.pump();
+  });
+
   testWidgets('native-validated session invitation opens only once', (
     tester,
   ) async {

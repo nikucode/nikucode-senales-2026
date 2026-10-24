@@ -33,12 +33,59 @@ class MainActivity : FlutterActivity() {
         private const val EXTRA_REMINDER_ID = "nikucode.reminder_id"
         private const val INVITATION_PREFS = "nikucode.reminder_state"
         private const val ACTIVE_INVITATION_ID = "active_invitation_id"
+
+        private fun platformNotificationId(id: Long): Int =
+            (id xor (id ushr 32)).toInt() and Int.MAX_VALUE
+
+        /** Also used by the LAN service when the Flutter screen is closed. */
+        internal fun publishReminder(context: Context, id: Long) {
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !manager.areNotificationsEnabled()) {
+                throw IllegalStateException("Notifications are unavailable or permission was denied")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                manager.createNotificationChannel(NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID, "Invitaciones de pausa",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ))
+            }
+            val openApp = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(EXTRA_REMINDER_ID, id)
+            }
+            val notificationId = platformNotificationId(id)
+            val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or
+                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            val pendingIntent = PendingIntent.getActivity(
+                context, notificationId, openApp, pendingIntentFlags,
+            )
+            @Suppress("DEPRECATION")
+            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
+            } else Notification.Builder(context)
+            val notification = builder
+                .setSmallIcon(context.applicationInfo.icon)
+                .setContentTitle("¿Un momento para moverte?")
+                .setContentText("Hay una propuesta breve. Tú eliges el momento.")
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+            val state = context.getSharedPreferences(INVITATION_PREFS, Context.MODE_PRIVATE)
+            if (!state.edit().putLong(ACTIVE_INVITATION_ID, id).commit()) {
+                throw IllegalStateException("Could not record the active invitation ID")
+            }
+            try {
+                manager.notify(notificationId, notification)
+            } catch (error: Exception) {
+                state.edit().remove(ACTIVE_INVITATION_ID).commit()
+                throw error
+            }
+        }
     }
 
     private var bridge: MethodChannel? = null
     private var usageBridge: MethodChannel? = null
     private var lanBridge: MethodChannel? = null
-    private var lanServer: LanPauseServer? = null
     private var permissionResult: MethodChannel.Result? = null
     private var pendingReminderId: Long? = null
     private var pendingReminderDelivery = false
@@ -69,6 +116,7 @@ class MainActivity : FlutterActivity() {
                     }
                     "cancelReminders" -> {
                         invalidatePendingOpen()
+                        val activeId = invitationPreferences().getLong(ACTIVE_INVITATION_ID, 0L)
                         if (!clearActiveInvitation()) {
                             result.error(
                                 "cancel_failed",
@@ -76,7 +124,9 @@ class MainActivity : FlutterActivity() {
                                 null,
                             )
                         } else {
-                            notificationManager().cancelAll()
+                            if (activeId > 0L) {
+                                notificationManager().cancel(platformNotificationId(activeId))
+                            }
                             result.success(true)
                         }
                     }
@@ -131,27 +181,44 @@ class MainActivity : FlutterActivity() {
             }
         }
         lanBridge = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LAN_CHANNEL)
-        lanServer = LanPauseServer(this, lanBridge!!)
         lanBridge?.setMethodCallHandler { call, result ->
-            when (call.method) {
-                "pairingInfo" -> {
-                    try {
-                        result.success(lanServer?.pairingInfo())
-                    } catch (error: Exception) {
-                        result.error("pairing_unavailable", error.message, null)
+            try {
+                val endpoint = LanPauseService.instance?.endpoint
+                val queue = LanPauseService.instance?.queue ?: LanPauseStore(this)
+                when (call.method) {
+                    "startLan" -> { LanPauseService.start(this); result.success(true) }
+                    "lanRunning" -> result.success(LanPauseService.instance != null)
+                    "discoverDesktops" -> result.success(endpoint?.discoverDesktops() ?: emptyList<Map<String, String>>())
+                    "stopDiscovery" -> { endpoint?.stopDiscovery(); result.success(true) }
+                    "beginPair" -> result.success(endpoint?.beginPair(call.arguments as? String ?: "") ?: false)
+                    "pairingState" -> result.success(endpoint?.pairingState() ?: mapOf("pending" to false))
+                    "confirmPair" -> result.success(endpoint?.confirmPair() == true)
+                    "rejectPair" -> { endpoint?.rejectPair(); result.success(true) }
+                    "isPaired" -> result.success(
+                        getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
+                            .getString("token", null) != null,
+                    )
+                    "queueImport" -> result.success(queue.importLegacy(call.arguments as String))
+                    "queueAdd" -> result.success(queue.enqueue(org.json.JSONObject(call.arguments as String)))
+                    "queueCancel" -> result.success(queue.cancel())
+                    "queueSnapshot" -> result.success(queue.snapshot())
+                    "queueEvents" -> result.success(queue.events().toString())
+                    "queueAck" -> result.success(queue.acknowledge((call.arguments as List<*>)
+                        .filterIsInstance<String>().toSet()))
+                    "unpair" -> {
+                        val removed = getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
+                            .edit().remove("token").remove("desktop_id")
+                            .putBoolean("enabled", false).commit() && queue.clear()
+                        if (removed) {
+                            endpoint?.revoke()
+                            stopService(Intent(this, LanPauseService::class.java))
+                        }
+                        result.success(removed)
                     }
+                    else -> result.notImplemented()
                 }
-                "isPaired" -> result.success(
-                    getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
-                        .getString("token", null) != null,
-                )
-                "unpair" -> {
-                    val removed = getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
-                        .edit().remove("token").commit()
-                    if (removed) lanServer?.revoke()
-                    result.success(removed)
-                }
-                else -> result.notImplemented()
+            } catch (error: Exception) {
+                result.error("lan_failed", error.message, null)
             }
         }
         deliverPendingReminder()
@@ -159,12 +226,10 @@ class MainActivity : FlutterActivity() {
 
     override fun onStart() {
         super.onStart()
-        lanServer?.start()
-    }
-
-    override fun onStop() {
-        lanServer?.stop()
-        super.onStop()
+        if (getSharedPreferences("nikucode_lan_v1", Context.MODE_PRIVATE)
+                .getBoolean("enabled", false)) {
+            try { LanPauseService.start(this) } catch (_: Exception) {}
+        }
     }
 
     private fun hasUsageAccess(): Boolean {
@@ -281,62 +346,7 @@ class MainActivity : FlutterActivity() {
 
     private fun showReminder(id: Long) {
         invalidatePendingOpen()
-        val manager = notificationManager()
-        if (!notificationsAllowed()) {
-            throw IllegalStateException("Notifications are unavailable or permission was denied")
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            manager.createNotificationChannel(
-                NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
-                    "Invitaciones de pausa",
-                    NotificationManager.IMPORTANCE_DEFAULT,
-                ),
-            )
-        }
-
-        val openApp = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(EXTRA_REMINDER_ID, id)
-        }
-        val notificationId = platformNotificationId(id)
-        val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or
-            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_IMMUTABLE
-            } else {
-                0
-            })
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            notificationId,
-            openApp,
-            pendingIntentFlags,
-        )
-        @Suppress("DEPRECATION")
-        val notificationBuilder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-        } else {
-            Notification.Builder(this)
-        }
-        val notification = notificationBuilder
-            .setSmallIcon(applicationInfo.icon)
-            .setContentTitle("¿Un momento para moverte?")
-            .setContentText("Hay una propuesta breve. Tú eliges el momento.")
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
-
-        // Persist only this opaque invitation ID, never its timer or reminder
-        // preference. A tap is accepted only when Android returns this ID.
-        if (!invitationPreferences().edit().putLong(ACTIVE_INVITATION_ID, id).commit()) {
-            throw IllegalStateException("Could not record the active invitation ID")
-        }
-        try {
-            manager.notify(notificationId, notification)
-        } catch (error: Exception) {
-            clearActiveInvitation()
-            throw error
-        }
+        publishReminder(this, id)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -420,9 +430,6 @@ class MainActivity : FlutterActivity() {
 
     private fun clearActiveInvitation(): Boolean =
         invitationPreferences().edit().remove(ACTIVE_INVITATION_ID).commit()
-
-    private fun platformNotificationId(id: Long): Int =
-        (id xor (id ushr 32)).toInt() and Int.MAX_VALUE
 
     override fun onDestroy() {
         bridge = null

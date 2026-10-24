@@ -11,6 +11,7 @@ struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
   gboolean daemon_mode;
+  GtkWindow* window;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
@@ -38,8 +39,14 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
+  if (self->window != nullptr) {
+    gtk_widget_show(GTK_WIDGET(self->window));
+    gtk_window_present(self->window);
+    return;
+  }
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
+  self->window = window;
   if (self->daemon_mode) {
     g_signal_connect(window, "delete-event", G_CALLBACK(gtk_widget_hide_on_delete),
                      nullptr);
@@ -113,6 +120,7 @@ static gboolean my_application_local_command_line(GApplication* application,
   // Strip out the first argument as it is the binary name.
   self->dart_entrypoint_arguments = g_strdupv(*arguments + 1);
   self->daemon_mode = FALSE;
+  self->window = nullptr;
   for (char** argument = self->dart_entrypoint_arguments; *argument != nullptr;
        ++argument) {
     if (g_strcmp0(*argument, "--daemon") == 0) self->daemon_mode = TRUE;
