@@ -74,7 +74,7 @@ Las preferencias de contraste, tamaño de texto y movimiento reducido se aplican
 
 ```sh
 flutter analyze --no-pub
-flutter test --no-pub --concurrency=1 test/pause_view_model_test.dart test/widget_test.dart test/android_reminder_channel_test.dart
+flutter test --no-pub --concurrency=1
 flutter build linux --debug --no-pub
 flutter build web --no-pub --no-web-resources-cdn --no-wasm-dry-run
 ```
