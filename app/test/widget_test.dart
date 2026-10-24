@@ -140,6 +140,11 @@ void main() {
     await tester.ensureVisible(find.text('Guardar en este dispositivo'));
     await tester.tap(find.text('Guardar en este dispositivo'));
     await tester.pumpAndSettle();
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'guardar un apodo no debe lanzar una excepción',
+    );
     expect(find.text('Hola, Alex'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Mi espacio'));
@@ -150,6 +155,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'borrar y cerrar el perfil no debe lanzar una excepción',
+    );
     expect(find.text('Haz espacio para moverte'), findsOneWidget);
     expect(find.textContaining('Hola,'), findsNothing);
 
@@ -160,6 +170,11 @@ void main() {
     await tester.ensureVisible(find.text('Guardar en este dispositivo'));
     await tester.tap(find.text('Guardar en este dispositivo'));
     await tester.pumpAndSettle();
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'guardar un apodo vacío no debe lanzar una excepción',
+    );
     expect(find.text('Haz espacio para moverte'), findsOneWidget);
     expect(find.textContaining('Hola,'), findsNothing);
     expect(tester.takeException(), isNull);
